@@ -1,0 +1,4 @@
+/data/text/raw/*
+/data/text/processed/*
+/data/text/models/*
+/data/text/graphs/*
