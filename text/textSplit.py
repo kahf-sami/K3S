@@ -3,7 +3,7 @@ import re
 
 bookTitle = 'SAHIH BUKHARI'
 bookPrefix = 'bukhari_'
-saveLocation = 'data/hadith/'
+saveLocation = 'data/text/raw/hadith/'
 
 def scan(directoryPath):
     filePaths = []
@@ -132,8 +132,8 @@ def saveHadith(item):
     return
 
 def scanDirectoryAndSaveHadith():
-    allFiles = scan("data/bukhari")
-    oldFilePath = 'data/hadith/bukhari_init.txt'
+    allFiles = scan("data/text/raw/bukhari")
+    oldFilePath = 'data/text/raw/hadith/bukhari_init.txt'
     i = 0
     for filePath in allFiles:
         #print("------------------------------------------")

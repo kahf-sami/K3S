@@ -8,67 +8,6 @@
 #
 #
 
-import sys
-import pandas
-import math
-import tensorflow as tf
-from tensorflow.contrib import learn
-from tensorflow.python.framework import ops
-
-#ops.reset_default_graph()
-
-# Start a graph session
-#sess = tf.Session()
-
-# Load data from a csv file
-csv_reader = pandas.read_csv('data/text/processed/samplePfizerText7Row.csv', sep=',',header=[1,2])
-text_data = csv_reader.values
-
-print("Total number of rows fetched: ", len(text_data))
-text_input = []
-target_output = []
-max_block_length = 0
-
-for _, input, output in text_data:
-    text_input.append(input)
-    targets = [x for x in output.split(',') if x]
-    for target in targets:
-        text_input.append(input)
-        target_output.append(target)
-    number_of_words_in_input = len(input.split(' '))
-    if number_of_words_in_input > max_block_length:
-        print(number_of_words_in_input)
-        max_block_length = number_of_words_in_input
-
-print("Total number of rows after extraction: ", len(target_output))
-print("Max block length: ",  max_block_length)
-
-
-# If a word appears in 50% of the document ignore it
-min_word_freq = math.ceil(len(text_data) * 5 / 100)
-
-print("Min word frequency: ", min_word_freq)
-
-# Setup vocabulary processor
-vocab_processor = learn.preprocessing.VocabularyProcessor(max_block_length, min_frequency=min_word_freq)
-
-# Have to fit transform to get length of unique words.
-vocab_processor.fit_transform(texts)
-embedding_size = len(vocab_processor.vocabulary_)
-
-# Split up data set into train/test
-train_indices = np.random.choice(len(texts), round(len(texts)*0.8), replace=False)
-test_indices = np.array(list(set(range(len(texts))) - set(train_indices)))
-texts_train = [x for ix, x in enumerate(texts) if ix in train_indices]
-texts_test = [x for ix, x in enumerate(texts) if ix in test_indices]
-target_train = [x for ix, x in enumerate(target) if ix in train_indices]
-target_test = [x for ix, x in enumerate(target) if ix in test_indices]
-
-
-sys.exit();
-
-
-
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import os

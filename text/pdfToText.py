@@ -25,7 +25,7 @@ def convert(filePath, pages=None):
     text_content = []
     
     for pageNumber, page in enumerate(document.get_pages()):
-        outputFile = open('data/bukhari/' + str(pageNumber) + '_bukhari.txt', 'w');
+        outputFile = open('data/text/raw/bukhari/' + str(pageNumber) + '_bukhari.txt', 'w');
         interpreter.process_page(page)
         layout = device.get_result()
         for lt_obj in layout:
@@ -38,5 +38,5 @@ def convert(filePath, pages=None):
     return text_content
 
 #print(os.path.dirname(os.path.abspath(__file__)))
-text = convert('data/en_Sahih_Al-Bukhari.pdf', pages=[3])
+text = convert('data/text/raw/en_Sahih_Al-Bukhari.pdf')
 print('Finished');
