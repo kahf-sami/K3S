@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as np
-
+import sys
 
 class TextCNN(object):
     """
@@ -10,7 +10,6 @@ class TextCNN(object):
     def __init__(
       self, sequence_length, num_classes, vocab_size,
       embedding_size, filter_sizes, num_filters, l2_reg_lambda=0.0):
-
         # Placeholders for input, output and dropout
         self.input_x = tf.placeholder(tf.int32, [None, sequence_length], name="input_x")
         self.input_y = tf.placeholder(tf.float32, [None, num_classes], name="input_y")
@@ -27,20 +26,34 @@ class TextCNN(object):
             self.embedded_chars = tf.nn.embedding_lookup(W, self.input_x)
             self.embedded_chars_expanded = tf.expand_dims(self.embedded_chars, -1)
 
+        print(vocab_size)
+        print('embedded_chars: ', self.embedded_chars.get_shape())
+        print('embedded_chars_expanded: ', self.embedded_chars_expanded.get_shape())
+        print('input_x: ', self.input_x.get_shape())
+        print('input_y: ', self.input_y.get_shape())
+        
         # Create a convolution + maxpool layer for each filter size
         pooled_outputs = []
         for i, filter_size in enumerate(filter_sizes):
             with tf.name_scope("conv-maxpool-%s" % filter_size):
                 # Convolution Layer
                 filter_shape = [filter_size, embedding_size, 1, num_filters]
+                print('filter_shape: ', filter_shape)
+                
                 W = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.1), name="W")
                 b = tf.Variable(tf.constant(0.1, shape=[num_filters]), name="b")
+                print('W: ', W.get_shape())
+                print('b: ', b.get_shape())
+                
                 conv = tf.nn.conv2d(
                     self.embedded_chars_expanded,
                     W,
                     strides=[1, 1, 1, 1],
                     padding="VALID",
                     name="conv")
+                    
+                print(conv)
+                sys.exit()
                 # Apply nonlinearity
                 h = tf.nn.relu(tf.nn.bias_add(conv, b), name="relu")
                 # Maxpooling over the outputs

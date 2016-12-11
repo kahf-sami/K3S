@@ -14,24 +14,24 @@ from text_cnn import TextCNN
 import data_helpers
 
 # Load data from a csv file
-csv_reader = pandas.read_csv('data/text/processed/sample0.csv', sep=',',header=[1,2])
-text_data = csv_reader.values
-"""text_data =[['The cat sat on the mat', 1],
-            ['Cat eat fish', 1],
-            ['Dog has 4 legs', 0],
-            ['Dog is scary', 0],
-            ['Cat chases rat', 1],
-            ['I have no cat', 1],
-            ['I have nor rat', 0],
-            ['Rats are running', 0],
-            ['A cat is climbing', 1],
-            ['Cat likes milk',1],
-            ['Milk is good for health',0],
-            ['Babies like cat', 1],
-            ['Testing a program', 0],
-            ['Trying to make it work', 0],
-            ['Will it work', 0]];
-"""
+#csv_reader = pandas.read_csv('data/text/processed/sample0.csv', sep=',',header=[1,2])
+#text_data = csv_reader.values
+text_data =[['1', 'The cat sat on the mat', 1],
+            ['1','Cat eat fish', 1],
+            ['1','Dog has 4 legs', 0],
+            ['1','Dog is scary', 0],
+            ['1','Cat chases rat', 1],
+            ['1','I have no cat', 1],
+            ['1','I have no rat', 0],
+            ['1','Rats are running', 0],
+            ['1','A cat is climbing', 1],
+            ['1','Cat likes milk',1],
+            ['1','Milk is good for health',0],
+            ['1','Babies like cat', 1],
+            ['1','Testing a program', 0],
+            ['1','Trying to make it work', 0],
+            ['1','Will it work', 0]];
+
 print("Total number of rows fetched: ", len(text_data))
 text_input = []
 target_output = []
@@ -39,7 +39,6 @@ max_block_length = 0
 
 for row in text_data:
     text_input.append(row[1])
-    #target_output.append(row[2])
     if row[2] == 1:
         target_output.append([1])
     else:
@@ -61,9 +60,9 @@ tf.flags.DEFINE_float("dev_sample_percentage", .1, "Percentage of the training d
 #tf.flags.DEFINE_string("negative_data_file", "./data/rt-polaritydata/rt-polarity.neg", "Data source for the positive data.")
 
 # Model Hyperparameters
-tf.flags.DEFINE_integer("embedding_dim", 128, "Dimensionality of character embedding (default: 128)")
-tf.flags.DEFINE_string("filter_sizes", "3,4,5", "Comma-separated filter sizes (default: '3,4,5')")
-tf.flags.DEFINE_integer("num_filters", 128, "Number of filters per filter size (default: 128)")
+tf.flags.DEFINE_integer("embedding_dim", 5, "Dimensionality of character embedding (default: 128)")
+tf.flags.DEFINE_string("filter_sizes", "3", "Comma-separated filter sizes (default: '3,4,5')")
+tf.flags.DEFINE_integer("num_filters", 2, "Number of filters per filter size (default: 128)")
 tf.flags.DEFINE_float("dropout_keep_prob", 0.5, "Dropout keep probability (default: 0.5)")
 tf.flags.DEFINE_float("l2_reg_lambda", 0.0, "L2 regularizaion lambda (default: 0.0)")
 
@@ -92,6 +91,7 @@ max_document_length = max_block_length
 vocab_processor = learn.preprocessing.VocabularyProcessor(max_document_length)
 x = np.array(list(vocab_processor.fit_transform(x_text)))
 
+
 x_shuffled = []
 y_shuffled = []
 # Randomly shuffle data
@@ -111,6 +111,7 @@ y_train, y_dev = y_shuffled[:dev_sample_index], y_shuffled[dev_sample_index:]
 print("Vocabulary Size: {:d}".format(len(vocab_processor.vocabulary_)))
 print("Train/Dev split: {:d}/{:d}".format(len(y_train), len(y_dev)))
 
+
 # Training
 # ==================================================
 
@@ -120,6 +121,8 @@ with tf.Graph().as_default():
       log_device_placement=FLAGS.log_device_placement)
     sess = tf.Session(config=session_conf)
     with sess.as_default():
+        print('========1==========')
+        print('sequence length: ' , max_document_length)
         cnn = TextCNN(
             sequence_length=max_document_length,
             num_classes=1,
@@ -128,7 +131,7 @@ with tf.Graph().as_default():
             filter_sizes=list(map(int, FLAGS.filter_sizes.split(","))),
             num_filters=FLAGS.num_filters,
             l2_reg_lambda=FLAGS.l2_reg_lambda)
-
+        print('========2==========')
         # Define Training procedure
         global_step = tf.Variable(0, name="global_step", trainable=False)
         optimizer = tf.train.AdamOptimizer(1e-3)
@@ -187,8 +190,10 @@ with tf.Graph().as_default():
               cnn.input_y: y_batch,
               cnn.dropout_keep_prob: FLAGS.dropout_keep_prob
             }
-           
-
+            print('========3==========')
+            print(x_batch)
+            print(y_batch)
+            sys.exit()
             _, step, summaries, loss, accuracy = sess.run(
                 [train_op, global_step, train_summary_op, cnn.loss, cnn.accuracy],
                 feed_dict)
@@ -214,7 +219,10 @@ with tf.Graph().as_default():
             if writer:
                 writer.add_summary(summaries, step)
 
-
+        print(x_train)
+        print(y_train)
+        train_step(x_train, y_train)
+"""
         # Generate batches
         batches = data_helpers.batch_iter(
             list(zip(x_train, y_train)), FLAGS.batch_size, FLAGS.num_epochs)
@@ -238,3 +246,4 @@ with tf.Graph().as_default():
             if current_step % FLAGS.checkpoint_every == 0:
                 path = saver.save(sess, checkpoint_prefix, global_step=current_step)
                 print("Saved model checkpoint to {}\n".format(path))
+"""

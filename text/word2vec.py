@@ -21,6 +21,32 @@ import urllib.request
 import text_helpers
 from nltk.corpus import stopwords
 from tensorflow.python.framework import ops
+import pandas
+
+csv_reader = pandas.read_csv('data/text/processed/sample0.csv', sep=',',header=[1,2])
+text_data = csv_reader.values
+print("Total number of rows fetched: ", len(text_data))
+
+text_input = []
+target_output = []
+max_block_length = 0
+
+for row in text_data:
+    text_input.append(row[1])
+    #target_output.append(row[2])
+    if row[2] == 1:
+        target_output.append([1])
+    else:
+        target_output.append([0])
+    
+    number_of_words_in_input = len(row[1].split(' '))
+    if number_of_words_in_input > max_block_length:
+        max_block_length = number_of_words_in_input
+
+print("Total number of rows after extraction: ", len(target_output))
+print("Max block length: ",  max_block_length)
+
+
 ops.reset_default_graph()
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
@@ -39,12 +65,14 @@ stops = stopwords.words('english')
 
 # Load Data
 print('Loading Data')
-data_folder_name = 'temp'
-texts, target = text_helpers.load_movie_data(data_folder_name)
+#data_folder_name = 'temp'
+#texts, target = text_helpers.load_movie_data(data_folder_name)
+texts = text_input
+target = target_output
 
 # Normalize text
-print('Normalizing Text Data')
-texts = text_helpers.normalize_text(texts, stops)
+#print('Normalizing Text Data')
+#texts = text_helpers.normalize_text(texts, stops)
 
 # Texts must contain at least 3 words
 target = [target[ix] for ix, x in enumerate(texts) if len(x.split()) > 2]
@@ -59,8 +87,8 @@ target_train = np.array([x for ix, x in enumerate(target) if ix in train_indices
 target_test = np.array([x for ix, x in enumerate(target) if ix in test_indices])
 
 # Load dictionary and embedding matrix
-dict_file = os.path.join(data_folder_name, 'movie_vocab.pkl')
-word_dictionary = pickle.load(open(dict_file, 'rb'))
+#dict_file = os.path.join(data_folder_name, 'movie_vocab.pkl')
+#word_dictionary = pickle.load(open(dict_file, 'rb'))
 
 # Convert texts to lists of indices
 text_data_train = np.array(text_helpers.text_to_numbers(texts_train, word_dictionary))

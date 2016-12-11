@@ -21,6 +21,31 @@ import urllib.request
 import text_helpers
 from nltk.corpus import stopwords
 from tensorflow.python.framework import ops
+import pandas
+
+csv_reader = pandas.read_csv('data/text/processed/sample0.csv', sep=',',header=[1,2])
+text_data = csv_reader.values
+print("Total number of rows fetched: ", len(text_data))
+
+text_input = []
+target_output = []
+max_block_length = 0
+
+for row in text_data:
+    text_input.append(row[1])
+    #target_output.append(row[2])
+    if row[2] == 1:
+        target_output.append([1])
+    else:
+        target_output.append([0])
+    
+    number_of_words_in_input = len(row[1].split(' '))
+    if number_of_words_in_input > max_block_length:
+        max_block_length = number_of_words_in_input
+
+print("Total number of rows after extraction: ", len(target_output))
+print("Max block length: ",  max_block_length)
+
 ops.reset_default_graph()
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
@@ -57,15 +82,18 @@ valid_words = ['love', 'hate', 'happy', 'sad', 'man', 'woman']
 
 # Load the movie review data
 print('Loading Data')
-texts, target = text_helpers.load_movie_data(data_folder_name)
+#texts, target = text_helpers.load_movie_data(data_folder_name)
+texts = text_input
+target = target_output
 
 # Normalize text
-print('Normalizing Text Data')
-texts = text_helpers.normalize_text(texts, stops)
+#print('Normalizing Text Data')
+#texts = text_helpers.normalize_text(texts, stops)
 
 # Texts must contain at least 3 words
 target = [target[ix] for ix, x in enumerate(texts) if len(x.split()) > 2]
 texts = [x for x in texts if len(x.split()) > 2]    
+
 
 # Build our data set and dictionaries
 print('Creating Dictionary')
@@ -74,7 +102,7 @@ word_dictionary_rev = dict(zip(word_dictionary.values(), word_dictionary.keys())
 text_data = text_helpers.text_to_numbers(texts, word_dictionary)
 
 # Get validation word keys
-valid_examples = [word_dictionary[x] for x in valid_words]    
+valid_examples = [word_dictionary[x] for x in word_dictionary]
 
 print('Creating Model')
 # Define Embeddings:
