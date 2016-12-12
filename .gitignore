@@ -4,5 +4,6 @@
 /data/text/processed/*
 /data/text/models/*
 /data/text/graphs/*
-/runs
+/runs/*
+/temp/logs/*
 /K3S/__pycache__/

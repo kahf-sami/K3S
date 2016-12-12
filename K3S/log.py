@@ -1,53 +1,51 @@
 from .config import Config
 import logging
+import os
 
 class Log():
 
-	self.config = None
-	self.logPath = None
-	self.fileName = 'general.log'
-	self.logFilePath = None
-	self.logger = None
-
 	def __init__(self):
-		self.config = K3S.Config()
-		self.logPath = config.LOG_LOCATION
-		self.logFilePath = os.path.join(self.logPath, self.fileName)
+		self.config = Config()
+		self.logPath = self.config.LOG_LOCATION
+		self.fileName = 'general.log'
 		self.setLogger()
 
-	def setName(name):
+	def setName(self, name):
 		self.fileName = name;
 
-	def setPath(path):
+	def setPath(self, path):
 		self.logFilePath = path
 
-	def setLogger():
-		self.logger = logging.basicConfig(self.logFilePath, level=logging.DEBUG, 
-			format='%(levelname)s:%(asctime)s:%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+	def setLogger(self):
+		logFilePath = os.path.join(self.logPath, self.fileName)
+		self.logger = logging
+		self.logger.basicConfig(filename = logFilePath, level = logging.DEBUG, 
+			format = '%(levelname)s:%(asctime)s:%(message)s', datefmt = '%m/%d/%Y %I:%M:%S %p')
 
-	def getLogger():
+
+	def getLogger(self):
 		return self.logger
 
-	def add(message, type = 'info'):
+	def add(self, message, type = 'info'):
 		if type == 'debug':
 			self.logger.debug(message)
-		else if type == 'warn':
+		elif type == 'warn':
 			self.logger.warning(message)
-		else if type == 'error':
+		elif type == 'error':
 			self.logger.error(message)
-		else if  type == 'critical':
+		elif type == 'critical':
 			self.logger.critical(message)
-		else
+		else:
 			self.logger.info(message)
 
-	def debug(message):
+	def debug(self, message):
 		self.add(message, 'debug')
 
-	def error(message):
+	def error(self, message):
 		self.add(message, 'error')
 
-	def critical(message):
+	def critical(self, message):
 		self.add(message, 'critical')
 
-	def warn(message):
+	def warn(self, message):
 		self.add(message, 'warn')
