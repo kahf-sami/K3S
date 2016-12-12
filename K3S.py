@@ -1,5 +1,5 @@
 import K3S
 
-print('in K3S')
+config = K3S.Config()
 
-print(K3S.K3S_PATH)
+print(config.LOG_LOCATION)
