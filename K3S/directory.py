@@ -1,34 +1,54 @@
-from .config import Config
 import os
+import shutil
 
-Class Directory():
+class Directory():
+
 
 	def __init__(self, path = None):
-		self.config = Config()
-		self.dataPath = self.config.DATA_PATH
 		self.path = path
 		self.name = None
+
 
 	def setPath(self, path):
 		self.path = path
 
+
 	def exists(self):
 		return os.path.exists(self.path)
 
-	def create(self):
+
+	def create(self, path = None):
 		if(self.exists()):
 			return
-		os.makedirs(self.path)
 
-	def remove(self):
-		if(!self.exists()):
+		if not path:
+			path = self.path
+		
+		subPath = os.path.dirname(path)
+
+		if not os.path.exists(subPath):
+			self.create(subPath)
+
+		if not os.path.exists(path):
+			os.mkdir(path, 777)
+
+
+	def remove(self, path = None):
+		if(not self.exists()):
 			return
+
+		if not path:
+			path = self.path
+
 		for root, dirs, files in os.walk(self.path, topdown=False):
-			for name in files:
-				os.remove(os.path.join(root, name))
-			for name in dirs:
-				os.rmdir(os.path.join(root, name))
-		os.rmdir(self.path)
+			if files:
+				for name in files:
+					os.remove(os.path.join(root, name))
+			if dirs:
+				for name in dirs:
+					os.rmdir(os.path.join(root, name))
+					
+		
 
 	def scan(self):
-		return next(os.walk(path))[2]
+		return next(os.walk(self.path))[2]

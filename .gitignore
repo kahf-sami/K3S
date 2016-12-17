@@ -1,4 +1,5 @@
 /.DS_Store
+/data/*
 /data/text/.DS_Store
 /data/text/raw/*
 /data/text/processed/*

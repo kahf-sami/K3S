@@ -1,6 +1,10 @@
 from .directory import Directory
 import os
 import zipfile
+import tarfile
+import pandas
+import string
+from shutil import copyfile
 
 class File():
 
@@ -16,41 +20,67 @@ class File():
 		self.file = None
 		self.lines = None
 		self.lineNumber = 0
+		self.writeHeader = True
+
+
+	def getFileName(self):
+		return self.fileName
 
 
 	def exists(self):
 		return os.path.exists(self.path)
 
+
 	def open(self, mode = "w"):
 		self.file = open(self.path, mode)
+
 
 	def close(self):
 		self.file.close()
 
-	def delete(self):
+
+	def remove(self):
 		os.remove(self.path)
 
+
 	def load(self):
+		if self.extension == 'csv':
+			self.file = pandas.read_csv(self.path, sep=',')
+			self.lines = self.file.values
+			return
 		self.open("r")
 		self.lines = self.file.readlines()
 		self.close()
 
-	def write(content):
-		self.open()
-		self.file.write(content)
+
+	def write(self, content, mode = None):
+		if not mode:
+			if self.exists():
+				mode = 'a+'
+			else:
+				mode = 'w+'
+		self.open(mode)
+		if self.extension == 'csv':
+			dataFrame = pandas.DataFrame(content, content.keys())
+			dataFrame.to_csv(self.file, header = self.writeHeader)
+		else:
+			self.file.write(content)
 		self.close()
 
-	def read():
-		if(!self.lines):
-			self.load()
-		return self.lines[]
 
-	def readLine():
-		if(!self.lines):
+	def read(self):
+		if(not self.lines):
+			self.load()
+		return self.lines
+
+
+	def readLine(self):
+		if(not self.lines):
 			self.load()
 		line = self.lines[self.lineNumber]
 		self.lineNumber = self.lineNumber + 1
 		return line
+
 
 	def zip(filePaths):
 		self.file = zipfile.ZipFile(self.path, "w")
@@ -61,8 +91,22 @@ class File():
 			self.file.write(filePaths)
 		self.file.close()
 
+
+	def isPdfFile(self):
+		return self.extension == 'pdf'
+
+
+	def isCsvFile(self):
+		return self.extension == 'csv'
+
+
 	def isZipFile(self):
 		return zipfile.is_zipfile(self.path)
+
+
+	def isTarFile(self):
+		return tarfile.is_tarfile(self.path)
+
 
 	def unzip(self):
 		self.file = zipfile.ZipFile(self.path)
@@ -71,8 +115,20 @@ class File():
 		self.file.close()
 
 
+	def untar(self):
+		destinationPath = self.path.replace(self.fileName, '')
+		tar = tarfile.open(self.path)
+		tar.extractall(destinationPath)
+		tar.close()
+
+
+	@staticmethod
+	def copy(sourcePath, destinationPath):
+		copyfile(sourcePath, destinationPath)
+
+
 	@staticmethod
 	def join(*args):
-		return os.path.join(args)
+		return os.path.join(*args)
 
 
