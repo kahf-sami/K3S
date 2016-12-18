@@ -47,12 +47,12 @@ class File():
 		return
 
 
-	def load(self):
+	def load(self, mode = 'r'):
 		if self.extension == 'csv':
 			self.file = pandas.read_csv(self.path, sep=',')
 			self.lines = self.file.values
 			return
-		self.open("r")
+		self.open(mode)
 		self.lines = self.file.read()
 		self.close()
 		return
@@ -74,9 +74,9 @@ class File():
 		return
 
 
-	def read(self):
+	def read(self, mode = 'r'):
 		if(not self.lines):
-			self.load()
+			self.load(mode)
 		return self.lines
 
 

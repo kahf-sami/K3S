@@ -4,10 +4,10 @@ import colorama
 
 colorama.init()
 
-#processor = K3S.Processor('Bukhari')
+processor = K3S.Processor('Bukhari')
 #processor.createSourceSetup()
-#processor.nlpPreProcessBlocks()
-#sys.exit()
+processor.nlpPreProcessBlocks()
+sys.exit()
 
 #STEP 1. Copy text source file to the required location before starting processing
 

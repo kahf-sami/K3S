@@ -8,10 +8,13 @@ class Directory():
 		self.path = path
 		self.name = None
 
+		return
+
 
 	def setPath(self, path):
 		self.path = path
 
+		return
 
 	def exists(self):
 		return os.path.exists(self.path)
@@ -32,6 +35,7 @@ class Directory():
 		if not os.path.exists(path):
 			os.mkdir(path, 777)
 
+		return
 
 	def remove(self, path = None):
 		if(not self.exists()):
@@ -47,6 +51,8 @@ class Directory():
 			if dirs:
 				for name in dirs:
 					os.rmdir(os.path.join(root, name))
+
+		return
 					
 		
 
