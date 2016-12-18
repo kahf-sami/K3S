@@ -4,6 +4,8 @@ from .directory import Directory
 from .file import File
 from .log import Log
 from .toText import ToText
+from .nlp import NLP
+import sys
 
 
 class Processor():
@@ -15,14 +17,18 @@ class Processor():
 		self.mainPath = File.join(self.config.DATA_PATH, sourceIdentifier)
 		self.rawPath = File.join(self.mainPath, 'raw')
 		self.processedPath = File.join(self.mainPath, 'processed')
+		self.filteredPath = File.join(self.mainPath, 'after-filtered')
 		self.graphsPath = File.join(self.mainPath, 'graphs')
 		self.sourceIdentifier = sourceIdentifier
 		
+		return
 
 
 	def clean(self):
 		directory = Directory(self.mainPath)
 		directory.remove()
+		
+		return
 
 
 	def createSourceSetup(self):
@@ -35,12 +41,18 @@ class Processor():
 		graphDir = Directory(self.graphsPath)
 		processedDir.create()
 
+		filteredDir = Directory(self.filteredPath)
+		filteredDir.create()
+
+		return
+
 
 	def copy(self, sourcePath, destinationPath = None):
 		sourcefile = File(sourcePath)
 		if not destinationPath:
 			destinationPath = File.join(self.rawPath, sourcefile.getFileName())
 		File.copy(sourcePath, destinationPath)
+		return
 
 
 	def extractBlocks(self, path = None):
@@ -78,6 +90,33 @@ class Processor():
 						hasExtracted = True
 
 		return hasExtracted
+
+
+	def nlpPreProcessBlocks(self):
+		processedDir = Directory(self.processedPath)
+
+		files = processedDir.scan()
+
+		if not files:
+			return
+
+		nlpProcessor = NLP()
+		for fileName in files:
+			filePath = File.join(self.processedPath, fileName)
+			file = File(filePath)
+			fileName = file.getFileName()
+			destinationFilePath = File.join(self.filteredPath, fileName)
+			destinationFile = File(destinationFilePath)
+			
+			textBlock = file.read()
+			textBlock = nlpProcessor.getFiltered(textBlock)
+
+			if textBlock:
+				destinationFile.write(textBlock)
+
+		return
+
+
 
 
 

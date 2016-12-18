@@ -21,6 +21,7 @@ class File():
 		self.lines = None
 		self.lineNumber = 0
 		self.writeHeader = True
+		return
 
 
 	def getFileName(self):
@@ -33,14 +34,17 @@ class File():
 
 	def open(self, mode = "w"):
 		self.file = open(self.path, mode)
+		return
 
 
 	def close(self):
 		self.file.close()
+		return
 
 
 	def remove(self):
 		os.remove(self.path)
+		return
 
 
 	def load(self):
@@ -49,8 +53,9 @@ class File():
 			self.lines = self.file.values
 			return
 		self.open("r")
-		self.lines = self.file.readlines()
+		self.lines = self.file.read()
 		self.close()
+		return
 
 
 	def write(self, content, mode = None):
@@ -66,6 +71,7 @@ class File():
 		else:
 			self.file.write(content)
 		self.close()
+		return
 
 
 	def read(self):
@@ -113,6 +119,7 @@ class File():
 		for fileName in self.file.namelist():
 			self.file.read(fileName)
 		self.file.close()
+		return
 
 
 	def untar(self):
@@ -120,11 +127,12 @@ class File():
 		tar = tarfile.open(self.path)
 		tar.extractall(destinationPath)
 		tar.close()
-
+		return
 
 	@staticmethod
 	def copy(sourcePath, destinationPath):
 		copyfile(sourcePath, destinationPath)
+		return
 
 
 	@staticmethod

@@ -18,6 +18,8 @@ class ToText():
 		self.destinationPath = destinationPath
 		self.tempPath = File.join(self.config.DATA_PATH, 'temp')
 
+		return
+
 
 	def convertFromPdf(self):
 		file = open(self.sourcePath, 'rb')
@@ -116,5 +118,6 @@ class ToText():
 	
 
 	def convertFromCsv(self):
-		print('convertFromCSV')
+		print('convertFromCSV ToDo')
 		#--
+		return 

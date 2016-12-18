@@ -6,3 +6,4 @@ from .timer import Timer
 from .directory import Directory
 from .processor import Processor
 from .toText import ToText
+from .nlp import NLP

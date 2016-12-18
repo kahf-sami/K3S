@@ -5,7 +5,8 @@ import colorama
 colorama.init()
 
 #processor = K3S.Processor('Bukhari')
-#processor.extractBlocks()
+#processor.createSourceSetup()
+#processor.nlpPreProcessBlocks()
 #sys.exit()
 
 #STEP 1. Copy text source file to the required location before starting processing
@@ -32,6 +33,11 @@ if filePath:
 
 
 #STEP 2: Extract content from the source file
+print(colorama.Fore.BLUE + 'STEP 2: Extract content from the source file')
 extract = input(colorama.Fore.GREEN + 'Extract text blocks (Y / N): \n' + colorama.Style.RESET_ALL)
 if extract == 'Y':
 	processor.extractBlocks()
+
+shouldPreProcess = input(colorama.Fore.GREEN + 'Should pre-process text (Y / N): \n' + colorama.Style.RESET_ALL)
+if shouldPreProcess == 'Y':
+	processor.nlpPreProcessBlocks()
