@@ -43,7 +43,8 @@ class File():
 
 
 	def remove(self):
-		os.remove(self.path)
+		if self.exists():
+			os.remove(self.path)
 		return
 
 

@@ -4,8 +4,13 @@ from .directory import Directory
 from .file import File
 from .log import Log
 from .toText import ToText
+from .vocabulary import Vocabulary
 from .nlp import NLP
+from .utility import Utility
 import sys
+import re
+from .kMeans import KMeans
+from .TFKMeansCluster import TFKMeansCluster
 
 
 class Processor():
@@ -115,6 +120,64 @@ class Processor():
 				destinationFile.write(textBlock)
 
 		return
+
+
+	def buildVocabulary(self, limit = None):
+		filteredDir = Directory(self.filteredPath)
+		fileNames = filteredDir.scan()
+		
+		if not fileNames:
+			return
+
+		if limit == None:
+			limit = len(fileNames)
+
+		vocab = Vocabulary.restore(self.sourceIdentifier)
+
+		i = 0
+		docs = []
+		#fileNames = ['Volume_1,_Book_12,_Number_790.txt', 'Volume_1,_Book_12,_Number_791.txt', 'Volume_1,_Book_12,_Number_792.txt']
+		for fileName in fileNames:
+			filePath = File.join(self.filteredPath, fileName)
+			file = File(filePath)
+			textBlock = file.read()
+			del file
+			if textBlock:
+				textBlock = textBlock.replace("'", ' ')
+				textBlock = str(textBlock.encode('utf-8', 'replace'))
+				textBlock = re.sub("b'",'', textBlock)
+				textBlock = re.sub("'",'', textBlock)
+				docs.append(textBlock)
+			i += 1
+			if i == limit:
+				break
+
+			#print(fileName)
+			#print(i)
+		
+		vocab.bulidVocabularyFromTextBlock(docs)
+		vocab.transfromTextBlocksToWordIdsMatrix(docs)
+		vocab.useTfIdf(docs)
+		vocab.save()
+
+		return vocab
+
+
+	def calculateKMeans(self):
+		vocab = self.buildVocabulary(10)
+
+		#kmeansProcessor = TFKMeansCluster(vocab.tfidfCalculation, 5)
+		numberOfClusters = 5
+		iteration = 1
+		kmeansProcessor = KMeans(self.sourceIdentifier, numberOfClusters, iteration)
+		kmeansProcessor.setVectors(vocab.tfidfCalculation)
+		print(kmeansProcessor.computeCluster())
+		#data_centroids, samples = kmeansProcessor.createSamples()
+		#print(data_centroids)
+		#print(samples)
+		
+		#kmeansProcessor.computeCluster()
+		print('----------------------FINISHING---------------------------')
 
 
 

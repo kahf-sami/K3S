@@ -7,3 +7,4 @@ from .directory import Directory
 from .processor import Processor
 from .toText import ToText
 from .nlp import NLP
+from .kMeans import KMeans
