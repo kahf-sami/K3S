@@ -3,31 +3,51 @@ from random import choice, shuffle
 import numpy
 import sys
 import math
-#from functions import *
+import pickle
+from .file import File
+from .config import Config
 
 class KMeans():
 
 
     def __init__(self, identifier, numberOfClusters = 2, iteration = 1):
+        self.config = Config()
         self.identifier = identifier
         self.numberOfClusters =  numberOfClusters
         self.numberOfVectors = 0
         self.vectorDimension = 0
         self.vectors = None
         self.iteration = iteration
+        self.path = File.join(self.config.DATA_PATH, self.identifier, 'kmeans.plk')
+        self.centroids = None
+        self.assignments = None
         return
+
+
+    def getCentroids(self):
+        return self.centroids
+
+
+    def getAssignments(self):
+        return self.assignments
 
 
     def setVectors(self, matrix):
         matrix = matrix.todense()
+        #print(matrix.shape)
 
+        index = 0
         self.vectors = []
-        for row in range(matrix.shape[0]):
-            vector = numpy.array(matrix[row][0])
+        for column in range(matrix.shape[1]):
+            vector = matrix[:, column]
+            vector = numpy.array(vector.T)
             self.vectors.append(vector[0])
-        
+            index += 1
+
         self.vectorDimension = len(self.vectors[0])
         self.numberOfVectors = len(self.vectors)
+        #print(self.vectorDimension)
+        #print(self.numberOfVectors)
         return
 
 
@@ -44,6 +64,9 @@ class KMeans():
 
 
     def computeCluster(self):
+        self.centroids = None
+        self.assignment = None
+
         vectorIndices = list(range(self.numberOfVectors))
         shuffle(vectorIndices)
 
@@ -104,10 +127,26 @@ class KMeans():
                     newLocation = sess.run(meanOperation, feed_dict={meanInput: assignedVectors})
                     sess.run(centAssigns[clusterIndex], feed_dict={centroidValue: newLocation})
 
-            centroids = sess.run(centroids)
-            assignments = sess.run(assignments)
+            self.centroids = sess.run(centroids)
+            self.assignments = sess.run(assignments)
 
-        return centroids, assignments
+        return self.centroids, self.assignments
 
+
+    def save(self):
+        file = File(self.path)
+        file.remove()
+        file.write(pickle.dumps(self), 'wb')
+        return
+
+
+    @classmethod
+    def restore(cls, identifier):
+        config = Config()
+        path = File.join(config.DATA_PATH, identifier, 'kmeans.plk')
+        file = File(path)
+        if file.exists():
+            return pickle.loads(file.read('rb'))
+        return KMeans(identifier)
 
 

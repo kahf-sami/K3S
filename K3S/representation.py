@@ -18,7 +18,7 @@ class Representation():
 		self.color = []
 		return
 
-	def loadPolarData(self, matrix, wordVocab):
+	def loadPolarData(self, matrix, wordVocab, assignedColors = None):
 		totalDocumets = matrix.shape[0]
 		totalWords = matrix.shape[1]
 
@@ -42,11 +42,17 @@ class Representation():
 			self.radius.append(r)
 			self.theta.append(numpy.random.uniform(0, 360))
 
-		colors = [(1,0,0), (0,1,0), (0,0,1), (1,1,0), (0,1,1),(1,0,0),(0.5,0,0)]
+
+		colorGroups = [(1,0,0), (0,1,0), (0,0,1), (1,1,0), (0,1,1),(1,0,0),(0.5,0,0)]
 		gap = (totalMax - totalMin) / 5
+		index = 0
 		for r in self.radius:
-			colorIndex = math.ceil(r / gap)
-			self.color.append(colors[colorIndex])
+			if assignedColors:
+				colorIndex = assignedColors[index]
+			else:
+				colorIndex = math.ceil(r / gap)
+			self.color.append(colorGroups[colorIndex])
+			index += 1
 
 
 	def createPolar(self, matrix, wordVocab):
@@ -62,6 +68,23 @@ class Representation():
 		#self.annotations = {}
 		#for label, xe, ye in zip(self.labels, self.radius, self.theta):
 		#	self.annotations[xe,ye] = self.axis.annotate(label, (xe,ye), visible=True) 
+
+		self.figure.canvas.mpl_connect('pick_event', self.onPick)
+
+		tooltip = mpld3.plugins.PointLabelTooltip(graph, labels = self.labels)
+		mpld3.plugins.connect(self.figure, tooltip)
+
+		return
+
+
+	def kmeans(self, matrix, wordVocab, assignments):
+		self.loadPolarData(matrix, wordVocab, assignments)
+		self.figure = plot.figure(figsize=(10, 10))
+		self.axis = self.figure.add_subplot(111, projection='polar')
+		self.axis.grid(color='white', linestyle='solid')
+		self.axis.set_title("KMeans using TF-IDF (with tooltips!)", size=20)
+		graph = self.axis.scatter(self.theta, self.radius, c = self.color, cmap = plot.cm.hsv, picker = True)
+		graph.set_alpha(0.5)
 
 		self.figure.canvas.mpl_connect('pick_event', self.onPick)
 

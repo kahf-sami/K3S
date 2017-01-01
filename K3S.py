@@ -3,33 +3,24 @@ import K3S
 import colorama
 import scipy
 import numpy
-
+"""
 processor = K3S.Processor('Bukhari')
-vocab = processor.buildVocabulary(3)
+vocab = processor.reloadVocab()
+#kmeans = processor.calculateKMeans(vocab, 5)
 
-#matrix = numpy.array(vocab.tfidfCalculation.todense)
-#print(vocab.tfidfCalculation.todense)
-
-#matrix = scipy.sparse.coo_matrix(vocab.tfidfCalculation)
-#print(matrix.col)
-#print(matrix.row)
-#print(matrix.data)
-
+kmeans = processor.reloadKMeans()
 
 representation = K3S.Representation('Bukhari');
+representation.kmeans(vocab.tfidfCalculation, vocab.tfIdf.get_feature_names(), kmeans.getAssignments())
+representation.showInBrowser()
 
-representation.createPolar(vocab.tfidfCalculation, vocab.tfIdf.get_feature_names());
-representation.showInBrowser();
+
 sys.exit()
 
 colorama.init()
-
+"""
 processor = K3S.Processor('Bukhari')
 processor.calculateKMeans()
-#processor.createSourceSetup()
-#processor.nlpPreProcessBlocks()
-#processor.buildVocabulary()
-sys.exit()
 
 #STEP 1. Copy text source file to the required location before starting processing
 
@@ -63,3 +54,25 @@ if extract == 'Y':
 shouldPreProcess = input(colorama.Fore.GREEN + 'Should pre-process text (Y / N): \n' + colorama.Style.RESET_ALL)
 if shouldPreProcess == 'Y':
 	processor.nlpPreProcessBlocks()
+
+#STEP 3: Build vocabulary
+shouldBuildVocabulary = input(colorama.Fore.GREEN + 'Should build and save vocaburary (general count and tf-idf) text (Y / N): \n' + colorama.Style.RESET_ALL)
+if shouldBuildVocabulary == 'Y':
+	vocab = processor.buildVocabulary()
+else:
+	vocab = processor.reloadVocab()
+
+representation = K3S.Representation(identifier);
+shouldShowRepresentation = input(colorama.Fore.GREEN + 'Should show tf-idf representation \n' + colorama.Style.RESET_ALL)
+if shouldShowRepresentation == 'Y':	
+	representation.createPolar(vocab.tfidfCalculation, vocab.tfIdf.get_feature_names())
+	representation.showInBrowser()
+
+#STEP 4: Apply algorithm
+processName = input(colorama.Fore.RED + 'Name of the algorithm (kmeans): \n' + colorama.Style.RESET_ALL)
+if processName == 'kmeans':
+	kmeans = processor.calculateKMeans(vocab, 5)
+else:
+	kmeans = processor.reloadKMeans(identifier)
+
+

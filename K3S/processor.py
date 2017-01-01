@@ -121,6 +121,9 @@ class Processor():
 
 		return
 
+	def reloadVocab(self):
+		vocab = Vocabulary.restore(self.sourceIdentifier)
+		return vocab
 
 	def buildVocabulary(self, limit = None):
 		filteredDir = Directory(self.filteredPath)
@@ -163,23 +166,17 @@ class Processor():
 		return vocab
 
 
-	def calculateKMeans(self):
-		vocab = self.buildVocabulary(10)
+	def reloadKMeans(self):
+		kmeans = KMeans.restore(self.sourceIdentifier)
+		return kmeans
 
-		#print(TFKMeansCluster(vocab.tfidfCalculation, 5))
-		#sys.exit()
-		#kmeansProcessor = TFKMeansCluster(vocab.tfidfCalculation, 5)
-		numberOfClusters = 5
-		iteration = 1
+
+	def calculateKMeans(self, vocab, numberOfClusters = 5, iteration = 100):
 		kmeansProcessor = KMeans(self.sourceIdentifier, numberOfClusters, iteration)
 		kmeansProcessor.setVectors(vocab.tfidfCalculation)
-		print(kmeansProcessor.computeCluster())
-		#data_centroids, samples = kmeansProcessor.createSamples()
-		#print(data_centroids)
-		#print(samples)
-		
-		#kmeansProcessor.computeCluster()
-		print('----------------------FINISHING---------------------------')
+		kmeansProcessor.computeCluster()
+		kmeansProcessor.save()
+		return kmeansProcessor
 
 
 
