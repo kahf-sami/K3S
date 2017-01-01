@@ -1,6 +1,26 @@
 import sys
 import K3S
 import colorama
+import scipy
+import numpy
+
+processor = K3S.Processor('Bukhari')
+vocab = processor.buildVocabulary(3)
+
+#matrix = numpy.array(vocab.tfidfCalculation.todense)
+#print(vocab.tfidfCalculation.todense)
+
+#matrix = scipy.sparse.coo_matrix(vocab.tfidfCalculation)
+#print(matrix.col)
+#print(matrix.row)
+#print(matrix.data)
+
+
+representation = K3S.Representation('Bukhari');
+
+representation.createPolar(vocab.tfidfCalculation, vocab.tfIdf.get_feature_names());
+representation.showInBrowser();
+sys.exit()
 
 colorama.init()
 

@@ -10,7 +10,7 @@ from .utility import Utility
 import sys
 import re
 from .kMeans import KMeans
-from .TFKMeansCluster import TFKMeansCluster
+#from .TFKMeansCluster import TFKMeansCluster
 
 
 class Processor():
@@ -166,6 +166,8 @@ class Processor():
 	def calculateKMeans(self):
 		vocab = self.buildVocabulary(10)
 
+		#print(TFKMeansCluster(vocab.tfidfCalculation, 5))
+		#sys.exit()
 		#kmeansProcessor = TFKMeansCluster(vocab.tfidfCalculation, 5)
 		numberOfClusters = 5
 		iteration = 1

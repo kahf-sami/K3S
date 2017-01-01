@@ -59,7 +59,6 @@ class KMeans():
                 centroids.append(centroid)
                 centAssigns.append(tf.assign(centroid, centroidValue))
 
-
             assignments = []
             assignmentValue = tf.placeholder("int32")
             clusterAssigns = []
@@ -67,7 +66,6 @@ class KMeans():
                 assignment = tf.Variable(0)
                 assignments.append(assignment)
                 clusterAssigns.append(tf.assign(assignment, assignmentValue))
-
 
             meanInput = tf.placeholder("float", [None, self.vectorDimension])
             meanOperation = tf.reduce_mean(meanInput, 0)
@@ -85,10 +83,8 @@ class KMeans():
 
             for i in range(self.iteration):
                 for vectorIndex in range(self.numberOfVectors):
-                    currentVector = self.vector[vectorIndex]
-                    print('current vector')
-                    print(currentVector)
-                    sys.exit()
+                    currentVector = self.vectors[vectorIndex]
+                    
                     distances = []
                     for centroid in centroids:
                         centroiedVector = sess.run(centroid)
@@ -97,51 +93,21 @@ class KMeans():
                     assignment = sess.run(clusterAssignment, feed_dict = {centroidDistances: distances})
                     sess.run(clusterAssigns[vectorIndex], feed_dict={assignmentValue: assignment})
 
-                    for clusterIndex in range(self.numberOfClusters):
-                        assignedVectors = []
-                        for vectorIndex in range(self.vectorDimension):
-                            if sess.run(assignments[i]) == clusterIndex:
-                                assignedVectors.append(self.vectors[vectorIndex])
+                for clusterIndex in range(self.numberOfClusters):
+                    assignedVectors = []
+                    for vectorIndex in range(self.numberOfVectors):
+                        if sess.run(assignments[vectorIndex]) == clusterIndex:
+                            assignedVectors.append(self.vectors[vectorIndex])
+                                
+                    assignedVectors = numpy.array(assignedVectors)
 
-                        newLocation = sess.run(meanOperation, feed_dict={meanInput: numpy.array(assignedVectors)})
-                        sess.run(centAssigns[clusterIndex], feed_dict={centroidValue: newLocation})
+                    newLocation = sess.run(meanOperation, feed_dict={meanInput: assignedVectors})
+                    sess.run(centAssigns[clusterIndex], feed_dict={centroidValue: newLocation})
 
-
-            #Return centroids and assignments
             centroids = sess.run(centroids)
             assignments = sess.run(assignments)
 
         return centroids, assignments
 
-    def createSamples(self, embiggenFactor = 70, seed = 1):
-        numpy.random.seed(seed)
-        slices = []
-        centroids = []
-
-        numberOfVectorsPerCluster = math.ceil(self.numberOfVectors / self.numberOfClusters)
-
-        for i in range(self.numberOfClusters):
-            samples = tf.random_normal((numberOfVectorsPerCluster, self.vectorDimension), mean=0.0, stddev=5.0, dtype=tf.float32, seed=seed, name="cluster_{}".format(i))
-            #currentCentroId = (numpy.random.random((1, self.vectorDimension)) * embiggenFactor) - (embiggenFactor/2)
-            currentCentroId = numpy.random.random((1, self.vectorDimension))
-            centroids.append(currentCentroId)
-            samples += currentCentroId
-            slices.append(samples)
-
-        # Create a big "samples" dataset
-        samples = tf.concat(0, slices, name='samples')
-        centroids = tf.concat(0, centroids, name='centroids')
-        return centroids, samples
-
-
-    def chooseRandomCentroIds(self):
-        vectorIndices = list(range(self.numberOfVectors))
-        shuffle(vectorIndices)
-
-        centroids = []
-        for clusterIndex in range(self.numberOfClusters):
-            centroids.append(self.vectors[vectorIndices[clusterIndex]])
-
-        return centroids
 
 
