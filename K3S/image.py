@@ -11,10 +11,10 @@ import math
 
 class Image():
 
-	BLOCK_WIDTH = 0.1
+	BLOCK_WIDTH = 1
 
 
-	BLOCK_HEIGHT = 0.1
+	BLOCK_HEIGHT = 0.5
 
 
 	scalerColorMap = None
@@ -28,14 +28,14 @@ class Image():
 		self.setDimension(totalBlocksPerWidth, totalBlocksPerHeight)
 		self.setGroups(self.numberOfGroups);
 		self.labels = []
-		self.x = []
-		self.y = []
 		self.color = []
 		self.totalMax = 0
 		self.totalMin = -1
 		self.gap = 0
 		self.matrix = None
 		self.wordVocab = None
+		self.axis = None
+		self.showText = False
 		return
 
 
@@ -43,6 +43,7 @@ class Image():
 		self.width = totalBlocksPerWidth * self.BLOCK_WIDTH
 		self.height = totalBlocksPerHeight * self.BLOCK_HEIGHT
 		self.figure = plot.figure(figsize=(self.width, self.height))
+		plot.axis((0, self.width, 0, self.height))
 		return
 
 
@@ -56,6 +57,11 @@ class Image():
 		self.numberOfGroups = numberOfGroups
 		colorNorm  = colors.Normalize(vmin=0, vmax=numberOfGroups)
 		self.scalerColorMap = cmx.ScalarMappable(norm=colorNorm, cmap='hsv') 
+		return
+
+
+	def renderText(self):
+		self.showText = True
 		return
 
 
@@ -82,31 +88,62 @@ class Image():
 		return
 
 
-
-
 	def create(self, documentNumber, fileName, textBlock):
-		axis = self.figure.add_subplot(111, aspect="equal")
+		plot.cla() # Clear the figure
+		self.axis = self.figure.add_subplot(111)
+		#self.fillGray()
 
-		x = 0
-		y = self.height - self.BLOCK_HEIGHT
 		blockWords = word_tokenize(textBlock)
+
+		""" 
+		Calculate current text block local gap
+		totalMax = 0
+		totalMin = -1
+
 		for blockWord in blockWords:
 			wordIndex = self.wordVocab[blockWord]
 			tfIdfValue = self.matrix[documentNumber][wordIndex]
-			color = self.getColor(math.ceil(tfIdfValue % self.gap))
-			block = patches.Rectangle((x,y), self.BLOCK_WIDTH, self.BLOCK_HEIGHT, facecolor=color)
-			axis.add_patch(block)
+			if tfIdfValue > totalMax:
+					totalMax = tfIdfValue
+
+			if (totalMin == -1) or (tfIdfValue < totalMin):
+				self.totalMin = tfIdfValue
+
+		localGap = (totalMax - totalMin) / self.numberOfGroups
+		"""
+		x = 0
+		y = self.height - self.BLOCK_HEIGHT
+		
+		for blockWord in blockWords:
+			wordIndex = self.wordVocab[blockWord]
+			tfIdfValue = self.matrix[documentNumber][wordIndex]
+			colorGroup = math.ceil(tfIdfValue / self.gap)
+			color = self.getColor(colorGroup)
+			block = patches.Rectangle((x,y), self.BLOCK_WIDTH, self.BLOCK_HEIGHT, facecolor=color, edgecolor='None')
+			self.axis.add_patch(block)
+			if self.showText:
+				self.axis.text(x, y, blockWord, fontsize=10)
 
 			x += self.BLOCK_WIDTH
-			if x > self.width:
+			x = round(x, 1)
+			if x >= (self.width):
 				x = 0
-			y -= self.BLOCK_HEIGHT
-			if y < 0:
-				y = self.height - self.BLOCK_HEIGHT
+				y -= self.BLOCK_HEIGHT
+				y = round(y, 1)
+				if y <= 0:
+					y = self.height - self.BLOCK_HEIGHT
 
 
-		#figure.savefig(File.join(self.path, fileName))
-		plot.show()
+		fileNameParts = fileName.split(".")	
+		self.figure.savefig(File.join(self.path, fileNameParts[0] + '.png'))
+		#plot.show()
+		return
+
+	def fillGray(self):
+		for x in range(int(self.width - self.BLOCK_WIDTH)):
+			for y in range(int(self.height - self.BLOCK_HEIGHT)):
+				block = patches.Rectangle((x,y), self.BLOCK_WIDTH, self.BLOCK_HEIGHT, facecolor=(1,0,0), edgecolor='None')
+				self.axis.add_patch(block)
 		return
 
 

@@ -5,7 +5,8 @@ import scipy
 import numpy
 
 processor = K3S.Processor('Bukhari')
-processor.produceImages(1)
+
+processor.produceImages(10, True)
 sys.exit()
 
 """

@@ -167,10 +167,12 @@ class Processor():
 		return vocab
 
 
-	def produceImages(self, limit = None):
+	def produceImages(self, limit = None, withText = False):
 		vocab = Vocabulary.restore(self.sourceIdentifier)
 		
 		image = Image(self.sourceIdentifier)
+		if withText:
+			image.renderText()
 		image.loadTfIdf(vocab.tfidfCalculation, vocab.getTfIdfVocabulary())
 
 		filteredDir = Directory(self.filteredPath)
