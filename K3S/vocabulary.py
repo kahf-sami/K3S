@@ -138,6 +138,9 @@ class Vocabulary():
 		return self.tfidfCalculation
 
 
+	def getTfIdfVocabulary(self):
+		return self.tfIdf.vocabulary_
+
 	def save(self):
 		file = File(self.vocabPath)
 		file.remove()

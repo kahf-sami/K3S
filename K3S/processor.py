@@ -10,6 +10,7 @@ from .utility import Utility
 import sys
 import re
 from .kMeans import KMeans
+from .image import Image
 #from .TFKMeansCluster import TFKMeansCluster
 
 
@@ -164,6 +165,36 @@ class Processor():
 		vocab.save()
 
 		return vocab
+
+
+	def produceImages(self, limit = None):
+		vocab = Vocabulary.restore(self.sourceIdentifier)
+		
+		image = Image(self.sourceIdentifier)
+		image.loadTfIdf(vocab.tfidfCalculation, vocab.getTfIdfVocabulary())
+
+		filteredDir = Directory(self.filteredPath)
+		fileNames = filteredDir.scan()
+		
+		if not fileNames:
+			return
+
+		if limit == None:
+			limit = len(fileNames)
+		
+		documentNumber = 0
+		for fileName in fileNames:
+			filePath = File.join(self.filteredPath, fileName)
+			file = File(filePath)
+			textBlock = file.read()
+			del file
+			if textBlock:
+				image.create(documentNumber, fileName, textBlock)
+			documentNumber += 1
+			if documentNumber == limit:
+				break
+
+		return
 
 
 	def reloadKMeans(self):
