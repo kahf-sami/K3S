@@ -4,9 +4,18 @@ import colorama
 import scipy
 import numpy
 
-processor = K3S.Processor('Bukhari')
+topologyBuilder = K3S.Topology('Bukhari')
+topologyBuilder.setUp()
+sys.exit()
 
-processor.produceImages(10, True)
+
+"""
+processor = K3S.Processor('Bukhari')
+vocab = processor.reloadVocab()
+representation = K3S.Representation('Bukhari');
+kmeans = processor.reloadKMeans(identifier)
+
+#processor.produceImages(10, True)
 sys.exit()
 
 """
@@ -24,7 +33,7 @@ representation.showInBrowser()
 sys.exit()
 
 colorama.init()
-"""
+
 processor = K3S.Processor('Bukhari')
 processor.calculateKMeans()
 

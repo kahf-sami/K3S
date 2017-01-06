@@ -10,3 +10,5 @@ from .nlp import NLP
 from .kMeans import KMeans
 from .representation import Representation
 from .image import Image
+from .mysql import MySql
+from .topology import Topology
