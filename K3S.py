@@ -8,7 +8,7 @@ import numpy
 textNode = K3S.TextNode('Bukhari')
 data = {}
 data['source_identifier'] = 'test1'
-data['text_block'] = "this is test text block 123"
+data['text_block'] = "this is test text block"
 textNode.deleteByData(data)
 #topologyBuilder = K3S.Topology('Bukhari')
 #topologyBuilder.setUp()

@@ -1,5 +1,6 @@
 from .config import Config
 from .mysql import MySql
+from .textNode import TextNode
 
 class Topology():
 
@@ -18,6 +19,14 @@ class Topology():
 		return
 
 
+	def addTextNode(self, sourceIdentifier, textBlock):
+		textNode = TextNode(self.identifier)
+		data = {}
+		data['source_identifier'] = sourceIdentifier
+		data['text_block'] = textBlock
+		data['nodeid'] = textNode.save(data)
+
+
 	def getTables(self):
 		tables = {}
 		
@@ -34,7 +43,7 @@ class Topology():
 			"edgeid INT(11) NOT NULL AUTO_INCREMENT,"
 			"source_nodeid INT(11) NOT NULL,"
 			"destination_nodeid INT(11) NOT NULL,"
-			"common_words INT(11) NOT NULL DEFAULT 0,"
+			"total_common_words INT(11) NOT NULL DEFAULT 0,"
 			"PRIMARY KEY (edgeid)"
 			") ENGINE=InnoDB")
 
