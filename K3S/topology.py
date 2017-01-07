@@ -13,8 +13,8 @@ class Topology():
 
 
 	def setUp(self):
-		mysql.createDb(self.identifier)
-		mysql.createTables(self.getTables())
+		self.mysql.createDb(self.identifier)
+		self.mysql.createTables(self.getTables())
 		return
 
 
@@ -22,23 +22,24 @@ class Topology():
 		tables = {}
 		
 		tables['node'] = (
-			"CREATE TABLE text_node ("
+			"CREATE TABLE IF NOT EXISTS text_node ("
 			"nodeid INT(11) NOT NULL AUTO_INCREMENT,"
-			"source_identifier VARCHAR (255) NOT NULL DEFAULT ''"
-			"text_block LONGTEXT NOT NULL DEFAULT '',"
+			"source_identifier VARCHAR (255) NOT NULL DEFAULT '',"
+			"text_block LONGTEXT,"
 			"PRIMARY KEY (nodeid)"
 			") ENGINE=InnoDB")
-
+		
 		tables['edge'] = (
-			"CREATE TABLE edge ("
+			"CREATE TABLE IF NOT EXISTS edge ("
 			"edgeid INT(11) NOT NULL AUTO_INCREMENT,"
 			"source_nodeid INT(11) NOT NULL,"
 			"destination_nodeid INT(11) NOT NULL,"
+			"common_words INT(11) NOT NULL DEFAULT 0,"
 			"PRIMARY KEY (edgeid)"
 			") ENGINE=InnoDB")
 
 		tables['context'] = (
-			"CREATE TABLE context ("
+			"CREATE TABLE IF NOT EXISTS context ("
 			"contextid INT(11) NOT NULL AUTO_INCREMENT,"
 			"wordids LONGTEXT NOT NULL,"
 			"text_blockids LONGTEXT NOT NULL,"
@@ -47,15 +48,15 @@ class Topology():
 			") ENGINE=InnoDB")
 
 		tables['word'] = (
-			"CREATE TABLE word ("
+			"CREATE TABLE IF NOT EXISTS word ("
 			"wordid INT(11) NOT NULL AUTO_INCREMENT,"
 			"contextid INT(11) NOT NULL,"
 			"word VARCHAR(255) NOT NULL,"
 			"count INT(11) NOT NULL,"
-			"tf_idf DECIMAL DECIMAL(5,10),"
+			"tf_idf DECIMAL(10,10) DEFAULT 0,"
 			"PRIMARY KEY (wordid)"
 			") ENGINE=InnoDB")
-
+		
 		return tables
 
 
