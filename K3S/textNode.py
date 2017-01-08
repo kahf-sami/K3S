@@ -2,7 +2,7 @@ from .dbModel import DbModel
 from .context import Context 
 from .edge import Edge
 from .word import Word
-from nltk import word_tokenize
+
 import sys
 
 class TextNode(DbModel):
@@ -15,32 +15,57 @@ class TextNode(DbModel):
 		self.primaryKey = 'nodeid'
 		self.fields = ['nodeid', 'source_identifier', 'text_block']
 		self.ignoreExists = ['text_block']
-		self.context = Context(identifier)
-		self.edge = Edge(identifier)
-		self.word = Word(identifier)
+		self.contextProcessor = Context(identifier)
+		self.edgeProcessor = Edge(identifier)
+		self.wordProcessor = Word(identifier)
+		self.nodeid = None
 		return
 
 
 	def save(self, data):
-		wordProcessor = Word(self.identifier)
 		keys = data.keys()
+		words = None
 
 		if 'text_block' in keys:
-			words = word_tokenize(data['text_block'])
-			totals = {}
-			for word in words:
-				totalKeys = totals.keys()
-				if word in totalKeys:
-					totals[word] += 1
-				else:
-					totals[word] = 1
-			print(totals)
-			for word in totals:
-				data = {}
-				data['word'] = word
-				data['count'] = totals[word]
-				wordProcessor.save(data)
-				sys.exit()
+			# Save the node
+			self.nodeid = DbModel.save(self, data)
+
+			# Save the words
+			if self.isInserted():
+				words = self.wordProcessor.saveWords(data['text_block'])
+			else:
+				words = self.wordProcessor.getWords(data['text_block'])
+
+			# Save related content
+			self.relate(words, self.nodeid)
+
+		return self.nodeid
+
+
+	def relate(self, words, currentNodeId):
+		related = {}
+		sql = "SELECT nodeid FROM " + self.tableName + " WHERE text_block LIKE %s AND nodeid != %s"
+
+		processedNodes = []
+
+		for word in words:
+			params = []
+			params.append('%' + word + '%')
+			params.append(str(currentNodeId))
+
+			nodes = self.mysql.query(sql, params)
 			
-		
-		return DbModel.__init__(self, data)
+			if len(nodes) > 0:
+				for node in nodes:
+					relatedNodeId = node[0]
+					
+					if relatedNodeId in processedNodes:
+						related[relatedNodeId] += 1
+					else:
+						related[relatedNodeId] = 1
+
+					processedNodes.append(relatedNodeId)
+				
+
+		self.edgeProcessor.associated(currentNodeId, related)
+		return

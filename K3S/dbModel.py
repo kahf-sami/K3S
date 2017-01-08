@@ -14,20 +14,31 @@ class DbModel():
 		self.primaryKey = None
 		self.fields = []
 		self.ignoreExists = []
+		self.status = None
 		return
 
 
 	def save(self, data):
 		itemid = None
 		item = self.exists(data)
-
+		
 		if not item:
 			itemid = self.insert(data)
+			self.status = 'inserted'
 		else:
 			itemid = item[0][0]
 			self.update(data, itemid)
+			self.status = 'updated'
 
 		return itemid
+
+
+	def isInserted(self):
+		return (self.status == 'inserted')
+
+
+	def isUpdated(self):
+		return (self.status == 'updated')
 
 
 	def exists(self, data):

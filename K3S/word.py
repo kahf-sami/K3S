@@ -1,4 +1,5 @@
 from .dbModel import DbModel
+from nltk import word_tokenize
 import sys
 
 
@@ -16,7 +17,6 @@ class Word(DbModel):
 
 	def save(self, data):
 		itemid = None
-		data['word'] = 'said'
 		item = self.read(data)
 
 		if not item:
@@ -27,3 +27,25 @@ class Word(DbModel):
 			self.update(data, itemid)
 				
 		return itemid
+
+
+	def saveWords(self, textBlock):
+		words = word_tokenize(textBlock)
+		totals = {}
+		for word in words:
+			totalKeys = totals.keys()
+			if word in totalKeys:
+				totals[word] += 1
+			else:
+				totals[word] = 1
+			
+		for word in totals:
+			data = {}
+			data['word'] = word
+			data['count'] = totals[word]
+			self.save(data)
+
+		return words
+
+	def getWords(self, textBlock):
+		return word_tokenize(textBlock)
