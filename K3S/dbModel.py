@@ -31,7 +31,14 @@ class DbModel():
 
 
 	def exists(self, data):
-		sql = "SELECT " + self.primaryKey  + " FROM " + self.tableName + " WHERE "
+		return self.read(data, False)
+
+
+	def read(self, data, fetchAllValues = True):
+		if fetchAllValues:
+			sql = "SELECT * FROM " + self.tableName + " WHERE "
+		else:
+			sql = "SELECT " + self.primaryKey  + " FROM " + self.tableName + " WHERE "
 
 		keys = data.keys()
 		params = []
@@ -47,7 +54,10 @@ class DbModel():
 			sql += field + " = %s "
 			params.append(str(data[field]))
 			joinRequired = True
-
+		
+		#print(sql)
+		#print(params)
+		
 		return self.mysql.query(sql, params)
 
 

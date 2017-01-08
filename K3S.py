@@ -4,12 +4,15 @@ import colorama
 import scipy
 import numpy
 
+processor = K3S.Processor('Bukhari')
+#processor.topologySetUp()
+processor.topologyBuilder(2)
 
-textNode = K3S.TextNode('Bukhari')
-data = {}
-data['source_identifier'] = 'test1'
-data['text_block'] = "this is test text block"
-textNode.deleteByData(data)
+#textNode = K3S.TextNode('Bukhari')
+#data = {}
+#data['source_identifier'] = 'test1'
+#data['text_block'] = "this is test text block"
+#textNode.deleteByData(data)
 #topologyBuilder = K3S.Topology('Bukhari')
 #topologyBuilder.setUp()
 #topologyBuilder.processContent()

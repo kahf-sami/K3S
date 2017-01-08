@@ -19,12 +19,9 @@ class Topology():
 		return
 
 
-	def addTextNode(self, sourceIdentifier, textBlock):
+	def addTextNode(self, data):
 		textNode = TextNode(self.identifier)
-		data = {}
-		data['source_identifier'] = sourceIdentifier
-		data['text_block'] = textBlock
-		data['nodeid'] = textNode.save(data)
+		return textNode.save(data)
 
 
 	def getTables(self):
@@ -59,7 +56,7 @@ class Topology():
 		tables['word'] = (
 			"CREATE TABLE IF NOT EXISTS word ("
 			"wordid INT(11) NOT NULL AUTO_INCREMENT,"
-			"contextid INT(11) NOT NULL,"
+			"contextid INT(11) DEFAULT NULL,"
 			"word VARCHAR(255) NOT NULL,"
 			"count INT(11) NOT NULL,"
 			"tf_idf DECIMAL(10,10) DEFAULT 0,"

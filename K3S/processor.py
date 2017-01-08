@@ -11,6 +11,7 @@ import sys
 import re
 from .kMeans import KMeans
 from .image import Image
+from .topology import Topology
 #from .TFKMeansCluster import TFKMeansCluster
 
 
@@ -212,6 +213,34 @@ class Processor():
 		return kmeansProcessor
 
 
+	def topologySetUp(self):
+		topologyBuilder = Topology(self.sourceIdentifier)
+		topologyBuilder.setUp()
+		return
+
+	def topologyBuilder(self, limit = None):
+		topologyBuilder = Topology(self.sourceIdentifier)
+
+		sourceDir = Directory(self.filteredPath)
+
+		files = sourceDir.scan()
+
+		if not files:
+			return
+
+		index = 0
+		for fileName in files:
+			filePath = File.join(self.filteredPath, fileName)
+			file = File(filePath)
+			textBlock = file.read()
+			data = {}
+			data['source_identifier'] = file.getFileName()
+			data['text_block'] = file.read()
+			topologyBuilder.addTextNode(data)
+			index += 1
+			if (index == limit):
+				break;
+		return
 
 
 
