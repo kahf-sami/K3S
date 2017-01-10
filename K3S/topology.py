@@ -1,6 +1,7 @@
 from .config import Config
 from .mysql import MySql
 from .textNode import TextNode
+from .context import Context 
 
 class Topology():
 
@@ -24,6 +25,12 @@ class Topology():
 		return textNode.save(data)
 
 
+	def extractContext(self):
+		context = Context(self.identifier)
+		context.buildBasic()
+		return
+
+
 	def getTables(self):
 		tables = {}
 		
@@ -32,6 +39,7 @@ class Topology():
 			"nodeid INT(11) NOT NULL AUTO_INCREMENT,"
 			"source_identifier VARCHAR (255) NOT NULL DEFAULT '',"
 			"text_block LONGTEXT,"
+			"processed TINYINT(1) DEFAULT 0,"
 			"PRIMARY KEY (nodeid)"
 			") ENGINE=InnoDB")
 		
@@ -47,6 +55,9 @@ class Topology():
 		tables['context'] = (
 			"CREATE TABLE IF NOT EXISTS context ("
 			"contextid INT(11) NOT NULL AUTO_INCREMENT,"
+			"parent_contextid INT(11) DEFAULT NULL,"
+			"ancestor_contextid INT(11) DEFAULT NULL,"
+			"name VARCHAR(255) NOT NULL,"
 			"wordids LONGTEXT NOT NULL,"
 			"text_blockids LONGTEXT NOT NULL,"
 			"total_association INT(11) NOT NULL DEFAULT 0,"
@@ -58,7 +69,8 @@ class Topology():
 			"wordid INT(11) NOT NULL AUTO_INCREMENT,"
 			"contextid INT(11) DEFAULT NULL,"
 			"word VARCHAR(255) NOT NULL,"
-			"count INT(11) NOT NULL,"
+			"count INT(11) NOT NULL DEFAULT 0,"
+			"number_of_blocks INT(11) NOT NULL DEFAULT 0,"
 			"tf_idf DECIMAL(10,10) DEFAULT 0,"
 			"PRIMARY KEY (wordid)"
 			") ENGINE=InnoDB")

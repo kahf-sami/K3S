@@ -243,5 +243,10 @@ class Processor():
 		return
 
 
+	def contextExtraction(self):
+		topologyBuilder = Topology(self.sourceIdentifier)
+		topologyBuilder.extractContext()
+
+
 
 

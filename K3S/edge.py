@@ -12,13 +12,20 @@ class Edge(DbModel):
 		return
 
 
-	def associated(self, currentNodeId, related):
+	def associate(self, currentNodeId, related):
 		data = {}
 		data['source_nodeid'] = currentNodeId
+
+		otherData = {}
+		otherData['destination_nodeid'] = currentNodeId
 
 		for relatedNodeId in related:
 			data['destination_nodeid'] = relatedNodeId
 			data['total_common_words'] = related[relatedNodeId]
 			self.save(data)
+
+			otherData['source_nodeid'] = relatedNodeId
+			otherData['total_common_words'] = related[relatedNodeId]
+			self.save(otherData)
 		
 		return

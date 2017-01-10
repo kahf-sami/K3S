@@ -10,8 +10,8 @@ class Word(DbModel):
 		DbModel.__init__(self, identifier)
 		self.tableName = 'word'
 		self.primaryKey = 'wordid'
-		self.fields = ['wordid', 'contextid', 'word', 'count', 'tf_idf']
-		self.ignoreExists = ['count', 'tf_idf']
+		self.fields = ['wordid', 'contextid', 'word', 'count', 'number_of_blocks', 'tf_idf']
+		self.ignoreExists = ['count', 'number_of_blocks', 'tf_idf']
 		return
 
 

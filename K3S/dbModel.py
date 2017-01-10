@@ -14,7 +14,10 @@ class DbModel():
 		self.primaryKey = None
 		self.fields = []
 		self.ignoreExists = []
+		self.joinFields = []
 		self.status = None
+		self.limit = 10
+		self.offset = 0
 		return
 
 
@@ -45,7 +48,7 @@ class DbModel():
 		return self.read(data, False)
 
 
-	def read(self, data, fetchAllValues = True):
+	def read(self, data = {}, fetchAllValues = True, asBatch = False):
 		if fetchAllValues:
 			sql = "SELECT * FROM " + self.tableName + " WHERE "
 		else:
@@ -61,11 +64,19 @@ class DbModel():
 
 			if joinRequired:
 				sql += 'AND '
-			
-			sql += field + " = %s "
-			params.append(str(data[field]))
+
+			if field in self.joinFields:
+				sql += field + " LIKE %s "
+				params.append('%' + data[field] + '%')
+			else:
+				sql += field + " = %s "
+				params.append(str(data[field]))
 			joinRequired = True
 		
+		if asBatch:
+			sql += ' LIMIT ' + str(self.limit) + ' OFFSET ' + str(self.offset)
+			self.offset += self.limit
+
 		#print(sql)
 		#print(params)
 		
@@ -83,7 +94,11 @@ class DbModel():
 			if field not in keys:
 				continue
 
-			params.append(str(data[field]))
+			if field in self.joinFields:
+				params.append(",".join(data[field]))
+			else:
+				params.append(str(data[field]))
+			
 			if joinRequired:
 				fieldList += ','
 				placeholder += ','
@@ -112,7 +127,10 @@ class DbModel():
 				sql += ', '
 			
 			sql += field + " = %s "
-			params.append(str(data[field]))
+			if field in self.joinFields:
+				params.append(",".join(data[field]))
+			else:
+				params.append(str(data[field]))
 			joinRequired = True
 
 		sql += 'WHERE ' + self.primaryKey + ' = ' + str(itemid)

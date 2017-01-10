@@ -5,8 +5,8 @@ import scipy
 import numpy
 
 processor = K3S.Processor('Bukhari')
-#processor.topologySetUp()
-processor.topologyBuilder(10)
+processor.topologySetUp()
+processor.topologyBuilder()
 
 #textNode = K3S.TextNode('Bukhari')
 #data = {}

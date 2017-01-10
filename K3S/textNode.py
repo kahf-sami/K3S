@@ -1,5 +1,4 @@
 from .dbModel import DbModel
-from .context import Context 
 from .edge import Edge
 from .word import Word
 
@@ -48,6 +47,8 @@ class TextNode(DbModel):
 
 		processedNodes = []
 
+		#print(words)
+
 		for word in words:
 			params = []
 			params.append('%' + word + '%')
@@ -65,7 +66,10 @@ class TextNode(DbModel):
 						related[relatedNodeId] = 1
 
 					processedNodes.append(relatedNodeId)
-				
 
-		self.edgeProcessor.associated(currentNodeId, related)
+				#print(word)
+		#print('-------------------')
+
+
+		self.edgeProcessor.associate(currentNodeId, related)
 		return
