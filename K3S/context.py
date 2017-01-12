@@ -1,6 +1,4 @@
 from .dbModel import DbModel
-from .textNode import TextNode
-from .edge import Edge
 import sys
 
 class Context(DbModel):
@@ -14,8 +12,6 @@ class Context(DbModel):
 		self.fields = ['contextid', 'parent_contextid', 'ancestor_contextid', 'name', 'wordids', 'text_blockids', 'total_association']
 		self.ignoreExists = ['total_association', 'wordids', 'text_blockids']
 		self.joinFields = ['wordids', 'text_blockids']
-		self.nodeProcessor = TextNode(identifier)
-		self.edgeProcessor = Edge(identifier)
 		self.relatedNodeIds = []
 		self.words = []
 
@@ -26,7 +22,8 @@ class Context(DbModel):
 		self.resetProcessed()
 		
 		contextCharNumber = 65
-		while (nodeId = self.getNextUnprocessedNodeId()):
+		nodeId = self.getNextUnprocessedNodeId()
+		while nodeId:
 			self.relatedNodeIds = []
 			self.words = []
 			self.loadRelatedNodes(nodeId)
@@ -36,7 +33,8 @@ class Context(DbModel):
 			data['total_association'] = len(self.relatedNodeIds)
 			date['wordids'] = self.getWords()
 			self.save(data)
-			contextCharNumber++
+			nodeId = self.getNextUnprocessedNodeId()
+			contextCharNumber += 1
 		
 		return
 

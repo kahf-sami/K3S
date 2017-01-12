@@ -1,6 +1,7 @@
 from .dbModel import DbModel
 from .edge import Edge
 from .word import Word
+from .context import Context
 
 import sys
 
@@ -21,27 +22,22 @@ class TextNode(DbModel):
 		return
 
 
+
 	def save(self, data):
 		keys = data.keys()
 		words = None
-
+		
 		if 'text_block' in keys:
 			# Save the node
 			self.nodeid = DbModel.save(self, data)
-
-			# Save the words
-			if self.isInserted():
-				words = self.wordProcessor.saveWords(data['text_block'])
-			else:
-				words = self.wordProcessor.getWords(data['text_block'])
-
-			# Save related content
-			self.relate(words, self.nodeid)
+			words = self.wordProcessor.saveWords(data['text_block'])
 
 		return self.nodeid
 
 
-	def relate(self, words, currentNodeId):
+	def relate(self, textBlock, currentNodeId):
+		words = self.wordProcessor.getWords(textBlock)
+
 		related = {}
 		sql = "SELECT nodeid FROM " + self.tableName + " WHERE text_block LIKE %s AND nodeid != %s"
 

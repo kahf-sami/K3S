@@ -1,5 +1,6 @@
 from .dbModel import DbModel
 from nltk import word_tokenize
+from nltk import pos_tag
 import sys
 
 
@@ -20,32 +21,56 @@ class Word(DbModel):
 		item = self.read(data)
 
 		if not item:
+			data['number_of_blocks'] = 1
 			itemid = self.insert(data)
 		else:
 			itemid = item[0][0]
+			data['number_of_blocks'] = item[0][4] + 1
 			data['count'] += item[0][3]
 			self.update(data, itemid)
 				
 		return itemid
 
 
+	"""
+	ADJ	adjective
+	ADP	adposition
+	ADV	adverb
+	CONJ conjunction
+	DET	determiner
+	NOUN noun
+	NUM	numeral	
+	PRT	particle
+	PRON pronoun
+	VERB verb
+	"""
 	def saveWords(self, textBlock):
 		words = word_tokenize(textBlock)
+		afterPartsOfSpeachTagging = pos_tag(words)
+
 		totals = {}
-		for word in words:
+		for item in afterPartsOfSpeachTagging:
+			word = item[0]
+			wordType = item[1]
+
+			if wordType != 'NN':
+				continue;
+
 			totalKeys = totals.keys()
 			if word in totalKeys:
 				totals[word] += 1
 			else:
 				totals[word] = 1
 			
-		for word in totals:
-			data = {}
-			data['word'] = word
-			data['count'] = totals[word]
-			self.save(data)
+		if len(totals):
+			for word in totals:
+				data = {}
+				data['word'] = word
+				data['count'] = totals[word]
+				self.save(data)
 
 		return words
+		
 
 	def getWords(self, textBlock):
 		return word_tokenize(textBlock)
