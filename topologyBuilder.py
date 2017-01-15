@@ -4,7 +4,8 @@ import colorama
 import scipy
 import numpy
 
-processor = K3S.Processor('Bukhari')
+processor = K3S.Processor('tpl') 
 #processor.topologySetUp()
 #processor.topologyBuilder()
-processor.contextExtraction()
+#processor.contextExtraction()
+processor.addEdges()

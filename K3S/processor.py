@@ -269,4 +269,8 @@ class Processor():
 		return sourceDir.scan()
 
 
+	def addEdges(self):
+		topologyBuilder = Topology(self.sourceIdentifier)
+		topologyBuilder.assignWordEdges()
+
 

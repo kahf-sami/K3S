@@ -4,9 +4,9 @@ import colorama
 import scipy
 import numpy
 
-processor = K3S.Processor('Bukhari')
-processor.topologySetUp()
-processor.topologyBuilder()
+#processor = K3S.Processor('Bukhari')
+#processor.topologySetUp()
+#processor.topologyBuilder()
 
 #textNode = K3S.TextNode('Bukhari')
 #data = {}
@@ -16,7 +16,7 @@ processor.topologyBuilder()
 #topologyBuilder = K3S.Topology('Bukhari')
 #topologyBuilder.setUp()
 #topologyBuilder.processContent()
-sys.exit()
+#sys.exit()
 
 
 """

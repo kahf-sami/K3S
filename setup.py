@@ -7,7 +7,6 @@ import numpy
 
 colorama.init()
 
-
 #STEP 1. Copy text source file to the required location before starting processing
 
 print(colorama.Fore.BLUE + 'STEP 1: Copy text source file to the required location before starting processing')
@@ -54,5 +53,5 @@ else:
 #STEP 5: Produce image
 shouldBuildImages = input(colorama.Fore.GREEN + 'Should produce highlighted image using tf-idf (Y / N): \n' + colorama.Style.RESET_ALL)
 if shouldBuildImages == 'Y':
-	processor.produceImages(1, True)
+	processor.produceImages(None, True)
 

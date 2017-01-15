@@ -124,3 +124,127 @@ class Word(DbModel):
 	def getWords(self, textBlock, tagPartsOfSpeach = False):
 		words = word_tokenize(textBlock)
 		return pos_tag(words)
+
+
+	def addEdges(self):
+		limit = 10
+		offset = 0
+		words = self.getWordsByBatch(limit, offset)
+
+		while len(words):
+			for word in words:
+				relatedWords = self.getRelatedWords(word[1])
+				if relatedWords:
+					for relatedWord in relatedWords:
+						data = {}
+						data['source_wordid'] = word[0]
+						data['destination_wordid'] = relatedWord[0]
+						data['similaruty_score'] = relatedWord[1]
+						self.saveEdge(data)
+			offset += limit 
+			words = self.getWordsByBatch(limit, offset)
+
+		return
+
+
+	def saveEdge(self, data):
+		wordEdgeId = self.hasEdge(data)
+
+		if not wordEdgeId:
+			sql = 'INSERT INTO word_edge (source_wordid, destination_wordid, similaruty_score) VALUES (%s, %s, %s)'
+			params = []
+			params.append(data['source_wordid'])
+			params.append(data['destination_wordid'])
+			params.append(data['similaruty_score'])
+			wordEdgeId = self.mysql.insert(sql, params)
+			
+		return wordEdgeId
+
+
+	def hasEdge(self, data):
+		params = []
+		sql = "SELECT word_edgeid FROM word_edge WHERE "
+
+		where1 = ''
+		where2 = ''
+		joinRequired = False
+		keys = data.keys()
+		if 'source_wordid' in keys:
+			where1 += 'source_wordid = %s'
+			where2 += 'destination_wordid = %s'
+			params.append(data['source_wordid'])
+
+		if 'destination_wordid' in keys:
+			if joinRequired:
+				sql += ' AND '
+			where1 += 'destination_wordid = %s'
+			where2 += 'source_wordid = %s'
+			params.append(data['destination_wordid'])
+
+		sql += '(' + where1 + ') OR (' + where2 + ')'
+
+		return self.mysql.query(sql, params)
+
+
+	def getWordsByBatch(self, limit, offset = 0):
+		sql = "SELECT wordid, word.word FROM word ORDER BY wordid LIMIT " + str(limit) + " OFFSET " + str(offset)
+		return self.mysql.query(sql, [])
+
+
+	def getRelatedWords(self, word, minSimilarity = 30):
+		textBlocks = self.getTextNodesHavingWord(word)
+
+		if not textBlocks:
+			return None
+
+		keys = []
+		otherWords = {}
+		totalNumberOfDocsWordAppear = len(textBlocks)
+		maxSimilarity = 0
+		for textBlock in textBlocks:
+			thisBlockWords = Utility.unique(self.getNouns(textBlock[0]))
+			if thisBlockWords:
+				for otherWord in thisBlockWords:
+					if word == otherWord:
+						continue
+					if otherWord in keys:
+						otherWords[otherWord] += 1
+						if otherWords[otherWord] > maxSimilarity:
+							maxSimilarity = otherWords[otherWord]
+					else:
+						keys.append(otherWord)
+						otherWords[otherWord] = 1
+
+
+		if (not otherWords:
+			return None
+
+		print(otherWords)
+		sys.exit()
+		relatetedWords = []
+
+		#for otherWord in otherWords:
+		#	data = []
+		#	data.append(self.getWordId(otherWord.key())
+		#	data.append(otherWord)
+		#	relatetedWords.append(data)
+
+		return relatetedWords
+
+			
+	def getWordId(self, word):
+		sql = "SELECT wordid FROM word WHERE word.word = %s"
+
+		params = []
+		params.append(word)
+		return self.mysql.query(sql, params)
+
+
+
+	def getTextNodesHavingWord(self, word):
+		sql = "SELECT text_block FROM text_node WHERE text_block LIKe %s ORDER BY nodeid"
+
+		params = []
+		params.append('%' + word + '%')
+		return self.mysql.query(sql, params)
+

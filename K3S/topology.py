@@ -2,6 +2,7 @@ from .config import Config
 from .mysql import MySql
 from .textNode import TextNode
 from .context import Context 
+from .word import Word 
 
 class Topology():
 
@@ -28,6 +29,12 @@ class Topology():
 	def extractContext(self):
 		context = Context(self.identifier)
 		context.buildBasic()
+		return
+
+
+	def assignWordEdges(self):
+		wordProcessor = Word(self.identifier)
+		wordProcessor.addEdges()
 		return
 
 
