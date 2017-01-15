@@ -5,5 +5,6 @@ import scipy
 import numpy
 
 processor = K3S.Processor('Bukhari')
-processor.topologySetUp()
-processor.topologyBuilder()
+#processor.topologySetUp()
+#processor.topologyBuilder()
+processor.contextExtraction()

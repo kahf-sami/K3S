@@ -44,20 +44,18 @@ class Word(DbModel):
 	PRON pronoun
 	VERB verb
 	"""
-	def saveWords(self, textBlock):
-		words = word_tokenize(textBlock)
-		afterPartsOfSpeachTagging = pos_tag(words)
+	def saveWords(self, textBlock, onlyNoun = True):
+		if onlyNoun:
+			words = self.getNouns(textBlock)
+		else:
+			words = getWords(self, textBlock)
 
+		keys = []
 		totals = {}
-		for item in afterPartsOfSpeachTagging:
-			word = item[0]
-			wordType = item[1]
-
-			if wordType != 'NN':
-				continue;
-
-			totalKeys = totals.keys()
-			if word in totalKeys:
+		for item in words:
+			keys.append(word)
+			
+			if word in keys:
 				totals[word] += 1
 			else:
 				totals[word] = 1
@@ -70,7 +68,48 @@ class Word(DbModel):
 				self.save(data)
 
 		return words
+
+
+	def getWordsDetails(self, words):
+		sql = "SELECT word.word, word.number_of_blocks, word.count FROM word WHERE number_of_blocks > 1 AND word.word IN (";
+		params = []
+
+		joinRequired = False
+		for word in words:
+			if joinRequired:
+				sql += ','
+			sql += '%s'
+			params.append(word)
+			joinRequired = True
+
+		sql += ") ORDER BY word.number_of_blocks"
+		results = self.mysql.query(sql, params)
+		return results
 		
 
-	def getWords(self, textBlock):
-		return word_tokenize(textBlock)
+	def getNouns(self, textBlock):
+		return self.getWordsByType(textBlock, 'NN')
+
+
+
+	def getWordsByType(self, textBlock, type = None):
+		afterPartsOfSpeachTagging = self.getWords(textBlock, True)
+		
+		if not type:
+			return afterPartsOfSpeachTagging
+
+		words = []
+		for item in afterPartsOfSpeachTagging:
+			word = item[0]
+			wordType = item[1]
+
+			if wordType == type:
+				words.append(word)
+
+		return words
+
+
+
+	def getWords(self, textBlock, tagPartsOfSpeach = False):
+		words = word_tokenize(textBlock)
+		return pos_tag(words)

@@ -67,7 +67,7 @@ class MySql():
 		return
 
 
-	def query(self, sql, data):
+	def query(self, sql, data = []):
 		if self.cursor == None:
 			self.connect()
 		
@@ -86,7 +86,7 @@ class MySql():
 		return self.cursor.lastrowid
 
 
-	def updateOrDelete(self, sql, data):
+	def updateOrDelete(self, sql, data = []):
 		if self.cursor == None:
 			self.connect()
 		

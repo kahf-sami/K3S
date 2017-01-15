@@ -1,5 +1,8 @@
 from .dbModel import DbModel
+from .word import Word
+from .utility import Utility
 import sys
+import re
 
 class Context(DbModel):
 
@@ -14,46 +17,152 @@ class Context(DbModel):
 		self.joinFields = ['wordids', 'text_blockids']
 		self.relatedNodeIds = []
 		self.words = []
-
+		self.wordProcessor = Word(identifier)
+		self.context = {}
 		return
 
 
 	def buildBasic(self):
 		self.resetProcessed()
+		node = self.getNextUnprocessedNode()
 		
 		contextCharNumber = 65
-		nodeId = self.getNextUnprocessedNodeId()
-		while nodeId:
-			self.relatedNodeIds = []
+		self.context = {}
+		totalContexts = 0
+		while node:
+			nodeId = node[0][0]
+			textBlock = node[0][1]
+			words = self.wordProcessor.getNouns(textBlock)
+			if not totalContexts:
+				self.loadInitContext(words)
+				#contextName = chr(contextCharNumber)
+				#wordDetails = self.wordProcessor.getWordsDetails(words)
+				#for word in words:
+				#	otherMatchingWords = self.otherMatchingWords(word[0])
+				#	print(word)
+			#else:
+			#	for contextName
+
+			print()
+			sys.exit()
 			self.words = []
 			self.loadRelatedNodes(nodeId)
-			data = {}
-			data['name'] = char(contextCharNumber)
-			data['text_blockids'] = self.relatedNodeIds
-			data['total_association'] = len(self.relatedNodeIds)
-			date['wordids'] = self.getWords()
-			self.save(data)
+			#data = {}
+			#data['name'] = char(contextCharNumber)
+			#data['text_blockids'] = self.relatedNodeIds
+			#data['total_association'] = len(self.relatedNodeIds)
+			#date['wordids'] = self.getWords()
+			#self.save(data)
 			nodeId = self.getNextUnprocessedNodeId()
 			contextCharNumber += 1
 		
+		
 		return
 
-	def getWords(self):
 
+	def loadInitContext(self, words):
+		words = Utility.unique(words)
+
+		print(self.getOtherRelatedContents(words))
+		sys.exit()
 		return
+
+	def getOtherRelatedContents(self, words, minRelatedContent = 3):
+		where = ''
+		similarity = "CONCAT_WS(',',"
+		similarityScore = "("
+		params1 = []
+		params2 = []
+
+		joinRequired = False
+		for word in words:
+			if joinRequired:
+				where += ' OR '
+				similarity += ','
+				similarityScore += "+"
+			
+			similarity += "IF(text_block like %s, %s, '')"
+			similarityScore += "IF(text_block like %s, 1, 0)"
+			where += 'text_block like %s'
+			
+			params1.append('%' + word + '%')
+			params1.append(word)
+			params2.append('%' + word + '%')
+			joinRequired = True
+
+		
+		similarity += ') as similarity'
+		similarityScore += ") as similarity_score"
+		sql = "SELECT nodeid, " + similarity + "," + similarityScore + " FROM text_node WHERE (" + where + ") ORDER By similarity_score"
+		
+		results = self.mysql.query(sql, params1 + params2 + params2)
+		
+		totalNumberOfRelatedContent = len(results)
+		minSimilarity = None
+		maxSimilarity = None
+		index = 0
+		self.context = []
+		for result in results:
+			matchedWords = re.sub(r",+", ",", result[1])
+			if matchedWords[0] == ',':
+				matchedWords = matchedWords[1:]
+			if matchedWords[len(matchedWords) - 1] == ',':
+				matchedWords = matchedWords[:-1]
+			
+			matchedWords = matchedWords.split(',')
+			matchedWords.sort()
+
+			if not self.context:
+				firstContext = set()
+				for word in matchedWords:
+					firstContext.add(word)
+				self.context.append(firstContext)
+			else:
+				for singleContext in context:
+					currentSet = set(singleContext)
+			
+			print(self.context)
+			print(matchedWords)
+			print('---------------------------------------')
+			index +=1
+			if index == 10:
+				break
+					
+		sys.exit()
+		return results
+
+
+	def otherMatchingWords(self, word):
+		sql = 'SELECT nodeid, text_block FROM text_node WHERE text_block LIKE %s';
+		params = []
+		params.append('%' + word + '%')
+
+		results = self.mysql.query(sql, params)
+		
+		sys.exit()
+		return
+
+	def getExistingContexts(self):
+		return self.context
+
+
+
+	def getAll(self):
+		return self.mysql.query('SELECT contextid, name, wordids  FROM context ORDER BY contextid')
+	
 
 	def resetProcessed(self):
-		self.mysql.query('UPDATE text_node SET processed = 0')
+		self.mysql.updateOrDelete('UPDATE text_node SET processed = 0', [])
 		return
 
 
-	def getNextUnprocessedNodeId(self):
-		return self.mysql.query('SELECT nodeid FROM text_node WHERE processed = 0 LIMIT 1 ORDER BY nodeid')
+	def getNextUnprocessedNode(self):
+		return self.mysql.query('SELECT nodeid, text_block FROM text_node WHERE processed = 0 ORDER BY nodeid LIMIT 1')
 
 
 	def loadRelatedNodes(self, nodeId):
 		nodeIds = self.getAssociatedNodeIds()
-
+                 
 		self.relatedNodeIds.append(nodeId)
 
 		if not nodeIds:

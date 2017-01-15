@@ -36,3 +36,22 @@ class Utility():
 	def getRowColumnOfScipySparseCsrCsrMatrix(matrix, rowNumber):
 		print(matrix[rowNumber, :])
 
+
+	""" return the list with duplicate elements removed """
+	@staticmethod
+	def unique(a):
+		return list(set(a))
+
+
+	""" return the intersection of two lists """
+	@staticmethod
+	def intersect(a, b):
+		return list(set(a) & set(b))
+
+
+	""" return the union of two lists """
+	@staticmethod
+	def union(a, b):
+		return list(set(a) | set(b))
+
+
