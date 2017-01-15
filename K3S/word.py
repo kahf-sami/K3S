@@ -53,16 +53,16 @@ class Word(DbModel):
 
 		keys = []
 		totals = {}
-		for item in words:
-			keys.append(word)
-			
+		for word in words:
 			if word in keys:
 				totals[word] += 1
 			else:
 				totals[word] = 1
+
+			keys.append(word)
 			
 		if len(totals):
-			for word in totals:
+			for word in totals.keys():
 				data = {}
 				data['word'] = word
 				data['count'] = totals[word]
@@ -119,7 +119,6 @@ class Word(DbModel):
 				words.append(word)
 
 		return words
-
 
 
 	def getWords(self, textBlock, tagPartsOfSpeach = False):

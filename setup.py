@@ -37,15 +37,19 @@ extract = input(colorama.Fore.GREEN + 'Extract text blocks (Y / N): \n' + colora
 if extract == 'Y':
 	processor.extractBlocks()
 
-shouldPreProcess = input(colorama.Fore.GREEN + 'Should pre-process text (Y / N): \n' + colorama.Style.RESET_ALL)
-if shouldPreProcess == 'Y':
-	processor.nlpPreProcessBlocks()
+#STEP 3: Setup database
+setupDatabase = input(colorama.Fore.GREEN + 'Should load database (Y / N): \n' + colorama.Style.RESET_ALL)
+if setupDatabase == 'Y':
+	processor.topologySetUp()
+	processor.saveBlocksInMysql()
 
-#STEP 3: Build vocabulary
-shouldBuildVocabulary = input(colorama.Fore.GREEN + 'Should load database (Y / N): \n' + colorama.Style.RESET_ALL)
+
+#STEP 4: Build vocabulary
+shouldBuildVocabulary = input(colorama.Fore.GREEN + 'Should build and save vocaburary (general count and tf-idf) text (Y / N): \n' + colorama.Style.RESET_ALL)
 if shouldBuildVocabulary == 'Y':
-	vocab = processor.topologySetUp()
-
+	vocab = processor.buildVocabulary()
+else:
+	vocab = processor.reloadVocab()
 
 
 

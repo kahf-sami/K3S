@@ -22,7 +22,7 @@ class NLP():
 		if not textBlock:
 			return None
 
-		textBlock = re.sub('[' + string.punctuation + ']', '', textBlock)
+		textBlock = re.sub('[' + string.punctuation + ']', '', str(textBlock))
 		
 		return textBlock
 

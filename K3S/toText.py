@@ -9,6 +9,7 @@ from pdfminer.layout import LAParams, LTTextBox, LTTextLine
 import sys
 import re
 import pandas
+from .nlp import NLP
 
 class ToText():
 
@@ -119,15 +120,16 @@ class ToText():
 	
 
 	def convertFromCsv(self):
-		csvReader = pandas.read_csv(self.sourcePath, sep=',',header=[1,2])
-		rows = csvReader.values
-
-		if not textBlock:
+		csvFile = File(self.sourcePath)
+		rows = csvFile.read()
+		
+		if not rows.any():
 			return
 
-
+		nlpProcessor = NLP()
 		for row in rows:
-			fileName = row[0] + '.txt'
+			fileName = str(row[0]) + '.txt'
+			text = nlpProcessor.getFiltered(row[1])
 			filePath = File.join(self.destinationPath, fileName)
 			file = File(filePath)
 			if file.exists():

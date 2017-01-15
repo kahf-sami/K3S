@@ -5,6 +5,7 @@ import tarfile
 import pandas
 import string
 from shutil import copyfile
+import sys
 
 class File():
 
@@ -50,12 +51,14 @@ class File():
 
 	def load(self, mode = 'r'):
 		if self.extension == 'csv':
-			self.file = pandas.read_csv(self.path, sep=',')
+			self.file = pandas.read_csv(self.path, sep=',', encoding='latin1', quotechar='"')
 			self.lines = self.file.values
 			return
+
 		self.open(mode)
 		self.lines = self.file.read()
 		self.close()
+		
 		return
 
 

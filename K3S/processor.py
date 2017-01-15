@@ -12,6 +12,7 @@ import re
 from .kMeans import KMeans
 from .image import Image
 from .topology import Topology
+from .word import Word
 #from .TFKMeansCluster import TFKMeansCluster
 
 
@@ -127,9 +128,8 @@ class Processor():
 		vocab = Vocabulary.restore(self.sourceIdentifier)
 		return vocab
 
-	def buildVocabulary(self, limit = None):
-		filteredDir = Directory(self.filteredPath)
-		fileNames = filteredDir.scan()
+	def buildVocabulary(self, limit = None, onlyNoun = True):
+		fileNames = self.getFilteredFiles()
 		
 		if not fileNames:
 			return
@@ -141,6 +141,7 @@ class Processor():
 
 		i = 0
 		docs = []
+		wordProcessor = Word(self.sourceIdentifier)
 		#fileNames = ['Volume_1,_Book_12,_Number_790.txt', 'Volume_1,_Book_12,_Number_791.txt', 'Volume_1,_Book_12,_Number_792.txt']
 		for fileName in fileNames:
 			filePath = File.join(self.filteredPath, fileName)
@@ -152,7 +153,14 @@ class Processor():
 				textBlock = str(textBlock.encode('utf-8', 'replace'))
 				textBlock = re.sub("b'",'', textBlock)
 				textBlock = re.sub("'",'', textBlock)
-				docs.append(textBlock)
+				if onlyNoun:
+					nouns = wordProcessor.getNouns(textBlock)
+					if nouns:
+						textBlock = " ".join(nouns)
+					else:
+						textBlock = None
+				if textBlock:
+					docs.append(textBlock)
 			i += 1
 			if i == limit:
 				break
@@ -218,12 +226,10 @@ class Processor():
 		topologyBuilder.setUp()
 		return
 
-	def topologyBuilder(self, limit = None):
+	def saveBlocksInMysql(self, limit = None):
 		topologyBuilder = Topology(self.sourceIdentifier)
 
-		sourceDir = Directory(self.filteredPath)
-
-		files = sourceDir.scan()
+		files = self.getFilteredFiles()
 
 		if not files:
 			return
@@ -236,6 +242,7 @@ class Processor():
 			data = {}
 			data['source_identifier'] = file.getFileName()
 			data['text_block'] = file.read()
+			data['text_block'].encode("utf-8")
 			topologyBuilder.addTextNode(data)
 			index += 1
 			if (index == limit):
@@ -247,6 +254,20 @@ class Processor():
 		topologyBuilder = Topology(self.sourceIdentifier)
 		topologyBuilder.extractContext()
 
+
+	def getFilteredFiles(self):
+		sourceDir = Directory(self.filteredPath)
+
+		files = sourceDir.scan()
+
+		if not files:
+			if self.filteredPath != self.processedPath:
+				self.filteredPath = self.processedPath
+				sourceDir = Directory(self.processedPath)
+			else:
+				return None
+
+		return sourceDir.scan()
 
 
 
