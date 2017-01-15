@@ -48,9 +48,13 @@ class Image():
 
 
 	def getColor(self, index):
-		if (not self.scalerColorMap):
-			return None
-		return self.scalerColorMap.to_rgba(index)
+		colors = ['#d3d3d3','#87ceeb','#1e90ff','#4169e1', '#0000cd','#000080']
+		#if (not self.scalerColorMap):
+		#	return None
+		#return self.scalerColorMap.to_rgba(index)
+		if index > (len(colors) - 1):
+			index = len(colors) % index
+		return colors[index]
 
 
 	def setGroups(self, numberOfGroups):
@@ -114,11 +118,17 @@ class Image():
 		x = 0
 		y = self.height - self.BLOCK_HEIGHT
 		
+		wordsInVocab = self.wordVocab.keys()
 		for blockWord in blockWords:
-			wordIndex = self.wordVocab[blockWord]
-			tfIdfValue = self.matrix[documentNumber][wordIndex]
+			if blockWord in wordsInVocab:
+				wordIndex = self.wordVocab[blockWord]
+				tfIdfValue = self.matrix[documentNumber][wordIndex]
+			else:
+				tfIdfValue = 0
+
 			colorGroup = math.ceil(tfIdfValue / self.gap)
 			color = self.getColor(colorGroup)
+			
 			block = patches.Rectangle((x,y), self.BLOCK_WIDTH, self.BLOCK_HEIGHT, facecolor=color, edgecolor='None')
 			self.axis.add_patch(block)
 			if self.showText:
@@ -135,6 +145,7 @@ class Image():
 
 
 		fileNameParts = fileName.split(".")	
+	
 		self.figure.savefig(File.join(self.path, fileNameParts[0] + '.png'))
 		#plot.show()
 		return

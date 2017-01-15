@@ -51,5 +51,8 @@ if shouldBuildVocabulary == 'Y':
 else:
 	vocab = processor.reloadVocab()
 
-
+#STEP 5: Produce image
+shouldBuildImages = input(colorama.Fore.GREEN + 'Should produce highlighted image using tf-idf (Y / N): \n' + colorama.Style.RESET_ALL)
+if shouldBuildImages == 'Y':
+	processor.produceImages(1, True)
 

@@ -184,8 +184,7 @@ class Processor():
 			image.renderText()
 		image.loadTfIdf(vocab.tfidfCalculation, vocab.getTfIdfVocabulary())
 
-		filteredDir = Directory(self.filteredPath)
-		fileNames = filteredDir.scan()
+		fileNames = self.getFilteredFiles()
 		
 		if not fileNames:
 			return
