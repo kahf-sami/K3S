@@ -8,6 +8,7 @@ from pdfminer.converter import PDFPageAggregator
 from pdfminer.layout import LAParams, LTTextBox, LTTextLine
 import sys
 import re
+import pandas
 
 class ToText():
 
@@ -118,6 +119,19 @@ class ToText():
 	
 
 	def convertFromCsv(self):
-		print('convertFromCSV ToDo')
-		#--
+		csvReader = pandas.read_csv(self.sourcePath, sep=',',header=[1,2])
+		rows = csvReader.values
+
+		if not textBlock:
+			return
+
+
+		for row in rows:
+			fileName = row[0] + '.txt'
+			filePath = File.join(self.destinationPath, fileName)
+			file = File(filePath)
+			if file.exists():
+				file.remove
+			file.write(text)
+
 		return 

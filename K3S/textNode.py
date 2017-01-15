@@ -2,7 +2,6 @@ from .dbModel import DbModel
 from .edge import Edge
 from .word import Word
 from .context import Context
-
 import sys
 
 class TextNode(DbModel):
@@ -13,8 +12,8 @@ class TextNode(DbModel):
 		self.identifier = identifier
 		self.tableName = 'text_node'
 		self.primaryKey = 'nodeid'
-		self.fields = ['nodeid', 'source_identifier', 'text_block']
-		self.ignoreExists = ['text_block']
+		self.fields = ['nodeid', 'source_identifier', 'text_block', 'ascii_sum', 'processed']
+		self.ignoreExists = ['text_block', 'ascii_sum', 'processed']
 		self.contextProcessor = Context(identifier)
 		self.edgeProcessor = Edge(identifier)
 		self.wordProcessor = Word(identifier)
@@ -29,8 +28,9 @@ class TextNode(DbModel):
 		
 		if 'text_block' in keys:
 			# Save the node
-			self.nodeid = DbModel.save(self, data)
 			words = self.wordProcessor.saveWords(data['text_block'])
+			data['ascii_sum'] = self.wordProcessor.getAsciiSum(words)
+			self.nodeid = DbModel.save(self, data)
 
 		return self.nodeid
 

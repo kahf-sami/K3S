@@ -39,6 +39,7 @@ class Topology():
 			"nodeid INT(11) NOT NULL AUTO_INCREMENT,"
 			"source_identifier VARCHAR (255) NOT NULL DEFAULT '',"
 			"text_block LONGTEXT,"
+			"ascii_sum int(11) DEFAULT 0"
 			"processed TINYINT(1) DEFAULT 0,"
 			"PRIMARY KEY (nodeid)"
 			") ENGINE=InnoDB")
@@ -73,6 +74,15 @@ class Topology():
 			"number_of_blocks INT(11) NOT NULL DEFAULT 0,"
 			"tf_idf DECIMAL(10,10) DEFAULT 0,"
 			"PRIMARY KEY (wordid)"
+			") ENGINE=InnoDB")
+
+		tables['word_edge'] = (
+			"CREATE TABLE IF NOT EXISTS word_edge ("
+			"word_edgeid INT(11) NOT NULL AUTO_INCREMENT,"
+			"source_wordid INT(11) NOT NULL,"
+			"destination_wordid INT(11) NOT NULL,"
+			"similaruty_score INT(11) NOT NULL DEFAULT 0,"
+			"PRIMARY KEY (edgeid)"
 			") ENGINE=InnoDB")
 		
 		return tables

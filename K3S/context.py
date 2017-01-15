@@ -67,7 +67,7 @@ class Context(DbModel):
 		sys.exit()
 		return
 
-	def getOtherRelatedContents(self, words, minRelatedContent = 3):
+	def getOtherRelatedContents(self, words, minGroupLength = 3):
 		where = ''
 		similarity = "CONCAT_WS(',',"
 		similarityScore = "("
@@ -103,6 +103,9 @@ class Context(DbModel):
 		index = 0
 		self.context = []
 		for result in results:
+			#similarity_score = result[2]
+			#if similarity_score < minRelatedContent:
+			#	continue
 			matchedWords = re.sub(r",+", ",", result[1])
 			if matchedWords[0] == ',':
 				matchedWords = matchedWords[1:]
@@ -111,23 +114,42 @@ class Context(DbModel):
 			
 			matchedWords = matchedWords.split(',')
 			matchedWords.sort()
+			self.context.append(set(matchedWords))
 
-			if not self.context:
-				firstContext = set()
-				for word in matchedWords:
-					firstContext.add(word)
-				self.context.append(firstContext)
-			else:
-				for singleContext in context:
-					currentSet = set(singleContext)
+			#if not self.context:
+			#	self.context.append(set(matchedWords))
+			#else:
+			#	currentSet = set(matchedWords)
+			#	for singleContext in self.context:
+			#		if len(currentSet) == 0:
+			#			break
+			#		currentSet = set(currentSet) - set(singleContext)
+
+			#	if len(currentSet):
+			#		self.context.append(set(currentSet))
 			
-			print(self.context)
-			print(matchedWords)
-			print('---------------------------------------')
-			index +=1
-			if index == 10:
-				break
+			
+			
+			#index +=1
+			#if index == 1000:
+			#	break
+
+
+		print(set.intersection(*self.context))
+		modifiedContext = []
+		for refContext in self.context:
+			
+
+			for otherContext in self.context:
+				if refContext == otherContext:
+					continue
+				common = refContext & otherContext
+				if len(common)  >= minGroupLength: 
+					modifiedContext.append(common)
 					
+		for context in modifiedContext:
+			print(context)
+			print('-----------------------------------')
 		sys.exit()
 		return results
 

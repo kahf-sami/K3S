@@ -1,6 +1,7 @@
 from .dbModel import DbModel
 from nltk import word_tokenize
 from nltk import pos_tag
+from .utility import Utility
 import sys
 
 
@@ -68,6 +69,17 @@ class Word(DbModel):
 				self.save(data)
 
 		return words
+
+
+	def getAsciiSum(self, words):
+		words = Utility.unique(words)
+		wordsString = ''.join(words)
+		
+		asciiSum = 0
+		for char in wordsString:
+			asciiSum += ord(char)
+
+		return asciiSum
 
 
 	def getWordsDetails(self, words):
