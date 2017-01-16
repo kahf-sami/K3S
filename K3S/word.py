@@ -49,7 +49,7 @@ class Word(DbModel):
 		if onlyNoun:
 			words = self.getNouns(textBlock)
 		else:
-			words = getWords(self, textBlock)
+			words = self.getWords(self, textBlock)
 
 		keys = []
 		totals = {}
@@ -126,7 +126,10 @@ class Word(DbModel):
 		return pos_tag(words)
 
 
-	def addEdges(self):
+	def addEdges(self, truncate = True):
+		if truncate:
+			self.mysql.truncate('word_edge')
+			
 		limit = 10
 		offset = 0
 		words = self.getWordsByBatch(limit, offset)
@@ -138,9 +141,10 @@ class Word(DbModel):
 					for relatedWord in relatedWords:
 						data = {}
 						data['source_wordid'] = word[0]
-						data['destination_wordid'] = relatedWord[0]
-						data['similaruty_score'] = relatedWord[1]
+						data['destination_wordid'] = relatedWord['wordid']
+						data['similaruty_score'] = relatedWord['similarity_score']
 						self.saveEdge(data)
+
 			offset += limit 
 			words = self.getWordsByBatch(limit, offset)
 
@@ -173,17 +177,20 @@ class Word(DbModel):
 			where1 += 'source_wordid = %s'
 			where2 += 'destination_wordid = %s'
 			params.append(data['source_wordid'])
+			joinRequired = True
 
 		if 'destination_wordid' in keys:
 			if joinRequired:
-				sql += ' AND '
+				where1 += ' AND '
+				where2 += ' AND '
+
 			where1 += 'destination_wordid = %s'
 			where2 += 'source_wordid = %s'
 			params.append(data['destination_wordid'])
 
 		sql += '(' + where1 + ') OR (' + where2 + ')'
 
-		return self.mysql.query(sql, params)
+		return self.mysql.query(sql, params + params)
 
 
 	def getWordsByBatch(self, limit, offset = 0):
@@ -191,12 +198,13 @@ class Word(DbModel):
 		return self.mysql.query(sql, [])
 
 
-	def getRelatedWords(self, word, minSimilarity = 30):
+	def getRelatedWords(self, word, minAllowedSimilarityPercent = 50):
 		textBlocks = self.getTextNodesHavingWord(word)
 
 		if not textBlocks:
 			return None
 
+		mostSimilarWord = ''
 		keys = []
 		otherWords = {}
 		totalNumberOfDocsWordAppear = len(textBlocks)
@@ -211,24 +219,31 @@ class Word(DbModel):
 						otherWords[otherWord] += 1
 						if otherWords[otherWord] > maxSimilarity:
 							maxSimilarity = otherWords[otherWord]
+							mostSimilarWord = otherWord
 					else:
 						keys.append(otherWord)
 						otherWords[otherWord] = 1
 
-
-		if (not otherWords:
+		if not otherWords:
 			return None
 
-		print(otherWords)
-		sys.exit()
+		maxSimilarityPercent = (maxSimilarity / totalNumberOfDocsWordAppear * 100)
+
+		if maxSimilarityPercent < minAllowedSimilarityPercent:
+			return None
+		
 		relatetedWords = []
 
-		#for otherWord in otherWords:
-		#	data = []
-		#	data.append(self.getWordId(otherWord.key())
-		#	data.append(otherWord)
-		#	relatetedWords.append(data)
-
+		for otherWord in otherWords:
+			similarityPercent = (otherWords[otherWord] / totalNumberOfDocsWordAppear * 100)
+			if similarityPercent < minAllowedSimilarityPercent:
+				continue;
+			data = {}
+			data['word'] = otherWord
+			data['wordid'] = self.getWordId(otherWord)
+			data['similarity_score'] = similarityPercent
+			relatetedWords.append(data)
+		
 		return relatetedWords
 
 			
@@ -237,7 +252,12 @@ class Word(DbModel):
 
 		params = []
 		params.append(word)
-		return self.mysql.query(sql, params)
+		result = self.mysql.query(sql, params)
+
+		if not result:
+			return 0
+
+		return result[0][0]
 
 
 

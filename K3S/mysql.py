@@ -102,5 +102,12 @@ class MySql():
 		return
 
 
+	def truncate(self, tableName):
+		self.updateOrDelete('TRUNCATE ' + tableName, [])
+		return
+
+
+
+
 
 
