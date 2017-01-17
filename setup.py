@@ -41,7 +41,7 @@ setupDatabase = input(colorama.Fore.GREEN + 'Should load database (Y / N): \n' +
 if setupDatabase == 'Y':
 	processor.topologySetUp()
 	processor.saveBlocksInMysql()
-
+	processor.addEdges()
 
 #STEP 4: Build vocabulary
 shouldBuildVocabulary = input(colorama.Fore.GREEN + 'Should build and save vocaburary (general count and tf-idf) text (Y / N): \n' + colorama.Style.RESET_ALL)
@@ -54,4 +54,13 @@ else:
 shouldBuildImages = input(colorama.Fore.GREEN + 'Should produce highlighted image using tf-idf (Y / N): \n' + colorama.Style.RESET_ALL)
 if shouldBuildImages == 'Y':
 	processor.produceImages(None, True)
+
+
+processName = input(colorama.Fore.RED + 'Name of the algorithm (kmeans): \n' + colorama.Style.RESET_ALL)
+if processName == 'kmeans':
+	kmeans = processor.calculateKMeans(vocab, 5)
+else:
+	kmeans = processor.reloadKMeans(identifier)
+
+	
 

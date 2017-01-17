@@ -4,6 +4,11 @@ import colorama
 import scipy
 import numpy
 
+jsoner = K3S.JsonNodeAndEdgeGenerator('tpl', '/home/ishrat/research/K3S/examples/')
+jsoner.loadJsonData()
+jsoner.write()
+sys.exit()
+
 #processor = K3S.Processor('Bukhari')
 #processor.topologySetUp()
 #processor.topologyBuilder()

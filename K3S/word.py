@@ -268,3 +268,13 @@ class Word(DbModel):
 		params.append('%' + word + '%')
 		return self.mysql.query(sql, params)
 
+
+	def getAllWords(self):
+		sql = ("SELECT CONCAT_WS('-', wordid, word) as identifier, count, number_of_blocks "
+			"FROM word "
+			"ORDER BY number_of_blocks DESC")
+
+		return self.mysql.query(sql, [])
+
+
+
