@@ -2,17 +2,20 @@ from .word import Word
 from .file import File 
 import json
 from .processor import Processor
+import sys
+from collections import OrderedDict
 
 class JsonNodeAndEdgeGenerator():
 
 
 	def __init__(self, identifier, destinationPath):
-		self.wordProcessor = Word(identifier)
+		self.identifier = identifier
+		self.wordProcessor = Word(self.identifier)
 		self.destinationPath = destinationPath
 		self.fileName = identifier + '.json'
 		self.jsonData = {}
 		self.jsonData['nodes'] = []
-		self.jsonData['links'] = []
+		#self.jsonData['links'] = []
 		return
 
 	def loadJsonData(self):
@@ -20,16 +23,19 @@ class JsonNodeAndEdgeGenerator():
 		self.jsonData['nodes'] = []		
 		self.jsonData['links'] = []
 		
-		processor = Processor(identifier)
-		vocab = processor.reloadVocab()
-		kmeans = processor.reloadKMeans()
-		self.loadNodesClusterByKmeans(vocab.tfidfCalculation, vocab.tfIdf.get_feature_names(), kmeans.getAssignments())
+		#processor = Processor(self.identifier)
+		#vocab = processor.reloadVocab()
+		#kmeans = processor.reloadKMeans()
+		#self.loadNodesClusterByKmeans(vocab.tfidfCalculation, vocab.tfIdf.get_feature_names(), kmeans.getAssignments())
+		
+		self.loadNodesFromDatabase()
+
 		return
 
 	def appendNode(self, id, group):
 		node = {}
-		node['id'] = id
-		node['group'] = group
+		node['id'] = str(id)
+		node['group'] = str(group)
 		self.jsonData['nodes'].append(node)
 		return
 
@@ -49,7 +55,7 @@ class JsonNodeAndEdgeGenerator():
 		filePath = File.join(self.destinationPath, self.fileName)
 		file = File(filePath)
 		file.remove()
-		jsonString = json.dumps(self.jsonData)
+		jsonString = json.dumps(OrderedDict([("nodes", self.jsonData['nodes']), ("links", self.jsonData['links'])]))
 		file.write(jsonString)
 		return
 
@@ -64,9 +70,30 @@ class JsonNodeAndEdgeGenerator():
 			nodeGroup = group[index]
 			self.appendNode(word, nodeGroup)
 			index += 1
-
 		return
 
+
+	def loadNodesFromDatabase(self, clusterSize = 5):
+		words = self.wordProcessor.getAllWords()
+
+		index = 0
+		for word in words:
+			name = str(word[0]) + '-' + word[1]
+			nodeGroup = round(word[3] % 5)
+			self.appendNode(name, nodeGroup)
+			edges = self.wordProcessor.getEdges(word[0])
+			if edges:
+				for edge in edges:
+					print(edge)
+					otherNodeName = str(edge[0]) + '-' + edge[1]
+					self.appendLink(name, otherNodeName, edge[2])
+
+			#if index == 10:
+			#	return
+
+			index += 1
+
+		return
 
 	def loadLinkClusterByWordMatrix(self, matrix, wordVocab):
 		return

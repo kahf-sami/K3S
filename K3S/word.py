@@ -270,11 +270,20 @@ class Word(DbModel):
 
 
 	def getAllWords(self):
-		sql = ("SELECT CONCAT_WS('-', wordid, word) as identifier, count, number_of_blocks "
+		sql = ("SELECT wordid, word, count, number_of_blocks "
 			"FROM word "
-			"ORDER BY number_of_blocks DESC")
+			"ORDER BY number_of_blocks DESC, count ASC")
 
 		return self.mysql.query(sql, [])
 
 
-
+	def getEdges(self, wordId):
+		sql = ("SELECT word.wordid, word.word, similaruty_score "
+			"FROM word_edge "
+			"JOIN word ON destination_wordid = word.wordid "
+			"WHERE source_wordid = %s "
+			"ORDER BY similaruty_score")
+		
+		params = []
+		params.append(wordId)
+		return self.mysql.query(sql, params)
