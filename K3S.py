@@ -5,7 +5,7 @@ import scipy
 import numpy
 
 jsoner = K3S.JsonNodeAndEdgeGenerator('tpl', '/home/ishrat/research/K3S/examples/')
-jsoner.loadJsonData()
+jsoner.loadJsonData('diabet')
 jsoner.write()
 sys.exit()
 

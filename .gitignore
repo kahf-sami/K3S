@@ -8,3 +8,4 @@
 /runs/*
 /temp/logs/*
 /K3S/__pycache__/
+/examples/*

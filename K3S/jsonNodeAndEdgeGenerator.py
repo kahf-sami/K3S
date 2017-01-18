@@ -18,7 +18,11 @@ class JsonNodeAndEdgeGenerator():
 		#self.jsonData['links'] = []
 		return
 
-	def loadJsonData(self):
+	def setFileName(self, fileName):
+		self.fileName = self.identifier + '-' + fileName + '.json'
+		return
+
+	def loadJsonData(self, word = None):
 		self.jsonData = {}
 		self.jsonData['nodes'] = []		
 		self.jsonData['links'] = []
@@ -28,8 +32,11 @@ class JsonNodeAndEdgeGenerator():
 		#kmeans = processor.reloadKMeans()
 		#self.loadNodesClusterByKmeans(vocab.tfidfCalculation, vocab.tfIdf.get_feature_names(), kmeans.getAssignments())
 		
-		self.loadNodesFromDatabase()
-
+		if word:
+			self.loadClusterForOnlyOneWord(word)
+		else:
+			self.loadNodesFromDatabase()
+		
 		return
 
 	def appendNode(self, id, group):
@@ -95,7 +102,18 @@ class JsonNodeAndEdgeGenerator():
 
 		return
 
-	def loadLinkClusterByWordMatrix(self, matrix, wordVocab):
+	def loadClusterForOnlyOneWord(self, word):
+		self.setFileName(word)
+		relatedWords = self.wordProcessor.getRelatedWordsForGraph(word)
+
+		self.appendNode(word, 1)
+		for item in relatedWords:
+			if item[1] == word:
+				self.appendNode(item[3], 2)
+			else:
+				self.appendNode(item[1], 2)
+
+			self.appendLink(item[1], item[3], item[4])
 		return
 
 

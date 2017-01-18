@@ -283,7 +283,23 @@ class Word(DbModel):
 			"JOIN word ON destination_wordid = word.wordid "
 			"WHERE source_wordid = %s "
 			"ORDER BY similaruty_score")
-		
+
 		params = []
 		params.append(wordId)
 		return self.mysql.query(sql, params)
+
+
+	def getRelatedWordsForGraph(self, word):
+		sql = ("SELECT source_wordid, source_word.word, destination_wordid, destination_word.word, similaruty_score "
+			"FROM word_edge "
+			"JOIN word AS source_word ON source_word.wordid = source_wordid "
+			"JOIN word AS destination_word ON destination_word.wordid = destination_wordid "
+			"WHERE (source_word.word = %s or destination_word.word = %s) "
+			"ORDER BY similaruty_score");
+
+		params = []
+		params.append(word)
+		params.append(word)
+
+		return self.mysql.query(sql, params)
+
