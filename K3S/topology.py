@@ -46,6 +46,7 @@ class Topology():
 			"nodeid INT(11) NOT NULL AUTO_INCREMENT,"
 			"source_identifier VARCHAR (255) NOT NULL DEFAULT '',"
 			"text_block LONGTEXT,"
+			"representatives LONGTEXT,"
 			"ascii_sum int(11) DEFAULT 0,"
 			"processed TINYINT(1) DEFAULT 0,"
 			"PRIMARY KEY (nodeid)"
@@ -72,6 +73,17 @@ class Topology():
 			"PRIMARY KEY (contextid)"
 			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
 
+		tables['local_context'] = (
+			"CREATE TABLE IF NOT EXISTS context ("
+			"local_contextid INT(11) NOT NULL AUTO_INCREMENT,"
+			"name VARCHAR(255) DEFAULT ''"
+			"words LONGTEXT DEFAULT NULL,"
+			"number_of_words INT(11) DEFAULT 0,"
+			"number_of_text_blocks INT(11) 0,"
+			"nodeids LONGTEXT DEFAULT NULL,"
+			"PRIMARY KEY (contextid)"
+			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
+
 		tables['word'] = (
 			"CREATE TABLE IF NOT EXISTS word ("
 			"wordid INT(11) NOT NULL AUTO_INCREMENT,"
@@ -79,6 +91,7 @@ class Topology():
 			"word VARCHAR(255) NOT NULL,"
 			"count INT(11) NOT NULL DEFAULT 0,"
 			"number_of_blocks INT(11) NOT NULL DEFAULT 0,"
+			"number_of_related_context INT(11) NOT NULL DEFAULT 0,"
 			"tf_idf DECIMAL(10,10) DEFAULT 0,"
 			"PRIMARY KEY (wordid)"
 			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")

@@ -15,7 +15,7 @@ class JsonNodeAndEdgeGenerator():
 		self.fileName = identifier + '.json'
 		self.jsonData = {}
 		self.jsonData['nodes'] = []
-		#self.jsonData['links'] = []
+		self.jsonData['links'] = []
 		return
 
 	def setFileName(self, fileName):
@@ -109,9 +109,9 @@ class JsonNodeAndEdgeGenerator():
 		self.appendNode(word, 1)
 		for item in relatedWords:
 			if item[1] == word:
-				self.appendNode(item[3], 2)
+				self.appendNode(item[3], (item[4] % 6))
 			else:
-				self.appendNode(item[1], 2)
+				self.appendNode(item[1], (item[4] % 6))
 
 			self.appendLink(item[1], item[3], item[4])
 		return

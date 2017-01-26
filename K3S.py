@@ -5,7 +5,11 @@ import scipy
 import numpy
 
 jsoner = K3S.JsonNodeAndEdgeGenerator('tpl', '/home/ishrat/research/K3S/examples/')
-jsoner.loadJsonData('diabet')
+#jsoner.loadJsonData('diabet')
+jsoner.loadClusterForOnlyOneWord('diabet')
+jsoner.loadClusterForOnlyOneWord('novo')
+jsoner.loadClusterForOnlyOneWord('nordisk')
+jsoner.loadClusterForOnlyOneWord('saxenda')
 jsoner.write()
 sys.exit()
 

@@ -2,7 +2,10 @@ from .dbModel import DbModel
 from .edge import Edge
 from .word import Word
 from .context import Context
+from .nlp import NLP
 import sys
+import re
+from .utility import Utility
 
 class TextNode(DbModel):
 
@@ -13,13 +16,13 @@ class TextNode(DbModel):
 		self.tableName = 'text_node'
 		self.primaryKey = 'nodeid'
 		self.fields = ['nodeid', 'source_identifier', 'text_block', 'ascii_sum', 'processed']
-		self.ignoreExists = ['text_block', 'ascii_sum', 'processed']
+		self.ignoreExists = ['text_block', 'representatives', 'ascii_sum', 'processed']
 		self.contextProcessor = Context(identifier)
 		self.edgeProcessor = Edge(identifier)
 		self.wordProcessor = Word(identifier)
+		self.nlpProcessor = NLP()
 		self.nodeid = None
 		return
-
 
 
 	def save(self, data):
@@ -27,12 +30,36 @@ class TextNode(DbModel):
 		words = None
 		
 		if 'text_block' in keys:
+			textBlock = re.sub('([\']s?)|(-\n)|(\")', '', str(data['text_block']))
+			textBlock = re.sub('(\s+)|(\s\n)|\(.+\)', ' ', str(textBlock))
+			#textBlock = self.nlpProcessor.removePunctuation(textBlock)
+			data['representatives'] = self.nlpProcessor.getNouns(textBlock)
+			localContexts = self.getLocalContexts(textBlock, data['representatives'] )
 			# Save the node
 			words = self.wordProcessor.saveWords(data['text_block'])
 			data['ascii_sum'] = self.wordProcessor.getAsciiSum(words)
 			self.nodeid = DbModel.save(self, data)
 
 		return self.nodeid
+
+
+	def getLocalContexts(self, textBlock, representatives):
+		sentenceContexts = re.split('[?.,:\n]', textBlock.lower())
+
+		localContexts = []
+		
+		index = 0
+		for sentenceContext in sentenceContexts:
+			words = self.nlpProcessor.getWords(sentenceContext)
+			localContextItem = Utility.intersect(representatives, words)
+
+			print(localContextItem)
+			index += 1
+		
+		print(representatives)
+		sys.exit()
+		
+		return localContexts
 
 
 	def relate(self, textBlock, currentNodeId):

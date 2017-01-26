@@ -235,7 +235,7 @@ class Processor():
 
 		index = 0
 		for fileName in files:
-			filePath = File.join(self.filteredPath, fileName)
+			filePath = File.join(self.processedPath, fileName)
 			file = File(filePath)
 			textBlock = file.read()
 			data = {}
@@ -272,5 +272,46 @@ class Processor():
 	def addEdges(self):
 		topologyBuilder = Topology(self.sourceIdentifier)
 		topologyBuilder.assignWordEdges()
+
+
+	def displayResults(self, limit = 3):
+		processedDir = Directory(self.processedPath)
+
+		files = processedDir.scan()
+
+		if not files:
+			return
+
+		localVocab = {}
+		index = 0
+		nlpProcessor = NLP()
+		for fileName in files:
+			filePath = File.join(self.processedPath, fileName)
+			file = File(filePath)
+			fileName = file.getFileName()
+			textBlock = file.read()
+			print(textBlock)
+			textBlock = re.sub('\'s', '', str(textBlock))
+			textBlock = re.sub('\'', '', str(textBlock))
+			textBlock = re.sub('-\n', '', str(textBlock))
+			print(re.split('[?.,:\n]', textBlock))
+			textBlock = nlpProcessor.removePunctuation(textBlock)
+			nouns = nlpProcessor.getNouns(textBlock)
+			for noun in nouns:
+				if noun in localVocab.keys():
+					localVocab[noun] += 1
+				else:
+					localVocab[noun] = 1
+			print(nouns)
+			print('--------------------------------')
+			index += 1
+			if index == limit:
+				break
+		#localVocab1 = localVocab.sort()
+		#for word in localVocab:
+		#	print(word + ': ' + str(localVocab[word]) )
+
+		#print(localVocab1)
+		return
 
 
