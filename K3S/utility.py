@@ -1,4 +1,5 @@
 from .config import Config
+import math
 
 class Utility():
 
@@ -30,6 +31,15 @@ class Utility():
 			stringToPrint += "\n"
 
 		print(stringToPrint)
+
+	@staticmethod
+	def stringToNumber(text):
+		return int.from_bytes(text.encode(), 'little')
+
+
+	@staticmethod
+	def numberToString(number):
+		return number.to_bytes(math.ceil(number.bit_length() / 8), 'little').decode()
 
 
 	@staticmethod

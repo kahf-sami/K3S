@@ -302,6 +302,7 @@ class Processor():
 					localVocab[noun] += 1
 				else:
 					localVocab[noun] = 1
+			
 			print(nouns)
 			print('--------------------------------')
 			index += 1
