@@ -4,6 +4,7 @@ import colorama
 import scipy
 import numpy
 
+
 #processor = K3S.Processor('tpl') 
 #processor.topologySetUp()
 #processor.topologyBuilder()
@@ -11,7 +12,7 @@ import numpy
 #processor.addEdges()
 
 processor = K3S.Processor('Bukhari')
-processor.saveBlocksInMysql(1)
+processor.displayResults(20)
 
 sys.exit()
 

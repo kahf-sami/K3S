@@ -137,11 +137,11 @@ class TextNode(DbModel):
 			if not subSetOfAnother and localContext not in finalLocalContexts:
 				finalLocalContexts.append(localContext)
 
-		print(sentenceContexts)
-		print('-------------------------------')
-		print(representatives)
-		print('-------------------------------')
-		print(localContexts)
+		#print(sentenceContexts)
+		#print('-------------------------------')
+		#print(representatives)
+		#print('-------------------------------')
+		#print(localContexts)
 		print('-------------------------------')
 		print(finalLocalContexts)
 		sys.exit()

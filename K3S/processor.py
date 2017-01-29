@@ -13,7 +13,9 @@ from .kMeans import KMeans
 from .image import Image
 from .topology import Topology
 from .word import Word
+from .localContext import LocalContext
 #from .TFKMeansCluster import TFKMeansCluster
+from .localContextHighlighter import LocalContextHighlighter
 
 
 class Processor():
@@ -27,8 +29,8 @@ class Processor():
 		self.processedPath = File.join(self.mainPath, 'processed')
 		self.filteredPath = File.join(self.mainPath, 'after-filtered')
 		self.graphsPath = File.join(self.mainPath, 'graphs')
+		self.localContextImagesPath = File.join(self.mainPath, 'local-context')
 		self.sourceIdentifier = sourceIdentifier
-		
 		return
 
 
@@ -51,6 +53,9 @@ class Processor():
 
 		filteredDir = Directory(self.filteredPath)
 		filteredDir.create()
+
+		localContextDir = Directory(self.localContextImagesPath)
+		localContextDir.create()
 
 		return
 
@@ -274,7 +279,7 @@ class Processor():
 		topologyBuilder.assignWordEdges()
 
 
-	def displayResults(self, limit = 3):
+	def displayResults(self, limit = 10):
 		processedDir = Directory(self.processedPath)
 
 		files = processedDir.scan()
@@ -285,26 +290,22 @@ class Processor():
 		localVocab = {}
 		index = 0
 		nlpProcessor = NLP()
+		vocab = Vocabulary.restore(self.sourceIdentifier)
+		
+		image = LocalContextHighlighter(self.sourceIdentifier)
+		image.renderText()
+		image.loadTfIdf(vocab.tfidfCalculation, vocab.getTfIdfVocabulary())
+
 		for fileName in files:
 			filePath = File.join(self.processedPath, fileName)
 			file = File(filePath)
 			fileName = file.getFileName()
 			textBlock = file.read()
-			print(textBlock)
-			textBlock = re.sub('\'s', '', str(textBlock))
-			textBlock = re.sub('\'', '', str(textBlock))
-			textBlock = re.sub('-\n', '', str(textBlock))
-			print(re.split('[?.,:\n]', textBlock))
-			textBlock = nlpProcessor.removePunctuation(textBlock)
-			nouns = nlpProcessor.getNouns(textBlock)
-			for noun in nouns:
-				if noun in localVocab.keys():
-					localVocab[noun] += 1
-				else:
-					localVocab[noun] = 1
-			
-			print(nouns)
-			print('--------------------------------')
+			lc = LocalContext(textBlock)
+			image.setLocalContexts(lc.getLocalContexts())
+			print(lc.getLocalContexts())
+			image.create(index, fileName, lc.getCleanedTextBlock())
+			print("--------------------------------------")
 			index += 1
 			if index == limit:
 				break

@@ -8,9 +8,9 @@ from nltk.stem.porter import PorterStemmer
 class LocalContext():
 
 
-	def __init__(self):
-		DbModel.__init__(self, textBlock)
+	def __init__(self, textBlock):
 		self.textBlock = textBlock
+		self.cleanTextBlock = self.setCleanText(textBlock)
 		self.nlpProcessor = NLP()
 		self.stemmer = PorterStemmer()
 		self.contexts = []
@@ -19,36 +19,42 @@ class LocalContext():
 		self.buildLocalContexts()
 		return
 
+
 	def getRepresentative(self):
 		return self.representatives
 
 
-	def getSentenceContexts(self, textBlock):
-		sentenceContexts = re.split('[?.,!;:\n]', textBlock.lower())
+	def getSentenceContexts(self):
+		sentenceContexts = re.split('[?.,!;:\n]', self.textBlock.lower())
 		return sentenceContexts
 
 
 	def getLocalContexts(self):
 		return self.contexts
 
+	def getCleanedTextBlock(self):
+		return  re.sub('[?.,!;:\n]', '', str(self.cleanTextBlock))
 
-	def buildRepresentatives(self):
+
+	def setCleanText(self, textBlock):
 		textBlock = re.sub('([\']s?)|(-\n)|(\")', '', str(self.textBlock))
 		textBlock = re.sub('(\s+)|(\s\n)|\(.+\)', ' ', str(textBlock))
-		representatives = self.nlpProcessor.getNouns(textBlock)
-		localContexts = self.getLocalContexts(textBlock, representatives)
+		return textBlock
+
+	def buildRepresentatives(self):
+		representatives = self.nlpProcessor.getNouns(self.cleanTextBlock)
 		self.representatives = representatives
 		return
 
 
 
-	def buildLocalContexts(self, textBlock, representatives = None):
-		sentenceContexts = self.getSentenceContexts(textBlock)
+	def buildLocalContexts(self):
+		sentenceContexts = self.getSentenceContexts()
 
 		localContexts = []
 		index = 0
 		for sentence in sentenceContexts:
-			prospectiveContextItems = self.getProspectiveContextItems(getProspectiveContextItems)
+			prospectiveContextItems = self.getProspectiveContextItems(sentence)
 			totalProspectiveItems = len(prospectiveContextItems)
 			if totalProspectiveItems == 0:
 				continue
@@ -63,11 +69,12 @@ class LocalContext():
 			itemIndex = 0
 			combinedContext = []
 			for item in prospectiveContextItems:
-				if itemIndex == (totalProspectiveItems -1):
+				if itemIndex == (totalProspectiveItems - 1):
 					#Last item
 					if item not in combinedContext:
 						localContexts = self.appendToLocalContext(item, localContexts)
-						break
+						
+					break
 						
 				contextDistance = abs(intexOfItem[itemIndex] - intexOfItem[itemIndex + 1])
 				if contextDistance == 1:
@@ -86,17 +93,6 @@ class LocalContext():
 				localContexts.append(combinedContext)
 
 			index += 1
-
-		
-
-		print(sentenceContexts)
-		print('-------------------------------')
-		print(representatives)
-		print('-------------------------------')
-		print(localContexts)
-		print('-------------------------------')
-		print(contexts)
-		sys.exit()
 		
 		return self.loadContexts(localContexts)
 
@@ -108,7 +104,7 @@ class LocalContext():
 
 
 	def appendToLocalContext(self, item, localContexts):
-		stemmedItem = stemmer.stem(item)
+		stemmedItem = self.stemmer.stem(item)
 		if stemmedItem == item:
 			itemList = [item]
 		else:
@@ -117,8 +113,9 @@ class LocalContext():
 		localContexts.append(itemList)
 		return localContexts
 
+
 	def appendItemToLocalContext(self, item, localContexts):
-		stemmedItem = stemmer.stem(item)
+		stemmedItem = self.stemmer.stem(item)
 		if (stemmedItem != item) and (stemmedItem not in localContexts):
 			localContexts.append(stemmedItem)
 
@@ -129,7 +126,7 @@ class LocalContext():
 
 
 	def getProspectiveContextItems(self, sentence):
-		words = self.nlpProcessor.getWords(sentenceContext)
+		words = self.nlpProcessor.getWords(sentence)
 		return Utility.intersect(self.representatives, words)
 
 

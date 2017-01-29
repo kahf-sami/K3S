@@ -15,3 +15,4 @@ from .topology import Topology
 from .textNode import TextNode
 from .jsonNodeAndEdgeGenerator import JsonNodeAndEdgeGenerator
 from .localContext import LocalContext
+from .localContextHighlighter import LocalContextHighlighter
