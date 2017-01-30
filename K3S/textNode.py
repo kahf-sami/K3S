@@ -7,7 +7,6 @@ import sys
 import re
 from .utility import Utility
 import math
-from nltk.stem.porter import PorterStemmer
 from .localContext import LocalContext
 
 class TextNode(DbModel):

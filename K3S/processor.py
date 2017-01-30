@@ -241,9 +241,10 @@ class Processor():
 		files.sort()
 		index = 0
 		for fileName in files:
+			if fileName[0] == '.':
+				continue
 			filePath = File.join(self.processedPath, fileName)
 			file = File(filePath)
-			textBlock = file.read()
 			data = {}
 			data['source_identifier'] = file.getFileName()
 			data['text_block'] = file.read()

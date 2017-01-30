@@ -3,7 +3,7 @@ from nltk import word_tokenize
 from nltk import pos_tag
 from .utility import Utility
 import sys
-
+from nltk.stem.porter import PorterStemmer
 
 class Word(DbModel):
 
@@ -12,8 +12,9 @@ class Word(DbModel):
 		DbModel.__init__(self, identifier)
 		self.tableName = 'word'
 		self.primaryKey = 'wordid'
-		self.fields = ['wordid', 'contextid', 'word', 'count', 'number_of_blocks', 'tf_idf']
+		self.fields = ['wordid', 'contextid', 'word', 'count', 'number_of_blocks', 'tf_idf', 'stemmed_word']
 		self.ignoreExists = ['count', 'number_of_blocks', 'tf_idf']
+		self.stemmer = PorterStemmer()
 		return
 
 
@@ -70,6 +71,7 @@ class Word(DbModel):
 				data = {}
 				data['word'] = word
 				data['count'] = totals[word]
+				data['stemmed_word'] = self.stemmer.stem(word)
 				self.save(data)
 
 		return words

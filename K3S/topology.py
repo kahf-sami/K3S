@@ -74,7 +74,7 @@ class Topology():
 			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
 
 		tables['local_context'] = (
-			"CREATE TABLE IF NOT EXISTS context ("
+			"CREATE TABLE IF NOT EXISTS local_context ("
 			"local_contextid INT(11) NOT NULL AUTO_INCREMENT,"
 			"nodeid INT(11) NOT NULL,"
 			"words LONGTEXT DEFAULT NULL,"

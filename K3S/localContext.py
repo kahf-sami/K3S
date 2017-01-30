@@ -163,7 +163,7 @@ class LocalContext(DbModel):
 		return self.contexts
 
 
-	def addLocalContexts(self, nodeid, localContexts):
+	def saveLocalContexts(self, nodeid):
 		if not self.contexts:
 			return
 
