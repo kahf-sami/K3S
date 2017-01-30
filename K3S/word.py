@@ -46,10 +46,14 @@ class Word(DbModel):
 	VERB verb
 	"""
 	def saveWords(self, textBlock, onlyNoun = True):
-		if onlyNoun:
-			words = self.getNouns(textBlock)
+		print(textBlock)
+		if type(textBlock) is list:
+			words = textBlock
 		else:
-			words = self.getWords(self, textBlock)
+			if onlyNoun:
+				words = self.getNouns(textBlock)
+			else:
+				words = self.getWords(self, textBlock)
 
 		keys = []
 		totals = {}

@@ -76,19 +76,16 @@ class Topology():
 		tables['local_context'] = (
 			"CREATE TABLE IF NOT EXISTS context ("
 			"local_contextid INT(11) NOT NULL AUTO_INCREMENT,"
-			"name VARCHAR(255) DEFAULT ''"
+			"nodeid INT(11) NOT NULL,"
 			"words LONGTEXT DEFAULT NULL,"
-			"number_of_words INT(11) DEFAULT 0,"
-			"number_of_text_blocks INT(11) 0,"
-			"nodeids LONGTEXT DEFAULT NULL,"
-			"PRIMARY KEY (contextid)"
+			"PRIMARY KEY (local_contextid)"
 			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
 
 		tables['word'] = (
 			"CREATE TABLE IF NOT EXISTS word ("
 			"wordid INT(11) NOT NULL AUTO_INCREMENT,"
-			"contextid INT(11) DEFAULT NULL,"
 			"word VARCHAR(255) NOT NULL,"
+			"stemmed_word VARCHAR(255) NOT NULL,"
 			"count INT(11) NOT NULL DEFAULT 0,"
 			"number_of_blocks INT(11) NOT NULL DEFAULT 0,"
 			"number_of_related_context INT(11) NOT NULL DEFAULT 0,"

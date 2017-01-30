@@ -4,11 +4,18 @@ import re
 from .utility import Utility
 import math
 from nltk.stem.porter import PorterStemmer
+from nltk.corpus import stopwords
+from .dbModel import DbModel
 
-class LocalContext():
+class LocalContext(DbModel):
 
 
-	def __init__(self, textBlock):
+	def __init__(self, textBlock, identifier = None):
+		DbModel.__init__(self, identifier)
+		self.identifier = identifier
+		self.tableName = 'local_context'
+		self.primaryKey = 'local_contextid'
+		self.fields = ['local_contextid', 'nodeid', 'words']
 		self.textBlock = textBlock
 		self.cleanTextBlock = self.setCleanText(textBlock)
 		self.nlpProcessor = NLP()
@@ -25,7 +32,7 @@ class LocalContext():
 
 
 	def getSentenceContexts(self):
-		sentenceContexts = re.split('[?.,!;:\n]', self.textBlock.lower())
+		sentenceContexts = re.split('[?.,!;:\n]', self.cleanTextBlock.lower())
 		return sentenceContexts
 
 
@@ -33,16 +40,19 @@ class LocalContext():
 		return self.contexts
 
 	def getCleanedTextBlock(self):
-		return  re.sub('[?.,!;:\n]', '', str(self.cleanTextBlock))
+		return  re.sub('[?.!;:\n]', '', str(self.cleanTextBlock))
 
 
 	def setCleanText(self, textBlock):
-		textBlock = re.sub('([\']s?)|(-\n)|(\")', '', str(self.textBlock))
-		textBlock = re.sub('(\s+)|(\s\n)|\(.+\)', ' ', str(textBlock))
+		textBlock = re.sub(r'\s(bin|ibn)\s', r'_\1_', str(self.textBlock))
+		textBlock = re.sub(r'([\']s?)|(-\n)|(\")|(Volume.+Book.+:)', '', str(textBlock))
+		textBlock = re.sub('(\s+)|(\s\n)|\(.+\)', ' ', str(textBlock.strip()))
 		return textBlock
 
 	def buildRepresentatives(self):
 		representatives = self.nlpProcessor.getNouns(self.cleanTextBlock)
+		representatives = [word for word in representatives if word not in stopwords.words('english')]
+		#print(representatives)
 		self.representatives = representatives
 		return
 
@@ -51,6 +61,7 @@ class LocalContext():
 	def buildLocalContexts(self):
 		sentenceContexts = self.getSentenceContexts()
 
+		#print(sentenceContexts)
 		localContexts = []
 		index = 0
 		for sentence in sentenceContexts:
@@ -151,3 +162,23 @@ class LocalContext():
 
 		return self.contexts
 
+
+	def addLocalContexts(self, nodeid, localContexts):
+		if not self.contexts:
+			return
+
+		for context in self.contexts:
+			context.sort()
+			data = {}
+			data['nodeid'] = nodeid
+			data['words'] = ','.join(context)
+			self.save(data)
+		
+		return
+
+
+	def deleteLocalContextsByNodeid(self, nodeid):
+		sql = "DELETE FROM local_context WHERE nodeid = " + str(nodeid)
+		params = []
+		self.mysql.updateOrDelete(sql, params)
+		return

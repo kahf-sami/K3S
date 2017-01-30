@@ -238,6 +238,7 @@ class Processor():
 		if not files:
 			return
 
+		files.sort()
 		index = 0
 		for fileName in files:
 			filePath = File.join(self.processedPath, fileName)
@@ -287,6 +288,7 @@ class Processor():
 		if not files:
 			return
 
+		files.sort()
 		localVocab = {}
 		index = 0
 		nlpProcessor = NLP()
@@ -297,12 +299,17 @@ class Processor():
 		image.loadTfIdf(vocab.tfidfCalculation, vocab.getTfIdfVocabulary())
 
 		for fileName in files:
+			if fileName[0] == '.':
+				continue
+			print(fileName)
 			filePath = File.join(self.processedPath, fileName)
 			file = File(filePath)
 			fileName = file.getFileName()
 			textBlock = file.read()
+			print(textBlock)
 			lc = LocalContext(textBlock)
 			image.setLocalContexts(lc.getLocalContexts())
+			print(lc.getRepresentative())
 			print(lc.getLocalContexts())
 			image.create(index, fileName, lc.getCleanedTextBlock())
 			print("--------------------------------------")

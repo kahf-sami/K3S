@@ -37,5 +37,4 @@ text2 = ("The Farmer and His Sons "
 processor = K3S.LocalContext(text2)
 #print(processor.getRepresentative())
 print(processor.getLocalContexts())
-
 sys.exit()
