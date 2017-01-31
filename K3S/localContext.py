@@ -6,6 +6,7 @@ import math
 from nltk.stem.porter import PorterStemmer
 from nltk.corpus import stopwords
 from .dbModel import DbModel
+from .nlp import NLP
 
 class LocalContext(DbModel):
 
@@ -16,9 +17,9 @@ class LocalContext(DbModel):
 		self.tableName = 'local_context'
 		self.primaryKey = 'local_contextid'
 		self.fields = ['local_contextid', 'nodeid', 'words']
+		self.nlpProcessor = NLP()
 		self.textBlock = textBlock
 		self.cleanTextBlock = self.setCleanText(textBlock)
-		self.nlpProcessor = NLP()
 		self.stemmer = PorterStemmer()
 		self.contexts = []
 		self.representatives = []
@@ -32,7 +33,7 @@ class LocalContext(DbModel):
 
 
 	def getSentenceContexts(self):
-		sentenceContexts = re.split('[?.,!;:\n]', self.cleanTextBlock.lower())
+		sentenceContexts = re.split('[?.,!;:\n\(\)]', self.cleanTextBlock.lower())
 		return sentenceContexts
 
 
@@ -44,12 +45,35 @@ class LocalContext(DbModel):
 
 
 	def setCleanText(self, textBlock):
-		textBlock = re.sub(r'\s(bin|ibn)\s', r'_\1_', str(self.textBlock))
+		textBlock = re.sub(r'\s(bin|ibn)\s', r'_\1_', str(self.textBlock), flags=re.IGNORECASE)
 		textBlock = re.sub(r'([\']s?)|(-\n)|(\")|(Volume.+Book.+:)', '', str(textBlock))
-		textBlock = re.sub('(\s+)|(\s\n)|\(.+\)', ' ', str(textBlock.strip()))
+		textBlock = re.sub('(\s+)|(\s\n)', ' ', str(textBlock.strip()))
+		textBlock = re.sub('-', '_', str(textBlock))
+		"""
+		words = self.nlpProcessor.getWords(textBlock)
+		finalWord = ''
+		finalWords = []
+
+		for word in words:
+			if word.istitle():
+				if finalWord:
+					finalWord += '_'
+				finalWord += word
+			elif finalWord:
+				finalWords.append(finalWord)
+				finalWord = ''
+
+		if finalWord:
+			finalWords.append(finalWord)
+
+		print(finalWords)
+		return ' '.join(finalWords)
+		"""
+
 		return textBlock
 
 	def buildRepresentatives(self):
+		#print(self.cleanTextBlock)
 		representatives = self.nlpProcessor.getNouns(self.cleanTextBlock)
 		representatives = [word for word in representatives if word not in stopwords.words('english')]
 		#print(representatives)
@@ -66,6 +90,8 @@ class LocalContext(DbModel):
 		index = 0
 		for sentence in sentenceContexts:
 			prospectiveContextItems = self.getProspectiveContextItems(sentence)
+			#print('--------------')
+			#print(prospectiveContextItems)
 			totalProspectiveItems = len(prospectiveContextItems)
 			if totalProspectiveItems == 0:
 				continue
@@ -88,7 +114,7 @@ class LocalContext(DbModel):
 					break
 						
 				contextDistance = abs(intexOfItem[itemIndex] - intexOfItem[itemIndex + 1])
-				if contextDistance == 1:
+				if contextDistance <= 5:
 					if item not in combinedContext:
 						combinedContext = self.appendItemToLocalContext(item, combinedContext)
 
@@ -115,20 +141,22 @@ class LocalContext(DbModel):
 
 
 	def appendToLocalContext(self, item, localContexts):
-		stemmedItem = self.stemmer.stem(item)
-		if stemmedItem == item:
-			itemList = [item]
-		else:
-			itemList = [item, stemmedItem]
+		#stemmedItem = self.stemmer.stem(item)
+		#if stemmedItem == item:
+		#	itemList = [item]
+		#else:
+		#	itemList = [item, stemmedItem]
+		itemList = [item]
+		if itemList not in localContexts:
+			localContexts.append(itemList)
 
-		localContexts.append(itemList)
 		return localContexts
 
 
 	def appendItemToLocalContext(self, item, localContexts):
-		stemmedItem = self.stemmer.stem(item)
-		if (stemmedItem != item) and (stemmedItem not in localContexts):
-			localContexts.append(stemmedItem)
+		#stemmedItem = self.stemmer.stem(item)
+		#if (stemmedItem != item) and (stemmedItem not in localContexts):
+		#	localContexts.append(stemmedItem)
 
 		if item not in localContexts:
 			localContexts.append(item)
@@ -166,6 +194,8 @@ class LocalContext(DbModel):
 	def saveLocalContexts(self, nodeid):
 		if not self.contexts:
 			return
+
+		self.deleteLocalContextsByNodeid(nodeid)
 
 		for context in self.contexts:
 			context.sort()

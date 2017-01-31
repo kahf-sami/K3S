@@ -17,7 +17,7 @@ class TextNode(DbModel):
 		self.identifier = identifier
 		self.tableName = 'text_node'
 		self.primaryKey = 'nodeid'
-		self.fields = ['nodeid', 'source_identifier', 'text_block', 'ascii_sum', 'processed']
+		self.fields = ['nodeid', 'source_identifier', 'text_block', 'ascii_sum', 'processed', 'local_context', 'representatives']
 		self.ignoreExists = ['text_block', 'representatives', 'ascii_sum', 'processed']
 		self.contextProcessor = Context(identifier)
 		self.edgeProcessor = Edge(identifier)
