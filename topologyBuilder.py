@@ -7,13 +7,13 @@ import numpy
 
 processor = K3S.Processor('Bukhari') 
 processor.topologySetUp()
-processor.saveBlocksInMysql(1)
+processor.saveBlocksInMysql()
 sys.exit()
 #processor.contextExtraction()
 #processor.addEdges()
 
 processor = K3S.Processor('Bukhari')
-processor.displayResults(1)
+processor.displayResults()
 
 sys.exit()
 

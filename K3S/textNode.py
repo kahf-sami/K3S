@@ -35,7 +35,7 @@ class TextNode(DbModel):
 			lc = LocalContext(data['text_block'], self.identifier)
 			data['representatives'] = lc.getRepresentative()
 			localContexts = lc.getLocalContexts()
-			words = self.wordProcessor.saveWords(data['representatives'])
+			words = self.wordProcessor.saveWords(lc.getCleanText(), data['representatives'])
 			data['ascii_sum'] = self.wordProcessor.getAsciiSum(data['representatives'])
 			self.nodeid = DbModel.save(self, data)
 			if localContexts:

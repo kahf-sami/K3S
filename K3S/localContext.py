@@ -33,7 +33,7 @@ class LocalContext(DbModel):
 
 
 	def getSentenceContexts(self):
-		sentenceContexts = re.split('[?.,!;:\n\(\)]', self.cleanTextBlock.lower())
+		sentenceContexts = re.split('[?.,!;:\n\(\)]', self.cleanTextBlock)
 		return sentenceContexts
 
 
@@ -43,6 +43,9 @@ class LocalContext(DbModel):
 	def getCleanedTextBlock(self):
 		return  re.sub('[?.!;:\n]', '', str(self.cleanTextBlock))
 
+
+	def getCleanText(self):
+		return self.cleanTextBlock
 
 	def setCleanText(self, textBlock):
 		textBlock = re.sub(r'\s(bin|ibn)\s', r'_\1_', str(self.textBlock), flags=re.IGNORECASE)
@@ -70,7 +73,7 @@ class LocalContext(DbModel):
 		return ' '.join(finalWords)
 		"""
 
-		return textBlock
+		return textBlock.lower()
 
 	def buildRepresentatives(self):
 		#print(self.cleanTextBlock)

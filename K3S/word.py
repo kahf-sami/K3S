@@ -4,6 +4,8 @@ from nltk import pos_tag
 from .utility import Utility
 import sys
 from nltk.stem.porter import PorterStemmer
+from .nlp import NLP
+import math
 
 class Word(DbModel):
 
@@ -15,6 +17,7 @@ class Word(DbModel):
 		self.fields = ['wordid', 'contextid', 'word', 'count', 'number_of_blocks', 'tf_idf', 'stemmed_word']
 		self.ignoreExists = ['count', 'number_of_blocks', 'tf_idf']
 		self.stemmer = PorterStemmer()
+		self.nlpProcessor = NLP()
 		return
 
 
@@ -46,35 +49,65 @@ class Word(DbModel):
 	PRON pronoun
 	VERB verb
 	"""
-	def saveWords(self, textBlock, onlyNoun = True):
-		print(textBlock)
-		if type(textBlock) is list:
-			words = textBlock
-		else:
-			if onlyNoun:
+	def saveWords(self, textBlock, words = None, onlyNoun = True):
+		actualWords = self.getWords(textBlock, False)
+		if not words:
+			if onlyNoun: 
 				words = self.getNouns(textBlock)
 			else:
-				words = self.getWords(self, textBlock)
+				words = actualWords
 
 		keys = []
 		totals = {}
-		for word in words:
-			if word in keys:
-				totals[word] += 1
+		for word in actualWords:
+			stemmedWord = self.stemmer.stem(word)
+			if stemmedWord in keys:
+				totals[stemmedWord] += 1
 			else:
-				totals[word] = 1
+				totals[stemmedWord] = 1
 
 			keys.append(word)
-			
+		
 		if len(totals):
-			for word in totals.keys():
+			for word in words:
 				data = {}
 				data['word'] = word
-				data['count'] = totals[word]
 				data['stemmed_word'] = self.stemmer.stem(word)
+				keys = totals.keys()
+				if data['stemmed_word'] in keys:
+					data['count'] = totals[data['stemmed_word']]
+				elif word in keys:
+					data['count'] = totals[word]
+				else:
+					parts =  data[word].split('_')
+					if parts[0] in keys:
+						data['count'] = totals[parts[0]]
+					else:	
+						data['count'] = 1
+				
 				self.save(data)
 
 		return words
+
+	def calculateTfIdf(self):
+		limit = 10
+		offset = 0
+		words = self.getWordsByBatch(limit, offset)
+		totalWords = self.getTotalWords()
+		totalTextBlocks = self.getTotalTextBlocks()
+
+		while len(words):
+			for word in words:
+				tf = word[2] / totalWords
+				idf = math.log(ltotalTextBlocks / (1 + word[3]))
+				data = {}
+				data['wordid'] = word[0]
+				data['tf_idf'] = tf * idf
+				self.save(data)
+
+			offset += limit 
+			words = self.getWordsByBatch(limit, offset)
+		return
 
 
 	def getAsciiSum(self, words):
@@ -129,6 +162,8 @@ class Word(DbModel):
 
 	def getWords(self, textBlock, tagPartsOfSpeach = False):
 		words = word_tokenize(textBlock)
+		if not tagPartsOfSpeach:
+			return words
 		return pos_tag(words)
 
 
@@ -136,7 +171,7 @@ class Word(DbModel):
 		if truncate:
 			self.mysql.truncate('word_edge')
 			
-		limit = 10
+		limit = 1000
 		offset = 0
 		words = self.getWordsByBatch(limit, offset)
 
@@ -200,7 +235,7 @@ class Word(DbModel):
 
 
 	def getWordsByBatch(self, limit, offset = 0):
-		sql = "SELECT wordid, word.word FROM word ORDER BY wordid LIMIT " + str(limit) + " OFFSET " + str(offset)
+		sql = "SELECT wordid, word.word,count,number_of_blocks  FROM word ORDER BY wordid LIMIT " + str(limit) + " OFFSET " + str(offset)
 		return self.mysql.query(sql, [])
 
 
@@ -265,6 +300,19 @@ class Word(DbModel):
 
 		return result[0][0]
 
+
+	def getTotalWords(self):
+		sql = "SELECT count(*) FROM word"
+
+		params = []
+		return self.mysql.query(sql, params)
+
+
+	def getTotalTextBlocks(self):
+		sql = "SELECT count(*) FROM text_node"
+
+		params = []
+		return self.mysql.query(sql, params)
 
 
 	def getTextNodesHavingWord(self, word):
