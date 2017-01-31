@@ -6,8 +6,9 @@ import numpy
 
 
 processor = K3S.Processor('Bukhari') 
-processor.topologySetUp()
-processor.saveBlocksInMysql()
+#processor.topologySetUp()
+#processor.saveBlocksInMysql()
+processor.calculateTfIdf()
 sys.exit()
 #processor.contextExtraction()
 #processor.addEdges()

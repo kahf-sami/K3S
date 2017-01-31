@@ -7,6 +7,8 @@ from nltk.stem.porter import PorterStemmer
 from .nlp import NLP
 import math
 
+
+
 class Word(DbModel):
 
 
@@ -30,8 +32,8 @@ class Word(DbModel):
 			itemid = self.insert(data)
 		else:
 			itemid = item[0][0]
-			data['number_of_blocks'] = item[0][4] + 1
-			data['count'] += item[0][3]
+			data['number_of_blocks'] = int(item[0][4]) + 1
+			data['count'] += int(item[0][3])
 			self.update(data, itemid)
 				
 		return itemid
@@ -98,12 +100,12 @@ class Word(DbModel):
 
 		while len(words):
 			for word in words:
-				tf = word[2] / totalWords
-				idf = math.log(ltotalTextBlocks / (1 + word[3]))
+				tf = int(word[2]) / int(totalWords[0][0])
+				idf = math.log(int(totalTextBlocks[0][0]) / (1 + int(word[3])))
 				data = {}
 				data['wordid'] = word[0]
 				data['tf_idf'] = tf * idf
-				self.save(data)
+				self.update(data, int(word[0]))
 
 			offset += limit 
 			words = self.getWordsByBatch(limit, offset)

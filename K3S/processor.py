@@ -254,6 +254,10 @@ class Processor():
 			if (index == limit):
 				break;
 
+		
+		return
+
+	def calculateTfIdf(self):
 		wordProcessor = Word(self.sourceIdentifier)
 		wordProcessor.calculateTfIdf()
 		return
