@@ -16,6 +16,9 @@ from .word import Word
 from .localContext import LocalContext
 #from .TFKMeansCluster import TFKMeansCluster
 from .localContextHighlighter import LocalContextHighlighter
+from .lda import LDA
+from .textNode import TextNode
+import ast
 
 
 class Processor():
@@ -329,6 +332,31 @@ class Processor():
 		#	print(word + ': ' + str(localVocab[word]) )
 
 		#print(localVocab1)
+		return
+
+
+	def calculateLDA(self, number):
+		textNodeProcessor = TextNode(self.sourceIdentifier)
+
+		limit = 10
+		offset = 0
+
+		lda = LDA(self.sourceIdentifier, number)
+		blocks = textNodeProcessor.getAllByBatch(limit, offset)
+
+		index = 1
+		while len(blocks):
+			textBlocks = []
+			for block in blocks:
+				words = ast.literal_eval(block[3])
+				textBlocks.append(words)
+			lda.train(textBlocks)
+			offset += len(blocks)
+			blocks = textNodeProcessor.getAllByBatch(limit, offset)
+			index += 1
+			if index == limit:
+				break
+
 		return
 
 
