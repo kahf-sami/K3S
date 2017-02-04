@@ -335,16 +335,16 @@ class Processor():
 		return
 
 
-	def calculateLDA(self, number):
+	def calculateLDA(self, number, passes):
 		textNodeProcessor = TextNode(self.sourceIdentifier)
 
-		limit = 10
+		limit = 100000
 		offset = 0
 
-		lda = LDA(self.sourceIdentifier, number)
+		lda = LDA(self.sourceIdentifier, number, passes)
 		blocks = textNodeProcessor.getAllByBatch(limit, offset)
 
-		index = 1
+		#index = 1
 		while len(blocks):
 			textBlocks = []
 			for block in blocks:
@@ -353,9 +353,10 @@ class Processor():
 			lda.train(textBlocks)
 			offset += len(blocks)
 			blocks = textNodeProcessor.getAllByBatch(limit, offset)
-			index += 1
-			if index == limit:
-				break
+			sys.exit()
+			#index += 1
+			#if index == limit:
+			#	break
 
 		return
 

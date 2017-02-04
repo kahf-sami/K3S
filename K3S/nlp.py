@@ -195,6 +195,7 @@ class NLP():
 		words['NNPS'] = []
 		words['NN'] = []
 		words['NNS'] = []
+		words['VBN'] = []
 		stopWords = self.getLocalStopWords()
 		stemmer = PorterStemmer()
 		for item in afterPartsOfSpeachTagging:
@@ -206,11 +207,11 @@ class NLP():
 			if (word in stopWords) or (len(word) <= 2):
 				continue
 
-			if (item[1] in ['NNP', 'NNPS', 'NN', 'NNS']) and (word not in words):
+			if (item[1] in ['NNP', 'NNPS', 'NN', 'NNS', 'VBN']) and (word not in words):
 				words[item[1]].append(word)
 				stopWords.append(word)
 
-		filteredWords = words['NNP'] + words['NNPS'] + words['NN'] + words['NNS']
+		filteredWords = words['NNP'] + words['NNPS'] + words['NN'] + words['NNS'] + words['VBN']
 		return filteredWords
 
 

@@ -34,6 +34,7 @@ class LocalContext(DbModel):
 
 	def getSentenceContexts(self):
 		sentenceContexts = re.split('[?.,!;:\n\(\)]', self.cleanTextBlock)
+		print(sentenceContexts)
 		return sentenceContexts
 
 
@@ -76,8 +77,7 @@ class LocalContext(DbModel):
 		return textBlock.lower()
 
 	def buildRepresentatives(self):
-		#print(self.cleanTextBlock)
-		representatives = self.nlpProcessor.getNouns(self.cleanTextBlock)
+		representatives = self.nlpProcessor.getNouns(self.textBlock)
 		representatives = [word for word in representatives if word not in stopwords.words('english')]
 		#print(representatives)
 		self.representatives = representatives
