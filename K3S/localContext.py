@@ -145,10 +145,6 @@ class LocalContext(DbModel):
 			contextColors.append(itemColor)
 
 		lcr.create(x, y, colors, nodes, contextPolygons, contextColors)
-
-
-
-
 		#pyplot.plot([point[0], point2[0]], [point[1], point2[1]])
 
 		return
@@ -354,16 +350,16 @@ class LocalContext(DbModel):
 
 
 	def saveLocalContexts(self, nodeid):
-		if not self.contexts:
+		if not self.combinedContexts:
 			return
 
 		self.deleteLocalContextsByNodeid(nodeid)
 
-		for context in self.contexts:
-			context.sort()
+		for context in self.combinedContexts:
+			self.combinedContexts[context].sort()
 			data = {}
 			data['nodeid'] = nodeid
-			data['words'] = ','.join(context)
+			data['words'] = ','.join(self.combinedContexts[context])
 			self.save(data)
 		
 		return

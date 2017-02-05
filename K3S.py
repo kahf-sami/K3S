@@ -110,10 +110,12 @@ processName = input(colorama.Fore.RED + 'Name of the algorithm (kmeans): \n' + c
 if processName == 'kmeans':
 	kmeans = processor.calculateKMeans(vocab, 5)
 else:
-	kmeans = processor.reloadKMeans(identifier)
+	kmeans = processor.reloadKMeans()
+
 
 shouldGenerateLocalContextImages = input(colorama.Fore.RED + 'Should generate local context images: \n' + colorama.Style.RESET_ALL)
 if shouldGenerateLocalContextImages == 'Y':
+	processor.produceImages(None, True)
 	processor.generateLocalContextImages()
 
 
