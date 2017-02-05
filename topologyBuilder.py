@@ -65,64 +65,20 @@ text3 = ('Narrated Abu Huraira: '
 'Huraira and he did not deny anything of his narration till he reached his saying: "All this and as '
 'much again therewith are for you." Then Abu Sa\'id said, "I heard Allah\'s Apostle saying, \'This is for '
 'you and ten times as much.\' " Abu Huraira said, "In my memory it is \'as much again therewith.\'')
-#processor = K3S.Processor('Bukhari') 
-#processor.calculateLDA(500)
-lda = K3S.LDA('Bukhari', 500)
-lda.display()
-lda.getTopics(text3)
-sys.exit()
 
-processor = K3S.Processor('Bukhari') 
-#processor.topologySetUp()
-#processor.saveBlocksInMysql()
-#processor.calculateTfIdf()
-processor.calculateLDA(1)
-sys.exit()
-processor.calculateLDA(5)
-processor.calculateLDA(10)
-processor.calculateLDA(50)
-processor.calculateLDA(100)
-processor.calculateLDA(500)
-sys.exit()
-#processor.contextExtraction()
-#processor.addEdges()
-
-processor = K3S.Processor('Bukhari')
-processor.displayResults()
-
-sys.exit()
-
-nlp = K3S.NLP()
-text1 = ("The Prophet said, \"Faith (Belief) consists of more than sixty branches (i.e. parts)."
+text4 = ("The Prophet said, \"Faith (Belief) consists of more than sixty branches (i.e. parts)."
 	"And Haya (This term \"Haya\" covers a large number of concepts which are to be taken together; "
 	"amongst them are self respect, modesty, bashfulness, and scruple, etc.) is a part of faith.\"")
 
-text2 = ("The Prophet said, \"A Muslim is the one who avoids harming Muslims with his tongue and hands. "
+text5 = ("The Prophet said, \"A Muslim is the one who avoids harming Muslims with his tongue and hands. "
 	"And a Muhajir (emigrant) is the one who gives up (abandons) all what Allah has forbidden.")
 
-text3 = ("Some people asked Allah's Apostle, \"Whose Islam is the best? i.e. (Who is a very good Muslim)?\" "
+text6 = ("Some people asked Allah's Apostle, \"Whose Islam is the best? i.e. (Who is a very good Muslim)?\" "
 		"He replied, \"One who avoids harming the Muslims with his tongue and hands.\"")
 
+identifier = 'Bukhari'
 
-print(text1)
-text1 = nlp.removePunctuation(text1)
-print('-----------------------------------------------------------------------------------------')
-nouns1 = nlp.getNouns(text1)
-print(nouns1)
-print('-----------------------------------------------------------------------------------------')
-
-print(text2)
-text2 = nlp.removePunctuation(text2)
-print('-----------------------------------------------------------------------------------------')
-nouns2 = nlp.getNouns(text2)
-print(nouns2)
-print('-----------------------------------------------------------------------------------------')
-
-
-print(text3)
-text3 = nlp.removePunctuation(text3)
-print('-----------------------------------------------------------------------------------------')
-nouns3 = nlp.getNouns(text3)
-print(nouns3)
-print('-----------------------------------------------------------------------------------------')
-#capitals = nlp.getCapitals()
+lc = K3S.LocalContext(text3, identifier)
+sys.exit()
+print(lc.getRepresentative())
+print(lc.getLocalContexts())

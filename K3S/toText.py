@@ -129,7 +129,7 @@ class ToText():
 		nlpProcessor = NLP()
 		for row in rows:
 			fileName = str(row[0]) + '.txt'
-			text = nlpProcessor.getFiltered(row[1])
+			text = nlpProcessor.removeHtmlTags(row[1] + row[2] + row[3])
 			filePath = File.join(self.destinationPath, fileName)
 			file = File(filePath)
 			if file.exists():

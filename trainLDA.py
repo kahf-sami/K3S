@@ -6,11 +6,11 @@ import numpy
 
 
 processor = K3S.Processor('Bukhari') 
-processor.calculateLDA(500, 10)
+#processor.calculateLDA(500, 10)
 processor.calculateLDA(500, 20)
 processor.calculateLDA(500, 50)
 
-processor.calculateLDA(300, 10)
+#processor.calculateLDA(300, 10)
 processor.calculateLDA(300, 20)
 processor.calculateLDA(300, 50)
 

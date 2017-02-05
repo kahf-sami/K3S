@@ -23,8 +23,12 @@ class LocalContext(DbModel):
 		self.stemmer = PorterStemmer()
 		self.contexts = []
 		self.representatives = []
+		self.sentenceContexts = []
+		self.blockWords = {}
+		self.wordsInSentences = []
 		self.buildRepresentatives()
-		self.buildLocalContexts()
+		self.buildDetails()
+		#self.buildLocalContexts()
 		return
 
 
@@ -33,9 +37,11 @@ class LocalContext(DbModel):
 
 
 	def getSentenceContexts(self):
-		sentenceContexts = re.split('[?.,!;:\n\(\)]', self.cleanTextBlock)
-		print(sentenceContexts)
-		return sentenceContexts
+		if len(self.sentenceContexts):
+			return self.sentenceContexts
+
+		self.sentenceContexts = re.split('[?.,!;:\n\(\)]', self.cleanTextBlock)
+		return self.sentenceContexts
 
 
 	def getLocalContexts(self):
@@ -53,28 +59,88 @@ class LocalContext(DbModel):
 		textBlock = re.sub(r'([\']s?)|(-\n)|(\")|(Volume.+Book.+:)', '', str(textBlock))
 		textBlock = re.sub('(\s+)|(\s\n)', ' ', str(textBlock.strip()))
 		textBlock = re.sub('-', '_', str(textBlock))
-		"""
-		words = self.nlpProcessor.getWords(textBlock)
-		finalWord = ''
-		finalWords = []
+		return textBlock
 
-		for word in words:
-			if word.istitle():
-				if finalWord:
-					finalWord += '_'
-				finalWord += word
-			elif finalWord:
-				finalWords.append(finalWord)
-				finalWord = ''
 
-		if finalWord:
-			finalWords.append(finalWord)
+	def buildDetails(self):
+		sentenceContexts = self.getSentenceContexts()
 
-		print(finalWords)
-		return ' '.join(finalWords)
-		"""
+		if not len(sentenceContexts):
+			return
 
-		return textBlock.lower()
+		self.blockWords = {}
+		self.wordsInSentences = []
+		self.associatedContextForWords = {}
+		self.combinedContexts = {}
+		positionContribution = len(sentenceContexts)
+		positionContributionFactor = 0.10	
+
+
+		for sentence in sentenceContexts:
+			afterPartsOfSpeachTagging = self.nlpProcessor.getWords(sentence, True)
+			#print(afterPartsOfSpeachTagging)
+		
+			if not len(afterPartsOfSpeachTagging):
+				positionContribution -= 1
+				continue
+
+			lastType = None
+			words = []
+			index = 0
+			
+			for item in afterPartsOfSpeachTagging:
+				word =  self.stemmer.stem(item[0].lower())
+				currentType = item[1]
+				bloclWord = None
+
+				if (item[1] not in ['NNP', 'NNPS', 'NN', 'NNS']) or (len(word) < 2):
+					continue
+
+				words.append(word)
+
+				index += 1
+				lastType = currentType
+				blockWord = word
+
+				if blockWord not in self.blockWords.keys():
+					self.blockWords[blockWord] = (1 + (positionContribution * positionContributionFactor))
+				else:
+					self.blockWords[blockWord] += (1 + (positionContribution * positionContributionFactor))
+
+			positionContribution -= 1
+
+			if len(words):
+				self.wordsInSentences.append(words)
+				uniqueWords = Utility.unique(words)
+				contextIndex = len(self.combinedContext)
+				if contextIndex == 0:
+					self.combinedContext[contextIndex] = uniqueWords
+					for uniqueWord in uniqueWords:
+						self.associatedContextForWords[uniqueWord] = contextIndex
+				else:
+					alreadyProcessedWords = self.associatedContextForWords.keys()
+					alreadyProcessedWordsSentenceWords = Utility.intersect(alreadyProcessedWords, uniqueWords)
+
+					matchedContexts = []
+					if len(alreadyProcessedWordsSentenceWords):
+						for processedContextItem in alreadyProcessedWordsSentenceWords:
+							if self.associatedContextForWords[processedContextItem] not in matchedContexts:
+								matchedContexts.append(self.associatedContextForWords[processedContextItem])
+
+					
+
+					for uniqueWord in uniqueWords:
+						self.associatedContextForWords[uniqueWord] = contextIndex
+
+
+
+			
+
+
+		print(self.wordsInSentences)
+		print(self.blockWords)
+
+		return
 
 	def buildRepresentatives(self):
 		representatives = self.nlpProcessor.getNouns(self.textBlock)
@@ -93,12 +159,13 @@ class LocalContext(DbModel):
 		index = 0
 		for sentence in sentenceContexts:
 			prospectiveContextItems = self.getProspectiveContextItems(sentence)
-			#print('--------------')
-			#print(prospectiveContextItems)
+			print('--------------')
+			print(sentence)
+			
 			totalProspectiveItems = len(prospectiveContextItems)
 			if totalProspectiveItems == 0:
 				continue
-
+			print(prospectiveContextItems)
 			if totalProspectiveItems == 1:
 				# only one item
 				localContexts = self.appendToLocalContext(prospectiveContextItems[0], localContexts)
@@ -133,6 +200,8 @@ class LocalContext(DbModel):
 				localContexts.append(combinedContext)
 
 			index += 1
+		print(localContexts)
+		sys.exit()
 		
 		return self.loadContexts(localContexts)
 

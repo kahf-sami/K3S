@@ -291,7 +291,7 @@ class Processor():
 		topologyBuilder.assignWordEdges()
 
 
-	def displayResults(self, limit = 10):
+	def generateLocalContextImages(self, limit = None):
 		processedDir = Directory(self.processedPath)
 
 		files = processedDir.scan()
@@ -325,7 +325,7 @@ class Processor():
 			image.create(index, fileName, lc.getCleanedTextBlock())
 			print("--------------------------------------")
 			index += 1
-			if index == limit:
+			if limit and index == limit:
 				break
 		#localVocab1 = localVocab.sort()
 		#for word in localVocab:
@@ -353,7 +353,8 @@ class Processor():
 			lda.train(textBlocks)
 			offset += len(blocks)
 			blocks = textNodeProcessor.getAllByBatch(limit, offset)
-			sys.exit()
+			return
+			#sys.exit()
 			#index += 1
 			#if index == limit:
 			#	break

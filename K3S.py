@@ -109,4 +109,8 @@ if processName == 'kmeans':
 else:
 	kmeans = processor.reloadKMeans(identifier)
 
+shouldGenerateLocalContextImages = input(colorama.Fore.RED + 'Should generate local context images: \n' + colorama.Style.RESET_ALL)
+if shouldGenerateLocalContextImages == 'Y':
+	processor.generateLocalContextImages()
+
 

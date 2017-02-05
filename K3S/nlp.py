@@ -71,9 +71,9 @@ class NLP():
 		cleaned = re.sub(r"(?s)<.*?>", " ", cleaned)
 
 		# Finally, we deal with whitespace
-		cleaned = re.sub(r"&nbsp;", " ", cleaned)
-		cleaned = re.sub(r"  ", " ", cleaned)
-		cleaned = re.sub(r"  ", " ", cleaned)
+		cleaned = re.sub(r"&[a-z0-9]+;", " ", cleaned)
+		cleaned = re.sub(r"\s*", " ", cleaned)
+
 
 		return cleaned.strip()
 
@@ -187,15 +187,14 @@ class NLP():
 	35.	WP$	Possessive wh-pronoun
 	36.	WRB	Wh-adverb
 	'''
-	def getNouns(self, textBlock):		
+	def getNouns(self, textBlock):
 		afterPartsOfSpeachTagging = self.getWords(textBlock, True)
-		#print(afterPartsOfSpeachTagging)
 		words = {}
 		words['NNP'] = []
 		words['NNPS'] = []
 		words['NN'] = []
 		words['NNS'] = []
-		words['VBN'] = []
+		
 		stopWords = self.getLocalStopWords()
 		stemmer = PorterStemmer()
 		for item in afterPartsOfSpeachTagging:
@@ -207,12 +206,13 @@ class NLP():
 			if (word in stopWords) or (len(word) <= 2):
 				continue
 
-			if (item[1] in ['NNP', 'NNPS', 'NN', 'NNS', 'VBN']) and (word not in words):
+			if (item[1] in ['NNP', 'NNPS', 'NN', 'NNS']) and (word not in words):
 				words[item[1]].append(word)
 				stopWords.append(word)
 
-		filteredWords = words['NNP'] + words['NNPS'] + words['NN'] + words['NNS'] + words['VBN']
+		filteredWords = words['NNP'] + words['NNPS'] + words['NN'] + words['NNS']
 		return filteredWords
+
 
 
 	def getLocalStopWords(self):
