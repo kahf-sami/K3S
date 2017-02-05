@@ -9,6 +9,7 @@ from .dbModel import DbModel
 from .nlp import NLP
 from .localContextReflector import LocalContextReflector
 import random 
+import numpy
 
 class LocalContext(DbModel):
 
@@ -55,7 +56,8 @@ class LocalContext(DbModel):
 
 
 	def getLocalContexts(self):
-		return self.contexts
+		return self.combinedContexts
+
 
 	def getCleanedTextBlock(self):
 		return  re.sub('[?.!;:\n]', '', str(self.cleanTextBlock))
@@ -96,18 +98,58 @@ class LocalContext(DbModel):
 		processedContexts = []
 
 		edges = []
-		nodes = []
+		nodes = {}
+		contextPolygons = []
+		contextColors = []
 		nodeIndex = 0
-		for context in self.combinedContext:
-			color = color("#%06x" % random.randint(0, 0xFFFFFF))
-			for word in context:
-				node = {}
-				node['index'] = nodeIndex
-				node['label'] = word + '-' + str(self.blockWords[word])
-				node['color'] = color
-				node['x'] = 
-				nodes.append(node)
-				nodeIndex += 1
+		totalWords = len(self.blockWords)
+		thetaGap = 360 / totalWords
+		theta = 0
+
+		x = []
+		y = []
+		colors = []
+
+		colTest = lambda: random.randint(0,255)
+
+
+		contextIndex = 0
+		for context in self.combinedContexts:
+			itemColor = '#%02X%02X%02X' % (colTest(),colTest(),colTest())
+			polygon = []
+			contextMin = None
+			for word in  self.combinedContexts[context]:
+				if word in nodes.keys():
+					node = nodes[word]
+				else:
+					node = {}
+					node['index'] = nodeIndex
+					node['label'] = word + '-' + str(self.blockWords[word])
+					node['color'] = itemColor
+					node['r'] = self.max - self.blockWords[word]
+					node['theta'] = theta
+					node['x'] = node['r'] * numpy.cos(numpy.deg2rad(theta))
+					node['y'] = node['r'] * numpy.sin(numpy.deg2rad(theta))
+					nodes[word] = node 
+					nodeIndex += 1
+					theta += thetaGap
+					x.append(node['x'])
+					y.append(node['y'])
+					colors.append(itemColor)
+
+
+				point = (node['x'], node['y'])
+				polygon.append(point)
+
+			contextPolygons.append(polygon)
+			contextColors.append(itemColor)
+
+		lcr.create(x, y, colors, nodes, contextPolygons, contextColors)
+
+
+
+
+		#pyplot.plot([point[0], point2[0]], [point[1], point2[1]])
 
 		return
 
@@ -123,7 +165,7 @@ class LocalContext(DbModel):
 		totalProcessedWords = len(alreadyProcessedWordsSentenceWords)
 		totalNotProcessedWords = len(notProcessedWords)
 
-		self.combinedContexts[contextIndex] = notProcessedWords
+		self.combinedContexts[contextIndex] = uniqueWords
 		for uniqueWord in notProcessedWords:
 			self.associatedContextForWords[uniqueWord] = contextIndex
 						
@@ -152,7 +194,7 @@ class LocalContext(DbModel):
 		
 		if not len(afterPartsOfSpeachTagging):
 			self.positionContribution -= 1
-			continue
+			return []
 
 		lastType = None
 		words = []
@@ -160,27 +202,33 @@ class LocalContext(DbModel):
 			
 		for item in afterPartsOfSpeachTagging:
 			word =  self.stemmer.stem(item[0].lower())
-				currentType = item[1]
-				bloclWord = None
+			currentType = item[1]
+			bloclWord = None
 
-				if (item[1] not in ['NNP', 'NNPS', 'NN', 'NNS']) or (len(word) < 2):
-					continue
+			if (item[1] not in ['NNP', 'NNPS', 'NN', 'NNS']) or (len(word) < 2):
+				continue
 
-				words.append(word)
+			words.append(word)
 
-				index += 1
-				lastType = currentType
-				blockWord = word
+			index += 1
+			lastType = currentType
+			blockWord = word
 
-				if blockWord not in self.blockWords.keys():
-					self.blockWords[blockWord] = (1 + (self.positionContribution * self.positionContributionFactor))
-				else:
-					self.blockWords[blockWord] += (1 + (self.positionContribution * self.positionContributionFactor))
+			if blockWord not in self.blockWords.keys():
+				self.blockWords[blockWord] = (1 + (self.positionContribution * self.positionContributionFactor))
+			else:
+				self.blockWords[blockWord] += (1 + (self.positionContribution * self.positionContributionFactor))
+
+			if not self.max or self.max < self.blockWords[blockWord]:
+				self.max = self.blockWords[blockWord]
+
+			if not self.min or self.min > self.blockWords[blockWord]:
+				self.min = self.blockWords[blockWord]
 
 		
 		self.positionContribution -= 1
 
-		return
+		return words
 
 
 
@@ -201,13 +249,13 @@ class LocalContext(DbModel):
 		index = 0
 		for sentence in sentenceContexts:
 			prospectiveContextItems = self.getProspectiveContextItems(sentence)
-			print('--------------')
-			print(sentence)
+			#print('--------------')
+			#print(sentence)
 			
 			totalProspectiveItems = len(prospectiveContextItems)
 			if totalProspectiveItems == 0:
 				continue
-			print(prospectiveContextItems)
+			#print(prospectiveContextItems)
 			if totalProspectiveItems == 1:
 				# only one item
 				localContexts = self.appendToLocalContext(prospectiveContextItems[0], localContexts)
@@ -242,8 +290,8 @@ class LocalContext(DbModel):
 				localContexts.append(combinedContext)
 
 			index += 1
-		print(localContexts)
-		sys.exit()
+		#print(localContexts)
+		#sys.exit()
 		
 		return self.loadContexts(localContexts)
 

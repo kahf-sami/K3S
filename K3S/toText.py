@@ -126,10 +126,21 @@ class ToText():
 		if not rows.any():
 			return
 
+		print('processing .....')
 		nlpProcessor = NLP()
+
 		for row in rows:
 			fileName = str(row[0]) + '.txt'
-			text = nlpProcessor.removeHtmlTags(row[1] + row[2] + row[3])
+			text = ''
+			if row[1]:
+				text += str(row[1])
+			if row[2]:
+				text += str(row[2])
+			if row[3]:
+				text += str(row[3])
+			
+
+
 			filePath = File.join(self.destinationPath, fileName)
 			file = File(filePath)
 			if file.exists():

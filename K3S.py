@@ -4,14 +4,14 @@ import colorama
 import scipy
 import numpy
 
-jsoner = K3S.JsonNodeAndEdgeGenerator('tpl', '/home/ishrat/research/K3S/examples/')
+#jsoner = K3S.JsonNodeAndEdgeGenerator('tpl', '/home/ishrat/research/K3S/examples/')
 #jsoner.loadJsonData('diabet')
-jsoner.loadClusterForOnlyOneWord('diabet')
-jsoner.loadClusterForOnlyOneWord('novo')
-jsoner.loadClusterForOnlyOneWord('nordisk')
-jsoner.loadClusterForOnlyOneWord('saxenda')
-jsoner.write()
-sys.exit()
+#jsoner.loadClusterForOnlyOneWord('diabet')
+#jsoner.loadClusterForOnlyOneWord('novo')
+#jsoner.loadClusterForOnlyOneWord('nordisk')
+#jsoner.loadClusterForOnlyOneWord('saxenda')
+#jsoner.write()
+#sys.exit()
 
 #processor = K3S.Processor('Bukhari')
 #processor.topologySetUp()
@@ -38,23 +38,20 @@ kmeans = processor.reloadKMeans(identifier)
 sys.exit()
 
 """
-processor = K3S.Processor('Bukhari')
-vocab = processor.reloadVocab()
+#processor = K3S.Processor('Bukhari')
+#vocab = processor.reloadVocab()
 #kmeans = processor.calculateKMeans(vocab, 5)
 
-kmeans = processor.reloadKMeans()
+#kmeans = processor.reloadKMeans()
 
-representation = K3S.Representation('Bukhari');
-representation.kmeans(vocab.tfidfCalculation, vocab.tfIdf.get_feature_names(), kmeans.getAssignments())
-representation.showInBrowser()
+#representation = K3S.Representation('Bukhari');
+#representation.kmeans(vocab.tfidfCalculation, vocab.tfIdf.get_feature_names(), kmeans.getAssignments())
+#representation.showInBrowser()
 
 
-sys.exit()
+#sys.exit()
 
 colorama.init()
-
-processor = K3S.Processor('Bukhari')
-processor.calculateKMeans()
 
 #STEP 1. Copy text source file to the required location before starting processing
 
@@ -84,10 +81,16 @@ print(colorama.Fore.BLUE + 'STEP 2: Extract content from the source file')
 extract = input(colorama.Fore.GREEN + 'Extract text blocks (Y / N): \n' + colorama.Style.RESET_ALL)
 if extract == 'Y':
 	processor.extractBlocks()
+	print('Block extracted')
 
 shouldPreProcess = input(colorama.Fore.GREEN + 'Should pre-process text (Y / N): \n' + colorama.Style.RESET_ALL)
 if shouldPreProcess == 'Y':
 	processor.nlpPreProcessBlocks()
+
+shouldSetupTopology = input(colorama.Fore.GREEN + 'Should set up topology (Y / N): \n' + colorama.Style.RESET_ALL)
+if shouldSetupTopology == 'Y':
+	processor.topologySetUp()
+	processor.saveBlocksInMysql()
 
 #STEP 3: Build vocabulary
 shouldBuildVocabulary = input(colorama.Fore.GREEN + 'Should build and save vocaburary (general count and tf-idf) text (Y / N): \n' + colorama.Style.RESET_ALL)
@@ -112,5 +115,9 @@ else:
 shouldGenerateLocalContextImages = input(colorama.Fore.RED + 'Should generate local context images: \n' + colorama.Style.RESET_ALL)
 if shouldGenerateLocalContextImages == 'Y':
 	processor.generateLocalContextImages()
+
+
+
+
 
 

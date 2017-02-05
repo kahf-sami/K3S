@@ -53,22 +53,20 @@ class Word(DbModel):
 	"""
 	def saveWords(self, textBlock, words = None, onlyNoun = True):
 		actualWords = self.getWords(textBlock, False)
+
 		if not words:
 			if onlyNoun: 
 				words = self.getNouns(textBlock)
 			else:
 				words = actualWords
 
-		keys = []
 		totals = {}
 		for word in actualWords:
 			stemmedWord = self.stemmer.stem(word)
-			if stemmedWord in keys:
+			if stemmedWord in totals.keys():
 				totals[stemmedWord] += 1
 			else:
 				totals[stemmedWord] = 1
-
-			keys.append(word)
 		
 		if len(totals):
 			for word in words:
@@ -81,7 +79,7 @@ class Word(DbModel):
 				elif word in keys:
 					data['count'] = totals[word]
 				else:
-					parts =  data[word].split('_')
+					parts =  data['word'].split('_')
 					if parts[0] in keys:
 						data['count'] = totals[parts[0]]
 					else:	

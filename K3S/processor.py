@@ -89,6 +89,9 @@ class Processor():
 		for root, dirs, files in os.walk(self.rawPath, topdown=False):
 			if files:
 				for name in files:
+					if name[0] == '.':
+						continue
+
 					filePath = File.join(root, name)
 					file = File(filePath)
 					if file.isZipFile():

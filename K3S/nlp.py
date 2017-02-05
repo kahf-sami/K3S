@@ -61,7 +61,7 @@ class NLP():
 			return None
 
 		# First we remove inline JavaScript/CSS:
-		cleaned = re.sub(r"(?is)<(script|style).*?>.*?(</\1>)", "", textBlock.strip())
+		cleaned = re.sub(r"(?is)<(script|style).*?>.*?(</\1>)", "", textBlock)
 
 		# Then we remove html comments. This has to be done before removing regular
 		# tags since comments can contain '>' characters.
@@ -69,13 +69,13 @@ class NLP():
 
 		# Next we can remove the remaining tags:
 		cleaned = re.sub(r"(?s)<.*?>", " ", cleaned)
+		
 
 		# Finally, we deal with whitespace
 		cleaned = re.sub(r"&[a-z0-9]+;", " ", cleaned)
-		cleaned = re.sub(r"\s*", " ", cleaned)
+		cleaned = re.sub(r"\s+", " ", cleaned)
 
-
-		return cleaned.strip()
+		return cleaned
 
 
 	def removeStopWord(self, textBlock = None):

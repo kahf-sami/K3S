@@ -79,6 +79,7 @@ text6 = ("Some people asked Allah's Apostle, \"Whose Islam is the best? i.e. (Wh
 identifier = 'Bukhari'
 
 lc = K3S.LocalContext(text2, identifier)
+lc.reflect()
 sys.exit()
 print(lc.getRepresentative())
 print(lc.getLocalContexts())
