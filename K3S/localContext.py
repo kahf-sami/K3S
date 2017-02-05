@@ -7,6 +7,8 @@ from nltk.stem.porter import PorterStemmer
 from nltk.corpus import stopwords
 from .dbModel import DbModel
 from .nlp import NLP
+from .localContextReflector import LocalContextReflector
+import random 
 
 class LocalContext(DbModel):
 
@@ -25,7 +27,14 @@ class LocalContext(DbModel):
 		self.representatives = []
 		self.sentenceContexts = []
 		self.blockWords = {}
-		self.wordsInSentences = []
+		self.associatedContextForWords = {}
+		self.combinedContexts = {}
+		self.relatedContexts = {}
+		self.positionContribution = 0
+		self.positionContributionFactor = 0.5
+		self.max = None
+		self.min = None
+
 		self.buildRepresentatives()
 		self.buildDetails()
 		#self.buildLocalContexts()
@@ -41,6 +50,7 @@ class LocalContext(DbModel):
 			return self.sentenceContexts
 
 		self.sentenceContexts = re.split('[?.,!;:\n\(\)]', self.cleanTextBlock)
+		self.positionContribution = len(self.sentenceContexts)
 		return self.sentenceContexts
 
 
@@ -68,28 +78,88 @@ class LocalContext(DbModel):
 		if not len(sentenceContexts):
 			return
 
-		self.blockWords = {}
-		self.wordsInSentences = []
-		self.associatedContextForWords = {}
-		self.combinedContexts = {}
-		positionContribution = len(sentenceContexts)
-		positionContributionFactor = 0.10	
-
-
 		for sentence in sentenceContexts:
-			afterPartsOfSpeachTagging = self.nlpProcessor.getWords(sentence, True)
-			#print(afterPartsOfSpeachTagging)
-		
-			if not len(afterPartsOfSpeachTagging):
-				positionContribution -= 1
-				continue
+			words = self.processSentenceWords(sentence)
 
-			lastType = None
-			words = []
-			index = 0
+			if len(words):
+				self.addToCombinedContext(words)
+
+
+		print(self.blockWords)
+		print(self.combinedContexts)
+		print(self.relatedContexts)
+		return
+
+	def reflect(self):
+		lcr = LocalContextReflector(self.identifier)
+
+		processedContexts = []
+
+		edges = []
+		nodes = []
+		nodeIndex = 0
+		for context in self.combinedContext:
+			color = color("#%06x" % random.randint(0, 0xFFFFFF))
+			for word in context:
+				node = {}
+				node['index'] = nodeIndex
+				node['label'] = word + '-' + str(self.blockWords[word])
+				node['color'] = color
+				node['x'] = 
+				nodes.append(node)
+				nodeIndex += 1
+
+		return
+
+	def addToCombinedContext(self, words):
+		uniqueWords = Utility.unique(words)
+		contextIndex = len(self.combinedContexts)		
+
+		alreadyProcessedWords = self.associatedContextForWords.keys()
+		alreadyProcessedWordsSentenceWords = Utility.intersect(alreadyProcessedWords, uniqueWords)
+		notProcessedWords = list(set(uniqueWords) - set(alreadyProcessedWordsSentenceWords))
+
+		totalWords = len(words)
+		totalProcessedWords = len(alreadyProcessedWordsSentenceWords)
+		totalNotProcessedWords = len(notProcessedWords)
+
+		self.combinedContexts[contextIndex] = notProcessedWords
+		for uniqueWord in notProcessedWords:
+			self.associatedContextForWords[uniqueWord] = contextIndex
+						
+		if not totalProcessedWords:
+			return
+
+		matchedContexts = []
+		for processedContextItem in alreadyProcessedWordsSentenceWords:
+			cIndex = self.associatedContextForWords[processedContextItem]
+			if cIndex not in matchedContexts:
+				matchedContexts.append(cIndex)
+
+				if cIndex not in self.relatedContexts.keys():
+					self.relatedContexts[cIndex] = []
+				self.relatedContexts[cIndex].append(contextIndex)
+									
+				if contextIndex not in self.relatedContexts.keys():
+					self.relatedContexts[contextIndex] = []
+				self.relatedContexts[contextIndex].append(cIndex)
+
+		return
+
+	def processSentenceWords(self, sentence):
+		afterPartsOfSpeachTagging = self.nlpProcessor.getWords(sentence, True)
+		#print(afterPartsOfSpeachTagging)
+		
+		if not len(afterPartsOfSpeachTagging):
+			self.positionContribution -= 1
+			continue
+
+		lastType = None
+		words = []
+		index = 0
 			
-			for item in afterPartsOfSpeachTagging:
-				word =  self.stemmer.stem(item[0].lower())
+		for item in afterPartsOfSpeachTagging:
+			word =  self.stemmer.stem(item[0].lower())
 				currentType = item[1]
 				bloclWord = None
 
@@ -103,44 +173,16 @@ class LocalContext(DbModel):
 				blockWord = word
 
 				if blockWord not in self.blockWords.keys():
-					self.blockWords[blockWord] = (1 + (positionContribution * positionContributionFactor))
+					self.blockWords[blockWord] = (1 + (self.positionContribution * self.positionContributionFactor))
 				else:
-					self.blockWords[blockWord] += (1 + (positionContribution * positionContributionFactor))
+					self.blockWords[blockWord] += (1 + (self.positionContribution * self.positionContributionFactor))
 
-			positionContribution -= 1
-
-			if len(words):
-				self.wordsInSentences.append(words)
-				uniqueWords = Utility.unique(words)
-				contextIndex = len(self.combinedContext)
-				if contextIndex == 0:
-					self.combinedContext[contextIndex] = uniqueWords
-					for uniqueWord in uniqueWords:
-						self.associatedContextForWords[uniqueWord] = contextIndex
-				else:
-					alreadyProcessedWords = self.associatedContextForWords.keys()
-					alreadyProcessedWordsSentenceWords = Utility.intersect(alreadyProcessedWords, uniqueWords)
-
-					matchedContexts = []
-					if len(alreadyProcessedWordsSentenceWords):
-						for processedContextItem in alreadyProcessedWordsSentenceWords:
-							if self.associatedContextForWords[processedContextItem] not in matchedContexts:
-								matchedContexts.append(self.associatedContextForWords[processedContextItem])
-
-					
-
-					for uniqueWord in uniqueWords:
-						self.associatedContextForWords[uniqueWord] = contextIndex
-
-
-
-			
-
-
-		print(self.wordsInSentences)
-		print(self.blockWords)
+		
+		self.positionContribution -= 1
 
 		return
+
+
 
 	def buildRepresentatives(self):
 		representatives = self.nlpProcessor.getNouns(self.textBlock)

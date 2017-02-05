@@ -17,3 +17,4 @@ from .jsonNodeAndEdgeGenerator import JsonNodeAndEdgeGenerator
 from .localContext import LocalContext
 from .localContextHighlighter import LocalContextHighlighter
 from .lda import LDA
+from .localContextReflector import LocalContextReflector

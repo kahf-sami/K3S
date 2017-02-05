@@ -11,7 +11,7 @@ class LDA():
 	def __init__(self, identifier, number = 5, passes = 20):
 		self.identifier = identifier
 		self.config = Config()
-		self.filePath = File.join(self.config.DATA_PATH, identifier, 'LDA-' + str(number) + '-' + str(passes))
+		self.filePath = File.join(self.config.DATA_PATH, identifier, 'lda', 'LDA-' + str(number) + '-' + str(passes))
 		self.dictionaryFilePath = File.join(self.filePath + '_dictionary.dict')
 		self.model = None
 		self.numberOfTopics = number

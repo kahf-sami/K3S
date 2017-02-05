@@ -60,6 +60,15 @@ class Processor():
 		localContextDir = Directory(self.localContextImagesPath)
 		localContextDir.create()
 
+		self.createDir('local-context-reflector')
+		self.createDir('lda')
+		return
+		
+
+	def createDir(self, dirName):
+		location = File.join(self.mainPath, dirName)
+		directory = Directory(location)
+		directory.create()
 		return
 
 
