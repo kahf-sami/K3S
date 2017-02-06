@@ -55,7 +55,7 @@ class LocalContextHighlighter():
 		index = 0
 		totalColors = len(self.localContextsColorsMap)
 		for localContext in localContexts:
-			self.localContextWords += localContext
+			self.localContextWords += localContexts[localContext]
 			if index > (totalColors - 1):
 				colorIndex = index % totalColors
 			else:
@@ -78,7 +78,7 @@ class LocalContextHighlighter():
 
 		index = 0
 		for localContext in self.localContexts:
-			if blockWord in localContext:
+			if blockWord in self.localContexts[localContext]:
 				return self.localContextsColor[index]
 			index += 1
 

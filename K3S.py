@@ -68,6 +68,7 @@ if not identifier:
 	sys.exit()
 
 processor = K3S.Processor(identifier)
+
 if clean == 'Y':
 	processor.clean()
 
@@ -96,6 +97,7 @@ if shouldSetupTopology == 'Y':
 shouldBuildVocabulary = input(colorama.Fore.GREEN + 'Should build and save vocaburary (general count and tf-idf) text (Y / N): \n' + colorama.Style.RESET_ALL)
 if shouldBuildVocabulary == 'Y':
 	vocab = processor.buildVocabulary()
+	processor.calculateTfIdf()
 else:
 	vocab = processor.reloadVocab()
 

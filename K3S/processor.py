@@ -162,6 +162,7 @@ class Processor():
 		i = 0
 		docs = []
 		wordProcessor = Word(self.sourceIdentifier)
+		nlpProcessor = NLP()
 		#fileNames = ['Volume_1,_Book_12,_Number_790.txt', 'Volume_1,_Book_12,_Number_791.txt', 'Volume_1,_Book_12,_Number_792.txt']
 		for fileName in fileNames:
 			filePath = File.join(self.filteredPath, fileName)
@@ -169,12 +170,13 @@ class Processor():
 			textBlock = file.read()
 			del file
 			if textBlock:
+				textBlock = nlpProcessor.removeHtmlTags(textBlock)
 				textBlock = textBlock.replace("'", ' ')
 				textBlock = str(textBlock.encode('utf-8', 'replace'))
 				textBlock = re.sub("b'",'', textBlock)
 				textBlock = re.sub("'",'', textBlock)
 				if onlyNoun:
-					nouns = wordProcessor.getNouns(textBlock)
+					nouns = nlpProcessor.getNouns(textBlock)
 					if nouns:
 						textBlock = " ".join(nouns)
 					else:
@@ -202,6 +204,7 @@ class Processor():
 		image = Image(self.sourceIdentifier)
 		if withText:
 			image.renderText()
+
 		image.loadTfIdf(vocab.tfidfCalculation, vocab.getTfIdfVocabulary())
 
 		fileNames = self.getFilteredFiles()
@@ -212,6 +215,7 @@ class Processor():
 		if limit == None:
 			limit = len(fileNames)
 		
+		nlpProcessor = NLP()
 		documentNumber = 0
 		for fileName in fileNames:
 			filePath = File.join(self.filteredPath, fileName)
@@ -219,6 +223,7 @@ class Processor():
 			textBlock = file.read()
 			del file
 			if textBlock:
+				textBlock = nlpProcessor.removeHtmlTags(textBlock)
 				image.create(documentNumber, fileName, textBlock)
 			documentNumber += 1
 			if documentNumber == limit:
@@ -324,12 +329,15 @@ class Processor():
 		for fileName in files:
 			if fileName[0] == '.':
 				continue
-			print(fileName)
+			
 			filePath = File.join(self.processedPath, fileName)
 			file = File(filePath)
 			fileName = file.getFileName()
 			textBlock = file.read()
-			print(textBlock)
+			
+			if textBlock:
+				textBlock = nlpProcessor.removeHtmlTags(textBlock)
+
 			lc = LocalContext(textBlock)
 			image.setLocalContexts(lc.getLocalContexts())
 			print(lc.getRepresentative())
