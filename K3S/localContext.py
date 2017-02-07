@@ -92,7 +92,7 @@ class LocalContext(DbModel):
 		print(self.relatedContexts)
 		return
 
-	def reflect(self):
+	def reflect(self, fileName):
 		lcr = LocalContextReflector(self.identifier)
 
 		processedContexts = []
@@ -126,7 +126,7 @@ class LocalContext(DbModel):
 					node['index'] = nodeIndex
 					node['label'] = word + '-' + str(self.blockWords[word])
 					node['color'] = itemColor
-					node['r'] = self.max - self.blockWords[word]
+					node['r'] =  self.blockWords[word]
 					node['theta'] = theta
 					node['x'] = node['r'] * numpy.cos(numpy.deg2rad(theta))
 					node['y'] = node['r'] * numpy.sin(numpy.deg2rad(theta))
@@ -144,7 +144,7 @@ class LocalContext(DbModel):
 			contextPolygons.append(polygon)
 			contextColors.append(itemColor)
 
-		lcr.create(x, y, colors, nodes, contextPolygons, contextColors)
+		lcr.create(x, y, colors, nodes, contextPolygons, contextColors, fileName)
 		#pyplot.plot([point[0], point2[0]], [point[1], point2[1]])
 
 		return

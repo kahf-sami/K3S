@@ -24,6 +24,7 @@ class NLP():
 		if not textBlock:
 			return None
 
+		textBlock = re.sub('\(\)', '', str(textBlock))
 		textBlock = re.sub('\'s', '', str(textBlock))
 		textBlock = re.sub('\'', '', str(textBlock))
 		textBlock = re.sub('-\n', '', str(textBlock))

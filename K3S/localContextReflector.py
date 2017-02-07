@@ -21,16 +21,25 @@ class LocalContextReflector():
 		return
 
 
-	def create(self, x, y, colors, nodes, contextPolygons, contextColors):
+	def create(self, x, y, colors, nodes, contextPolygons, contextColors, fileName):
 		plot.cla() # Clear the figure
 
-		self.figure = plot.figure(figsize=(10, 10))
+		self.figure = plot.figure(figsize=(200, 200))
 		self.axis = self.figure.add_subplot(111)
 		self.axis.grid(color='white', linestyle='solid')
 		graph = self.axis.scatter(x, y, c = colors)
 		
 		for node in nodes:
-			self.axis.annotate(nodes[node]['label'], (nodes[node]['x'], nodes[node]['y']), color=nodes[node]['color'])
+			if nodes[node]['x'] < 0:
+				horizontalalignment = 'right'
+			else:
+				horizontalalignment = 'left'
+			if nodes[node]['y'] < 0:
+				verticalalignment = 'down'
+			else:
+				verticalalignment = 'top'
+			
+			self.axis.annotate(nodes[node]['label'], (nodes[node]['x'], nodes[node]['y']), color='black', horizontalalignment=horizontalalignment, verticalalignment=verticalalignment)
 
 		
 		index = 0
@@ -59,9 +68,9 @@ class LocalContextReflector():
 			index += 1
 
 
-		plot.show()
+		#plot.show()
 
-		#self.figure.savefig(File.join(self.path, fileNameParts[0] + '.png'))
+		self.figure.savefig(File.join(self.path, fileName + '.png'))
 		#plot.show()
 		return
 

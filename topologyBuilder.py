@@ -78,8 +78,43 @@ text6 = ("Some people asked Allah's Apostle, \"Whose Islam is the best? i.e. (Wh
 
 identifier = 'Bukhari'
 
-lc = K3S.LocalContext(text2, identifier)
-lc.reflect()
+identifier = "tpl"
+tplText1 = ("New biosimilars facility opens in IcelandAlvotech, an independent sister company of privately-held "
+		"US generics firm Alvogen, has announced the opening of a new state-of-the-art facility, dedicated to the "
+		"development and manufacturing of biosimilar monoclonal antibodies (MAbs).Alvotech, an independent sister "
+		"company of privately-held US generics firm Alvogen, has announced the opening of a new state-of-the-art "
+		"facility, dedicated to the development and manufacturing of biosimilar monoclonal antibodies (MAbs). The "
+		"opening of this industry leading biologics manufacturing plant marks a significant milestone for both "
+		"Alvogen and Alvotech. In 2013, Alvotech broke ground on a new 11,800sqm development and manufacturing "
+		"facility a new in the science park of the University of Iceland in Reykjavik, as part of a $250 million "
+		"investment in the development and manufacturing of a portfolio of biosimilar monoclonal antibodies."
+		"Through the Alvotech-Alvogen alliance, Alvogen directly benefits from the growth of Alvotech due the "
+		"increased supply of products coming to market. Alvotech currently runs five offices in Iceland, Germany,"
+		" Switzerland and Malta, which in turn helps Alvogen to maximize its distribution of the products. Alvogen "
+		"is already advanced in the distribution of biosimilars through its relationship with Hospira/Pfizer and it "
+		"currently distributes products in 35 countries with a target revenue generation of $3 billion by 2020. Alvotech "
+		"says it has worked with the US Food and Drug Administration and the European Medicines Agency to design and build "
+		"a facility complying with the highest quality standards.&nbsp;Iceland offers a favorable operating environment with "
+		"a strong regulatory system and a convenient geographical location. Furthermore the new facility will significantly "
+		"increase Alvotechs production capacity enabling the Group to produce higher yields at lower costs, the company says.")
+
+vocab = K3S.Vocabulary.restore(identifier)
+		
+image = K3S.Image(identifier)
+		
+image.renderText()
+
+image.loadTfIdf(vocab.tfidfCalculation, vocab.getTfIdfVocabulary())
+
+nlpProcessor = K3S.NLP()
+textBlock = nlpProcessor.removeHtmlTags(textBlock)
+textBlock = nlpProcessor.removePunctuation(textBlock)
+image.create(123, '0123', textBlock)
+
+lc = K3S.LocalContext(tplText1, identifier)
+
+image.create(123, '0123', lc.getCleanedTextBlock())
+lc.reflect('0123')
 sys.exit()
 print(lc.getRepresentative())
 print(lc.getLocalContexts())
