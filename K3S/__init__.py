@@ -5,6 +5,7 @@ from .file import File
 from .timer import Timer
 from .directory import Directory
 from .processor import Processor
+from .topologyProcessor import TopologyProcessor
 from .toText import ToText
 from .nlp import NLP
 from .kMeans import KMeans

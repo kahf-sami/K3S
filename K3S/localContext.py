@@ -19,7 +19,7 @@ class LocalContext(DbModel):
 		self.identifier = identifier
 		self.tableName = 'local_context'
 		self.primaryKey = 'local_contextid'
-		self.fields = ['local_contextid', 'nodeid', 'words']
+		self.fields = ['local_contextid', 'nodeid', 'word', 'weight']
 		self.nlpProcessor = NLP()
 		self.textBlock = textBlock
 		self.cleanTextBlock = self.setCleanText(textBlock)
@@ -33,11 +33,12 @@ class LocalContext(DbModel):
 		self.relatedContexts = {}
 		self.positionContribution = 0
 		self.positionContributionFactor = 0.5
+		self.properNounFactor = 5
 		self.max = None
 		self.min = None
 
-		self.buildRepresentatives()
 		self.buildDetails()
+		self.buildRepresentatives()
 		#self.buildLocalContexts()
 		return
 
@@ -55,9 +56,10 @@ class LocalContext(DbModel):
 		return self.sentenceContexts
 
 
+	'''
 	def getLocalContexts(self):
 		return self.combinedContexts
-
+	'''
 
 	def getCleanedTextBlock(self):
 		return  re.sub('[?.!;:\n]', '', str(self.cleanTextBlock))
@@ -83,42 +85,63 @@ class LocalContext(DbModel):
 		for sentence in sentenceContexts:
 			words = self.processSentenceWords(sentence)
 
-			if len(words):
-				self.addToCombinedContext(words)
+			#if len(words):
+			#	self.addToCombinedContext(words)
 
 
-		print(self.blockWords)
-		print(self.combinedContexts)
-		print(self.relatedContexts)
+		#print(self.blockWords)
+		#print(self.combinedContexts)
+		#print(self.relatedContexts)
 		return
 
-	def reflect(self, fileName):
+
+	def buildRepresentatives(self, filterLowerRatedNouns = 0.1):
+		minValue = self.max * filterLowerRatedNouns
+
+		allWords = self.blockWords.keys()
+
+		
+		for word in  allWords:
+			if self.blockWords[word] < minValue:
+				continue
+			else:
+				self.representatives.append(word)
+
+		return
+		
+
+	def reflect(self, fileName, filterLowerRatedNouns = 0.1):
 		lcr = LocalContextReflector(self.identifier)
 
 		processedContexts = []
 
 		edges = []
 		nodes = {}
-		contextPolygons = []
-		contextColors = []
+		#contextPolygons = []
+		#contextColors = []
 		nodeIndex = 0
 		totalWords = len(self.blockWords)
 		thetaGap = 360 / totalWords
 		theta = 0
+		minValue = self.max * filterLowerRatedNouns
 
 		x = []
 		y = []
 		colors = []
 
 		colTest = lambda: random.randint(0,255)
-
+		#print(self.max)
+		#print(self.min)
 
 		contextIndex = 0
 		for context in self.combinedContexts:
 			itemColor = '#%02X%02X%02X' % (colTest(),colTest(),colTest())
-			polygon = []
+			#polygon = []
 			contextMin = None
 			for word in  self.combinedContexts[context]:
+				if self.blockWords[word] < minValue:
+					continue
+
 				if word in nodes.keys():
 					node = nodes[word]
 				else:
@@ -138,13 +161,13 @@ class LocalContext(DbModel):
 					colors.append(itemColor)
 
 
-				point = (node['x'], node['y'])
-				polygon.append(point)
+				#point = (node['x'], node['y'])
+				#polygon.append(point)
 
-			contextPolygons.append(polygon)
-			contextColors.append(itemColor)
+			#contextPolygons.append(polygon)
+			#contextColors.append(itemColor)
 
-		lcr.create(x, y, colors, nodes, contextPolygons, contextColors, fileName)
+		lcr.create(x, y, colors, nodes, None, None, fileName)
 		#pyplot.plot([point[0], point2[0]], [point[1], point2[1]])
 
 		return
@@ -176,10 +199,12 @@ class LocalContext(DbModel):
 
 				if cIndex not in self.relatedContexts.keys():
 					self.relatedContexts[cIndex] = []
+
 				self.relatedContexts[cIndex].append(contextIndex)
 									
 				if contextIndex not in self.relatedContexts.keys():
 					self.relatedContexts[contextIndex] = []
+				
 				self.relatedContexts[contextIndex].append(cIndex)
 
 		return
@@ -215,6 +240,9 @@ class LocalContext(DbModel):
 			else:
 				self.blockWords[blockWord] += (1 + (self.positionContribution * self.positionContributionFactor))
 
+			if item[1] == 'NNP':
+				self.blockWords[blockWord] += self.properNounFactor
+
 			if not self.max or self.max < self.blockWords[blockWord]:
 				self.max = self.blockWords[blockWord]
 
@@ -226,7 +254,7 @@ class LocalContext(DbModel):
 
 		return words
 
-
+	'''
 
 	def buildRepresentatives(self):
 		representatives = self.nlpProcessor.getNouns(self.textBlock)
@@ -234,9 +262,9 @@ class LocalContext(DbModel):
 		#print(representatives)
 		self.representatives = representatives
 		return
+	'''
 
-
-
+	'''
 	def buildLocalContexts(self):
 		sentenceContexts = self.getSentenceContexts()
 
@@ -291,12 +319,18 @@ class LocalContext(DbModel):
 		
 		return self.loadContexts(localContexts)
 
+	'''
+
+	'''
 	def getIndexOfProspectiveContentItems(self, prospectiveContextItems):
 		intexOfItem = []
 		for item in prospectiveContextItems:
 			intexOfItem.append(self.representatives.index(item))
 		return intexOfItem
+	'''
 
+
+	''''
 
 	def appendToLocalContext(self, item, localContexts):
 		#stemmedItem = self.stemmer.stem(item)
@@ -309,8 +343,8 @@ class LocalContext(DbModel):
 			localContexts.append(itemList)
 
 		return localContexts
-
-
+	'''
+	'''
 	def appendItemToLocalContext(self, item, localContexts):
 		#stemmedItem = self.stemmer.stem(item)
 		#if (stemmedItem != item) and (stemmedItem not in localContexts):
@@ -320,13 +354,16 @@ class LocalContext(DbModel):
 			localContexts.append(item)
 
 		return localContexts
+	'''
 
+	'''
 
 	def getProspectiveContextItems(self, sentence):
 		words = self.nlpProcessor.getWords(sentence)
 		return Utility.intersect(self.representatives, words)
+	'''
 
-
+	'''
 	def loadContexts(self, localContexts):
 		self.contexts = []	
 		for localContext in localContexts:
@@ -348,18 +385,20 @@ class LocalContext(DbModel):
 
 		return self.contexts
 
+	'''
+
 
 	def saveLocalContexts(self, nodeid):
-		if not self.combinedContexts:
+		if not self.representatives:
 			return
 
 		self.deleteLocalContextsByNodeid(nodeid)
 
-		for context in self.combinedContexts:
-			self.combinedContexts[context].sort()
+		for representative in self.representatives:
 			data = {}
 			data['nodeid'] = nodeid
-			data['words'] = ','.join(self.combinedContexts[context])
+			data['word'] = representative
+			data['weight'] = self.blockWords[representative]
 			self.save(data)
 		
 		return

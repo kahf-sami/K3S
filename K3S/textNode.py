@@ -17,8 +17,8 @@ class TextNode(DbModel):
 		self.identifier = identifier
 		self.tableName = 'text_node'
 		self.primaryKey = 'nodeid'
-		self.fields = ['nodeid', 'source_identifier', 'text_block', 'ascii_sum', 'processed', 'local_context', 'representatives']
-		self.ignoreExists = ['text_block', 'representatives', 'ascii_sum', 'processed']
+		self.fields = ['nodeid', 'source_identifier', 'text_block', 'dna', 'processed', 'local_context', 'representatives']
+		self.ignoreExists = ['text_block', 'representatives', 'dna', 'processed']
 		self.contextProcessor = Context(identifier)
 		self.edgeProcessor = Edge(identifier)
 		self.wordProcessor = Word(identifier)
@@ -34,11 +34,10 @@ class TextNode(DbModel):
 		if 'text_block' in keys:
 			lc = LocalContext(data['text_block'], self.identifier)
 			data['representatives'] = lc.getRepresentative()
-			localContexts = lc.getLocalContexts()
 			words = self.wordProcessor.saveWords(lc.getCleanText(), data['representatives'])
-			data['ascii_sum'] = self.wordProcessor.getAsciiSum(data['representatives'])
+			data['dna'] = Utility.getHash(data['representatives'])
 			self.nodeid = DbModel.save(self, data)
-			if localContexts:
+			if data['representatives']:
 				lc.saveLocalContexts(self.nodeid)
 
 		return self.nodeid

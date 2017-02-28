@@ -21,13 +21,13 @@ class LocalContextReflector():
 		return
 
 
-	def create(self, x, y, colors, nodes, contextPolygons, contextColors, fileName):
+	def create(self, x, y, colors, nodes, contextPolygons = None, contextColors = None, fileName = None):
 		plot.cla() # Clear the figure
 
 		self.figure = plot.figure(figsize=(200, 200))
 		self.axis = self.figure.add_subplot(111)
 		self.axis.grid(color='white', linestyle='solid')
-		graph = self.axis.scatter(x, y, c = colors)
+		graph = self.axis.scatter(x, y, c = colors, marker='o', s=50)
 		
 		for node in nodes:
 			if nodes[node]['x'] < 0:
@@ -41,7 +41,7 @@ class LocalContextReflector():
 			
 			self.axis.annotate(nodes[node]['label'], (nodes[node]['x'], nodes[node]['y']), color='black', horizontalalignment=horizontalalignment, verticalalignment=verticalalignment)
 
-		
+		'''
 		index = 0
 		for polygon in contextPolygons:
 			totalPoints = len(polygon)
@@ -62,16 +62,17 @@ class LocalContextReflector():
 				else:
 					codes.append(Path.LINETO)
 
-			path = Path(polygon, codes)
-			patch = patches.PathPatch(path, color=contextColors[index], alpha=0.2)
-			self.axis.add_patch(patch)
+			#path = Path(polygon, codes)
+			#patch = patches.PathPatch(path, color=contextColors[index], alpha=0.2)
+			#self.axis.add_patch(patch)
 			index += 1
+			'''
 
 
 		#plot.show()
 
-		self.figure.savefig(File.join(self.path, fileName + '.png'))
-		#plot.show()
+		#self.figure.savefig(File.join(self.path, fileName + '.png'))
+		plot.show()
 		return
 
 

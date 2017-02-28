@@ -47,7 +47,7 @@ class Topology():
 			"source_identifier VARCHAR (255) NOT NULL DEFAULT '',"
 			"text_block LONGTEXT,"
 			"representatives LONGTEXT,"
-			"ascii_sum int(11) DEFAULT 0,"
+			"dna VARCHAR(64) DEFAULT NULL,"
 			"processed TINYINT(1) DEFAULT 0,"
 			"PRIMARY KEY (nodeid)"
 			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
@@ -57,7 +57,7 @@ class Topology():
 			"edgeid INT(11) NOT NULL AUTO_INCREMENT,"
 			"source_nodeid INT(11) NOT NULL,"
 			"destination_nodeid INT(11) NOT NULL,"
-			"total_common_words INT(11) NOT NULL DEFAULT 0,"
+			"weight DOUBLE(11, 2) NOT NULL DEFAULT 0,"
 			"PRIMARY KEY (edgeid)"
 			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
 
@@ -67,9 +67,8 @@ class Topology():
 			"parent_contextid INT(11) DEFAULT NULL,"
 			"ancestor_contextid INT(11) DEFAULT NULL,"
 			"name VARCHAR(255) NOT NULL,"
-			"wordids LONGTEXT NOT NULL,"
-			"text_blockids LONGTEXT NOT NULL,"
-			"total_association INT(11) NOT NULL DEFAULT 0,"
+			"words LONGTEXT NOT NULL,"
+			"weight DOUBLE(11, 2) NOT NULL DEFAULT 0,"
 			"PRIMARY KEY (contextid)"
 			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
 
@@ -77,7 +76,8 @@ class Topology():
 			"CREATE TABLE IF NOT EXISTS local_context ("
 			"local_contextid INT(11) NOT NULL AUTO_INCREMENT,"
 			"nodeid INT(11) NOT NULL,"
-			"words LONGTEXT DEFAULT NULL,"
+			"word VARCHAR(255) DEFAULT NULL,"
+			"weight DOUBLE(11, 2) NOT NULL DEFAULT 0,"
 			"PRIMARY KEY (local_contextid)"
 			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
 
@@ -88,7 +88,6 @@ class Topology():
 			"stemmed_word VARCHAR(255) NOT NULL,"
 			"count INT(11) NOT NULL DEFAULT 0,"
 			"number_of_blocks INT(11) NOT NULL DEFAULT 0,"
-			"number_of_related_context INT(11) NOT NULL DEFAULT 0,"
 			"tf_idf DECIMAL(10,10) DEFAULT 0,"
 			"PRIMARY KEY (wordid)"
 			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
@@ -98,8 +97,20 @@ class Topology():
 			"word_edgeid INT(11) NOT NULL AUTO_INCREMENT,"
 			"source_wordid INT(11) NOT NULL,"
 			"destination_wordid INT(11) NOT NULL,"
-			"similaruty_score INT(11) NOT NULL DEFAULT 0,"
+			"weight DOUBLE(11, 2) NOT NULL DEFAULT 0,"
 			"PRIMARY KEY (word_edgeid)"
+			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
+
+		tables['word_cloud'] = (
+			"CREATE TABLE IF NOT EXISTS text_node ("
+			"word_pointid INT(11) NOT NULL AUTO_INCREMENT,"
+			"wordid INT(11) NOT NULL,"
+			"label VARCHAR (255) NOT NULL DEFAULT '',"
+			"x int(11) DEFAULT 0,"
+			"y int(11) DEFAULT 0,"
+			"r int(11) DEFAULT 0,"
+			"theta int(11) DEFAULT 0,"
+			"PRIMARY KEY (nodeid)"
 			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
 		
 		return tables

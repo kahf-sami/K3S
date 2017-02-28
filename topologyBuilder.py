@@ -78,6 +78,7 @@ text6 = ("Some people asked Allah's Apostle, \"Whose Islam is the best? i.e. (Wh
 
 identifier = 'Bukhari'
 
+"""
 identifier = "tpl"
 tplText1 = ("New biosimilars facility opens in IcelandAlvotech, an independent sister company of privately-held "
 		"US generics firm Alvogen, has announced the opening of a new state-of-the-art facility, dedicated to the "
@@ -97,23 +98,23 @@ tplText1 = ("New biosimilars facility opens in IcelandAlvotech, an independent s
 		"a facility complying with the highest quality standards.&nbsp;Iceland offers a favorable operating environment with "
 		"a strong regulatory system and a convenient geographical location. Furthermore the new facility will significantly "
 		"increase Alvotechs production capacity enabling the Group to produce higher yields at lower costs, the company says.")
-
-vocab = K3S.Vocabulary.restore(identifier)
+"""
+#vocab = K3S.Vocabulary.restore(identifier)
 		
-image = K3S.Image(identifier)
+#image = K3S.Image(identifier)
 		
-image.renderText()
+#image.renderText()
 
-image.loadTfIdf(vocab.tfidfCalculation, vocab.getTfIdfVocabulary())
+#image.loadTfIdf(vocab.tfidfCalculation, vocab.getTfIdfVocabulary())
 
 nlpProcessor = K3S.NLP()
-textBlock = nlpProcessor.removeHtmlTags(textBlock)
+textBlock = nlpProcessor.removeHtmlTags(text6)
 textBlock = nlpProcessor.removePunctuation(textBlock)
-image.create(123, '0123', textBlock)
+#image.create(123, '0123', textBlock)
 
-lc = K3S.LocalContext(tplText1, identifier)
+lc = K3S.LocalContext(text6, identifier)
 
-image.create(123, '0123', lc.getCleanedTextBlock())
+#image.create(123, '0123', lc.getCleanedTextBlock())
 lc.reflect('0123')
 sys.exit()
 print(lc.getRepresentative())

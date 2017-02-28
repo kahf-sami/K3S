@@ -1,5 +1,7 @@
 from .config import Config
 import math
+import hashlib
+import json
 
 class Utility():
 
@@ -63,5 +65,13 @@ class Utility():
 	@staticmethod
 	def union(a, b):
 		return list(set(a) | set(b))
+
+
+	@staticmethod
+	def getHash(data):
+		line = json.dumps(data, sort_keys=True)
+		line = line.encode('utf-8')
+		return hashlib.md5().hexdigest()
+
 
 
