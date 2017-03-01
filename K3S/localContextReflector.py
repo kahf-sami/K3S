@@ -25,13 +25,13 @@ class LocalContextReflector():
 		return
 
 
-	def create(self, x, y, colors, nodes, contextPolygons = None, contextColors = None, fileName = None):
+	def create(self, x, y, colors, nodes, pointSizes = 1, fileName = None):
 		plot.cla() # Clear the figure
 
 		self.figure = plot.figure(figsize=(200, 200))
 		self.axis = self.figure.add_subplot(111)
 		self.axis.grid(color='white', linestyle='solid')
-		graph = self.axis.scatter(x, y, c = colors, marker='o', s=50)
+		graph = self.axis.scatter(x, y, c = colors, marker='o', s=pointSizes)
 		
 		for node in nodes:
 			if nodes[node]['x'] < 0:

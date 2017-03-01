@@ -287,6 +287,19 @@ class Word(DbModel):
 		
 		return relatetedWords
 
+
+	def getGlobalContribution(self, word):
+		sql = "SELECT tf_idf FROM word WHERE word.word = %s"
+
+		params = []
+		params.append(word)
+		result = self.mysql.query(sql, params)
+
+		if not result:
+			return 0
+
+		return math.ceil(result[0][0] * 1000)
+
 			
 	def getWordId(self, word):
 		sql = "SELECT wordid FROM word WHERE word.word = %s"

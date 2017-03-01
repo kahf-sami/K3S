@@ -10,6 +10,7 @@ from .nlp import NLP
 from .localContextReflector import LocalContextReflector
 import random 
 import numpy
+from .word import Word
 
 class LocalContext(DbModel):
 
@@ -123,7 +124,11 @@ class LocalContext(DbModel):
 		x = []
 		y = []
 		colors = []
+		sizes = []
 		colTest = lambda: random.randint(0,255)
+
+		wordProcessor = Word(self.identifier)
+
 		
 		for word in  self.representatives:
 			if self.blockWords[word] < minValue:
@@ -131,9 +136,7 @@ class LocalContext(DbModel):
 
 			itemColor = '#%02X%02X%02X' % (colTest(),colTest(),colTest())
 
-			if word in nodes.keys():
-				node = nodes[word]
-			else:
+			if word not in nodes.keys():
 				node = {}
 				node['index'] = nodeIndex
 				node['label'] = word + '-' + str(self.blockWords[word])
@@ -142,19 +145,22 @@ class LocalContext(DbModel):
 				node['theta'] = theta
 				node['x'] = node['r'] * numpy.cos(numpy.deg2rad(theta))
 				node['y'] = node['r'] * numpy.sin(numpy.deg2rad(theta))
-				
+				getGlobalContribution = wordProcessor.getGlobalContribution(word)
+
+
 				nodes[word] = node 
 				nodeIndex += 1
 				theta += thetaGap
 				x.append(node['x'])
 				y.append(node['y'])
 				colors.append(itemColor)
+				sizes.append(getGlobalContribution)
 			
 
 
 
 		lcr = LocalContextReflector(self.identifier)
-		lcr.create(x, y, colors, nodes, None, None, fileName)
+		lcr.create(x, y, colors, nodes, sizes, fileName)
 		
 		return
 		
