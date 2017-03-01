@@ -14,7 +14,7 @@ import numpy
 class LocalContext(DbModel):
 
 
-	def __init__(self, textBlock, identifier = None):
+	def __init__(self, textBlock, identifier = None, filterLowerRatedNouns = 0.1):
 		DbModel.__init__(self, identifier)
 		self.identifier = identifier
 		self.tableName = 'local_context'
@@ -38,7 +38,7 @@ class LocalContext(DbModel):
 		self.min = None
 
 		self.buildDetails()
-		self.buildRepresentatives()
+		self.buildRepresentatives(filterLowerRatedNouns)
 		#self.buildLocalContexts()
 		return
 
@@ -108,9 +108,58 @@ class LocalContext(DbModel):
 				self.representatives.append(word)
 
 		return
+
+
+	def reflectRepresentatives(self, fileName, filterLowerRatedNouns = 0.1):
+		if not len(self.representatives):
+			return
+
+		minValue = self.max * filterLowerRatedNouns
+		nodes = {}
+		nodeIndex = 0
+		totalWords = len(self.blockWords)
+		thetaGap = 360 / totalWords
+		theta = 0
+		x = []
+		y = []
+		colors = []
+		colTest = lambda: random.randint(0,255)
+		
+		for word in  self.representatives:
+			if self.blockWords[word] < minValue:
+				continue
+
+			itemColor = '#%02X%02X%02X' % (colTest(),colTest(),colTest())
+
+			if word in nodes.keys():
+				node = nodes[word]
+			else:
+				node = {}
+				node['index'] = nodeIndex
+				node['label'] = word + '-' + str(self.blockWords[word])
+				node['color'] = itemColor
+				node['r'] =  self.blockWords[word]
+				node['theta'] = theta
+				node['x'] = node['r'] * numpy.cos(numpy.deg2rad(theta))
+				node['y'] = node['r'] * numpy.sin(numpy.deg2rad(theta))
+				
+				nodes[word] = node 
+				nodeIndex += 1
+				theta += thetaGap
+				x.append(node['x'])
+				y.append(node['y'])
+				colors.append(itemColor)
+			
+
+
+
+		lcr = LocalContextReflector(self.identifier)
+		lcr.create(x, y, colors, nodes, None, None, fileName)
+		
+		return
 		
 
-	def reflect(self, fileName, filterLowerRatedNouns = 0.1):
+	def reflect(self, fileName, filterLowerRatedNouns = 0):
 		lcr = LocalContextReflector(self.identifier)
 
 		processedContexts = []

@@ -67,49 +67,22 @@ class TopologyProcessor():
 
 
 	def generateLocalContextImages(self, limit = None):
-		processedDir = Directory(self.processedPath)
+		textNodeProcessor = TextNode(self.sourceIdentifier)
+		textBlocks = textNodeProcessor.getAllByBatch(limit, 0)
 
-		files = processedDir.scan()
-
-		if not files:
-			return
-
-		files.sort()
-		localVocab = {}
 		index = 0
-		nlpProcessor = NLP()
-		vocab = Vocabulary.restore(self.sourceIdentifier)
-		
-		image = LocalContextHighlighter(self.sourceIdentifier)
-		image.renderText()
-		image.loadTfIdf(vocab.tfidfCalculation, vocab.getTfIdfVocabulary())
+		filterLowerRatedNouns = 0
+		while len(textBlocks):
 
-		for fileName in files:
-			if fileName[0] == '.':
-				continue
-			
-			filePath = File.join(self.processedPath, fileName)
-			file = File(filePath)
-			fileName = file.getFileName()
-			textBlock = file.read()
-			
-			if textBlock:
-				textBlock = nlpProcessor.removeHtmlTags(textBlock)
+			if index == limit:
+				break;
 
-			lc = LocalContext(textBlock)
-			image.setLocalContexts(lc.getLocalContexts())
-			print(lc.getRepresentative())
-			print(lc.getLocalContexts())
-			image.create(index, fileName, lc.getCleanedTextBlock())
-			print("--------------------------------------")
-			index += 1
-			if limit and index == limit:
-				break
-		#localVocab1 = localVocab.sort()
-		#for word in localVocab:
-		#	print(word + ': ' + str(localVocab[word]) )
+			for textBlock in textBlocks:
+				print(textBlock)
+				lc = LocalContext(textBlock[2], self.sourceIdentifier, filterLowerRatedNouns)
+				lc.reflectRepresentatives(textBlock[1])
+				index += 1
 
-		#print(localVocab1)
 		return
 
 

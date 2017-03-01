@@ -1,4 +1,5 @@
 from .file import File
+from .directory import Directory
 from .config import Config
 import numpy as np
 import matplotlib.pyplot as plot
@@ -18,6 +19,9 @@ class LocalContextReflector():
 		self.config = Config()
 		self.identifier = identifier
 		self.path = File.join(self.config.DATA_PATH, self.identifier, 'local-context-reflector')
+
+		directory = Directory(self.path)
+		directory.create()
 		return
 
 
@@ -69,10 +73,9 @@ class LocalContextReflector():
 			'''
 
 
-		#plot.show()
+		plot.show()
 
 		#self.figure.savefig(File.join(self.path, fileName + '.png'))
-		plot.show()
 		return
 
 
