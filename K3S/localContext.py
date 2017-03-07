@@ -137,16 +137,16 @@ class LocalContext(DbModel):
 			itemColor = '#%02X%02X%02X' % (colTest(),colTest(),colTest())
 
 			if word not in nodes.keys():
+				getGlobalContribution = wordProcessor.getGlobalContribution(word)
+
 				node = {}
 				node['index'] = nodeIndex
-				node['label'] = word + '-' + str(self.blockWords[word])
+				node['label'] = word + '-' + str(self.blockWords[word]) + '-' + str(getGlobalContribution)
 				node['color'] = itemColor
 				node['r'] =  self.blockWords[word]
 				node['theta'] = theta
 				node['x'] = node['r'] * numpy.cos(numpy.deg2rad(theta))
 				node['y'] = node['r'] * numpy.sin(numpy.deg2rad(theta))
-				getGlobalContribution = wordProcessor.getGlobalContribution(word)
-
 
 				nodes[word] = node 
 				nodeIndex += 1

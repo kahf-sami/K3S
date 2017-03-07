@@ -68,7 +68,7 @@ class TopologyProcessor():
 
 	def generateLocalContextImages(self, limit = None):
 		textNodeProcessor = TextNode(self.sourceIdentifier)
-		textBlocks = textNodeProcessor.getAllByBatch(limit, 0)
+		textBlocks = textNodeProcessor.getAllByBatch(limit, 1)
 
 		index = 0
 		filterLowerRatedNouns = 0

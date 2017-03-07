@@ -102,7 +102,7 @@ class Topology():
 			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
 
 		tables['word_cloud'] = (
-			"CREATE TABLE IF NOT EXISTS text_node ("
+			"CREATE TABLE IF NOT EXISTS word_point ("
 			"word_pointid INT(11) NOT NULL AUTO_INCREMENT,"
 			"wordid INT(11) NOT NULL,"
 			"label VARCHAR (255) NOT NULL DEFAULT '',"
@@ -110,7 +110,7 @@ class Topology():
 			"y int(11) DEFAULT 0,"
 			"r int(11) DEFAULT 0,"
 			"theta int(11) DEFAULT 0,"
-			"PRIMARY KEY (nodeid)"
+			"PRIMARY KEY (word_pointid)"
 			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
 		
 		return tables

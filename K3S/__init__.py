@@ -20,3 +20,4 @@ from .localContextHighlighter import LocalContextHighlighter
 from .lda import LDA
 from .localContextReflector import LocalContextReflector
 from .vocabulary import Vocabulary
+from .wordCloud import WordCloud

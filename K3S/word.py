@@ -289,7 +289,7 @@ class Word(DbModel):
 
 
 	def getGlobalContribution(self, word):
-		sql = "SELECT tf_idf FROM word WHERE word.word = %s"
+		sql = "SELECT number_of_blocks FROM word WHERE word.word = %s"
 
 		params = []
 		params.append(word)
@@ -298,7 +298,7 @@ class Word(DbModel):
 		if not result:
 			return 0
 
-		return math.ceil(result[0][0] * 1000)
+		return math.ceil(result[0][0])
 
 			
 	def getWordId(self, word):

@@ -6,9 +6,11 @@ processor = K3S.TopologyProcessor(identifier)
 #processor.topologySetUp()
 #processor.saveBlocksInMysql()
 #processor.calculateTfIdf()
-processor.generateLocalContextImages(1)
+#processor.generateLocalContextImages(1)
 
 
+wordCloud = K3S.WordCloud(identifier)
+wordCloud.savePoints()
 
 
 
