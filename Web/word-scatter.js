@@ -10,12 +10,13 @@ var x = d3.scale.linear()
 var y = d3.scale.linear()
     .range([height, 0]).nice();
 
-var xCat = "hash",
-    yCat = "local_avg_weight",
-    rCat = "global_docs",
-    colorCat = "global_cluster";
 
-d3.csv("Bukhari.csv", function(data) {
+var xCat = "distance",
+    yCat = "global_tfidf",
+    rCat = "number_of_docs",
+    colorCat = "cluster";
+
+d3.csv("Bukhari_day.csv", function(data) {
 
   //data.forEach(function(d){
   //});
@@ -115,7 +116,7 @@ d3.csv("Bukhari.csv", function(data) {
       .data(data)
     .enter().append("circle")
       .classed("dot", true)
-      .attr("r", function (d) { return 0.1 * Math.sqrt(d[rCat] / Math.PI); })
+      .attr("r", function (d) { return  Math.sqrt(d[rCat] / Math.PI); })
       .attr("transform", transform)
       .style("fill", function(d) { return color(d[colorCat]); })
       .on("mouseover", tip.show)

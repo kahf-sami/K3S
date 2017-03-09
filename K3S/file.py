@@ -70,8 +70,9 @@ class File():
 				mode = 'w+'
 		self.open(mode)
 		if self.extension == 'csv':
-			dataFrame = pandas.DataFrame(content, content.keys())
-			dataFrame.to_csv(self.file, header = self.writeHeader)
+			dataFrame = pandas.DataFrame(content, [0])
+			dataFrame.to_csv(self.file, header = self.writeHeader, index = False)
+			self.writeHeader = False
 		else:
 			self.file.write(content)
 		self.close()

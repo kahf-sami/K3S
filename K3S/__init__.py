@@ -21,3 +21,4 @@ from .lda import LDA
 from .localContextReflector import LocalContextReflector
 from .vocabulary import Vocabulary
 from .wordCloud import WordCloud
+from .wordContext import WordContext

@@ -69,9 +69,25 @@ class Utility():
 
 	@staticmethod
 	def getHash(data):
-		line = json.dumps(data, sort_keys=True)
-		line = line.encode('utf-8')
-		return hashlib.md5().hexdigest()
+		m = hashlib.md5()
+		m.update(data.encode(encoding='UTF-8'))
+		digest = m.hexdigest()
+
+		asciiSum = 0
+		for char in digest:
+			asciiSum += ord(char)
+
+		return asciiSum
+
+	@staticmethod
+	def getAsciiValue(data):
+		asciiSum = 0
+		for char in data:
+			asciiSum += ord(char)
+
+		return asciiSum
+
+		
 
 
 
