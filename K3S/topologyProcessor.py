@@ -52,7 +52,7 @@ class TopologyProcessor():
 			data['text_block'] = file.read()
 			data['text_block'].encode("utf-8")
 			topologyBuilder.addTextNode(data)
-
+			sys.exit()
 			index += 1
 			if (index == limit):
 				break;

@@ -16,7 +16,7 @@ class Word(DbModel):
 		DbModel.__init__(self, identifier)
 		self.tableName = 'word'
 		self.primaryKey = 'wordid'
-		self.fields = ['wordid', 'contextid', 'word', 'count', 'number_of_blocks', 'tf_idf', 'stemmed_word']
+		self.fields = ['wordid', 'contextid', 'word', 'count', 'number_of_blocks', 'tf_idf', 'stemmed_word', 'signature']
 		self.ignoreExists = ['count', 'number_of_blocks', 'tf_idf']
 		self.stemmer = PorterStemmer()
 		self.nlpProcessor = NLP()
@@ -73,6 +73,7 @@ class Word(DbModel):
 				data = {}
 				data['word'] = word
 				data['stemmed_word'] = self.stemmer.stem(word)
+				data['signature'] = self.getAsciiSum([data['stemmed_word']])
 				keys = totals.keys()
 				if data['stemmed_word'] in keys:
 					data['count'] = totals[data['stemmed_word']]

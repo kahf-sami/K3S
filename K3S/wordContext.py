@@ -33,15 +33,28 @@ class WordContext(DbModel):
 		if not finalAssociated:
 			return
 
-		
+		currentWordDetails = self.getWordDetails(self.word)
+		maxAllowed = currentWordDetails[0][1] # max number of time current word appears
+
 		for item in finalAssociated.keys():
-			details = self.getWordDetails(item)
+			if item == self.word:
+				details = currentWordDetails
+			else:
+				details = self.getWordDetails(item)
+
+			if details[0][1] > maxAllowed:
+				# More common word than the current word
+				continue
+
+
 			data = {}
 			data['word'] = item
-			data['distance'] = 100 - math.ceil(finalAssociated[item] / details[0][1] * 100)
+			data['local_distance'] = 100 - math.ceil(finalAssociated[item] / details[0][1] * 100)
 			data['global_tfidf'] = details[0][0]
+			data['global_nimber_of_blocks'] = details[0][1]
 			data['cluster'] = 1
-			data['number_of_docs'] = details[0][1]
+			data['global_distance'] = maxAllowed - details[0][1]
+			data['radious'] = math.sqrt(data['local_distance'] * data['local_distance'] + data['global_distance'] * data['global_distance'])
 
 			file.write(data)
 
@@ -61,7 +74,7 @@ class WordContext(DbModel):
 		return result
 
 
-	def getAsociatedWords(self, minAllowedPercent = 10):
+	def getAsociatedWords(self, minAllowedPercent = 0):
 		representatives = self.getContextRepresentatives()
 
 		if not representatives:
@@ -71,6 +84,7 @@ class WordContext(DbModel):
 
 		associatedWords = {}
 		for representative in representatives:
+			#print(representative)
 			representativeList = ast.literal_eval(re.sub('\'', '"', str(representative[0])))
 
 			for item in representativeList:
@@ -88,6 +102,7 @@ class WordContext(DbModel):
 
 		minAllowed = self.totalDocs * minAllowedPercent / 100
 		maxAllowed = associatedWords[self.word] + math.ceil(associatedWords[self.word] * minAllowedPercent /100)
+
 		finalAssociated = {}
 
 		for item in associatedWords.keys():
@@ -101,7 +116,7 @@ class WordContext(DbModel):
 	def getContextRepresentatives(self):
 		sql = ("SELECT representatives "
 			"FROM text_node "
-			"WHERE representatives LIKE '%" + self.word + "%'")
+			"WHERE representatives LIKE \"%\'" + self.word + "\'%\"")
 		return self.mysql.query(sql, [])
 
 		

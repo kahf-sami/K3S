@@ -8,6 +8,7 @@ import re
 from .utility import Utility
 import math
 from .localContext import LocalContext
+from .coreWord import CoreWord
 
 class TextNode(DbModel):
 
@@ -22,6 +23,7 @@ class TextNode(DbModel):
 		self.contextProcessor = Context(identifier)
 		self.edgeProcessor = Edge(identifier)
 		self.wordProcessor = Word(identifier)
+		self.coreWordProcessor = CoreWord(identifier)
 		self.nlpProcessor = NLP()
 		self.nodeid = None
 		return
@@ -32,6 +34,7 @@ class TextNode(DbModel):
 		words = None
 		
 		if 'text_block' in keys:
+			self.coreWordProcessor.saveWords(data['text_block'])
 			lc = LocalContext(data['text_block'], self.identifier)
 			data['representatives'] = lc.getRepresentative()
 			words = self.wordProcessor.saveWords(lc.getCleanText(), data['representatives'])

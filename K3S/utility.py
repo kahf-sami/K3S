@@ -70,6 +70,9 @@ class Utility():
 	@staticmethod
 	def getHash(data):
 		m = hashlib.md5()
+		
+		if isinstance(data, list):
+			data = ''.join(data)
 		m.update(data.encode(encoding='UTF-8'))
 		digest = m.hexdigest()
 
