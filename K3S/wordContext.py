@@ -33,11 +33,12 @@ class WordContext(DbModel):
 		if not finalAssociated:
 			return
 
+		
 		for item in finalAssociated.keys():
 			details = self.getWordDetails(item)
 			data = {}
 			data['word'] = item
-			data['distance'] = finalAssociated[item]
+			data['distance'] = 100 - math.ceil(finalAssociated[item] / details[0][1] * 100)
 			data['global_tfidf'] = details[0][0]
 			data['cluster'] = 1
 			data['number_of_docs'] = details[0][1]
@@ -67,6 +68,7 @@ class WordContext(DbModel):
 			return None
 
 		self.totalDocs = len(representatives)
+
 		associatedWords = {}
 		for representative in representatives:
 			representativeList = ast.literal_eval(re.sub('\'', '"', str(representative[0])))
@@ -85,10 +87,11 @@ class WordContext(DbModel):
 
 
 		minAllowed = self.totalDocs * minAllowedPercent / 100
+		maxAllowed = associatedWords[self.word] + math.ceil(associatedWords[self.word] * minAllowedPercent /100)
 		finalAssociated = {}
 
 		for item in associatedWords.keys():
-			if associatedWords[item] >= minAllowed:
+			if (associatedWords[item] >= minAllowed) and (associatedWords[item] <= maxAllowed):
 				finalAssociated[item] =  associatedWords[item]
 
 		return finalAssociated

@@ -14,7 +14,7 @@ identifier = 'Bukhari'
 #wordCloud.generateLGCsv()
 
 
-wC = K3S.WordContext(identifier, 'day')
+wC = K3S.WordContext(identifier, 'hajj')
 wC.generateLGCsv()
 
 

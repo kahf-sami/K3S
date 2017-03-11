@@ -22,6 +22,8 @@ class File():
 		self.lines = None
 		self.lineNumber = 0
 		self.writeHeader = True
+
+		#self.index = 0
 		return
 
 
@@ -75,6 +77,9 @@ class File():
 			self.writeHeader = False
 		else:
 			self.file.write(content)
+
+		#self.index += 1
+		#print(self.index)
 		self.close()
 		return
 

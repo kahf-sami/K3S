@@ -16,7 +16,7 @@ var xCat = "distance",
     rCat = "number_of_docs",
     colorCat = "cluster";
 
-d3.csv("Bukhari_day.csv", function(data) {
+d3.csv("Bukhari_hajj.csv", function(data) {
 
   //data.forEach(function(d){
   //});
