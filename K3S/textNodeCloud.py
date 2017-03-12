@@ -30,28 +30,23 @@ class TextNodeCloud(DbModel):
 
 
 
-	def getRepresentativesByBatch(self, limit, offset = 0):
-		sql = "SELECT nodeid, representatives FROM text_node ORDER BY nodeid LIMIT " + str(limit) + " OFFSET " + str(offset)
-		return self.mysql.query(sql, [])
+	def getRepresentativesByBatch(self):
+		sql = "SELECT nodeid, representatives FROM text_node"
+		return self.mysql.query(sql, [], True)
+
 
 
 	def savePoints(self):
-		limit = 500
-		offset = 0
-
 		self.mysql.truncate(self.tableName)
-		representatives = self.getRepresentativesByBatch(limit, offset)
-		total = len(representatives)
+		cursor = self.getRepresentativesByBatch()
 
-		while total:
-			for representative in representatives:
+		for batch in cursor:
+			batch = [item for item in cursor.fetchall()]
+
+			for representative in batch:
 				representativeList = ast.literal_eval(re.sub('\'', '"', str(representative[1])))
 
 				self.calculateAndSavePoint(representativeList, representative[0])
-
-			offset += total
-			representstives = self.getRepresentativesByBatch(limit, offset)
-			total = len(representatives)
 
 		return
 

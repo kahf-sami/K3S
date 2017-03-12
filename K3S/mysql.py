@@ -67,13 +67,17 @@ class MySql():
 		return
 
 
-	def query(self, sql, data = []):
+	def query(self, sql, data = [], batch = None):
 		if self.cursor == None:
 			self.connect()
 		
 		self.cursor.execute(sql, data)
 		
-		return [item for item in self.cursor.fetchall()]
+		if batch:
+			return self.cursor
+
+		results = [item for item in self.cursor.fetchall()]
+		return results
 
 
 	def insert(self, sql, data):
