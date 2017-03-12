@@ -1,6 +1,6 @@
 var margin = { top: 100, right: 10, bottom: 10, left: 10 },
-    outerWidth = 1000,
-    outerHeight = 500,
+    outerWidth = 1050,
+    outerHeight = 600,
     width = outerWidth - margin.left - margin.right,
     height = outerHeight - margin.top - margin.bottom;
 
@@ -10,12 +10,12 @@ var x = d3.scale.linear()
 var y = d3.scale.linear()
     .range([height, 0]).nice();
 
-var xCat = "hash",
-    yCat = "local_avg_weight",
-    rCat = "global_docs",
+var xCat = "local_avg",
+    yCat = "global_docs",
+    rCat = "global_tf_idf",
     colorCat = "global_cluster";
 
-d3.csv("Bukhari.csv", function(data) {
+d3.csv("Bukhari_1.csv", function(data) {
 
   //data.forEach(function(d){
   //});
@@ -115,7 +115,7 @@ d3.csv("Bukhari.csv", function(data) {
       .data(data)
     .enter().append("circle")
       .classed("dot", true)
-      .attr("r", function (d) { return 0.1 * Math.sqrt(d[rCat] / Math.PI); })
+      .attr("r", function (d) { return 5 * Math.sqrt(d[rCat] / Math.PI); })
       .attr("transform", transform)
       .style("fill", function(d) { return color(d[colorCat]); })
       .on("mouseover", tip.show)
@@ -136,6 +136,20 @@ d3.csv("Bukhari.csv", function(data) {
       .attr("x", width + 26)
       .attr("dy", ".35em")
       .text(function(d) { return d; });
+
+
+    //This is the accessor function we talked about above
+    var lineFunction = d3.svg.line()
+                          .x(function(d) { return d[xCat]; })
+                          .y(function(d) { return d[yCat]; })
+                         .interpolate("linear");
+
+    //The line SVG Path we draw
+    var lineGraph = svg.append("path")
+                            .attr("d", lineFunction(data))
+                            .attr("stroke", "blue")
+                            .attr("stroke-width", 2)
+                            .attr("fill", "none");
 
   d3.select("input").on("click", change);
 
@@ -165,3 +179,4 @@ d3.csv("Bukhari.csv", function(data) {
     return "translate(" + x(d[xCat]) + "," + y(d[yCat]) + ")";
   }
 });
+

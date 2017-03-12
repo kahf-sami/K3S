@@ -110,6 +110,7 @@ class Word(DbModel):
 			words = self.getWordsByBatch(limit, offset)
 		return
 
+
 	def calculateLocalContextImportance(self):
 		limit = 1000
 		offset = 0
@@ -126,6 +127,14 @@ class Word(DbModel):
 
 			offset += limit 
 			words = self.getWordsByBatch(limit, offset)
+		return
+
+
+	def saveLocalContextImportance(self, word):
+		data = {}
+		data['word'] = word
+		data['local_avg'] = "{0:.2f}".format(self.localContextImportance(word))
+		self.save(data)
 		return
 
 	def localContextImportance(self, word):

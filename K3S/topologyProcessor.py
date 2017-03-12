@@ -13,6 +13,7 @@ from .localContextHighlighter import LocalContextHighlighter
 from .textNode import TextNode
 from .coreWord import CoreWord
 from .wordContext import WordContext
+from .wordCloud import WordCloud
 
 
 class TopologyProcessor():
@@ -76,6 +77,19 @@ class TopologyProcessor():
 
 	def buildWordContext(self):
 		return;
+
+
+	def buildCloud(self):
+		wordCloud = WordCloud(self.sourceIdentifier)
+		#wordCloud.savePoints()
+		wordCloud.generateLCCsv()
+		return
+
+
+	def buildTextNodeCloud(self, nodeid):
+		wordCloud = WordCloud(self.sourceIdentifier)
+		wordCloud.buildTextNodeCloud(nodeid)
+		return
 
 
 	def stopWordsUpdate(self):

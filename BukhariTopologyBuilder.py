@@ -7,9 +7,10 @@ processor = K3S.TopologyProcessor(identifier)
 #processor.saveBlocksInMysql()
 #processor.calculateTfIdf()
 #processor.stopWordsUpdate()
-processor.calculateLocalContextImportance()
+#processor.calculateLocalContextImportance()
+#processor.buildCloud()
+processor.buildTextNodeCloud(1)
 
-processor.buildWordContext()
 #processor.generateLocalContextImages(1)
 
 
