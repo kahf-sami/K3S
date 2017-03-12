@@ -14,6 +14,7 @@ from .textNode import TextNode
 from .coreWord import CoreWord
 from .wordContext import WordContext
 from .wordCloud import WordCloud
+from .textNodeCloud import TextNodeCloud
 
 
 class TopologyProcessor():
@@ -81,8 +82,15 @@ class TopologyProcessor():
 
 	def buildCloud(self):
 		wordCloud = WordCloud(self.sourceIdentifier)
-		#wordCloud.savePoints()
+		wordCloud.savePoints()
 		wordCloud.generateLCCsv()
+		return
+
+
+	def buildTextCloud(self):
+		cloud = TextNodeCloud(self.sourceIdentifier)
+		cloud.savePoints()
+		cloud.generateLCCsv()
 		return
 
 

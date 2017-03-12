@@ -134,7 +134,7 @@ class Topology():
 			"CREATE TABLE IF NOT EXISTS text_point ("
 			"text_pointid INT(11) NOT NULL AUTO_INCREMENT,"
 			"nodeid INT(11) NOT NULL,"
-			"label VARCHAR (255) NOT NULL DEFAULT '',"
+			"label TEXT NOT NULL,"
 			"x int(11) DEFAULT 0,"
 			"y int(11) DEFAULT 0,"
 			"r int(11) DEFAULT 0,"

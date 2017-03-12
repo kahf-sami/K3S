@@ -33,7 +33,10 @@ class Word(DbModel):
 		else:
 			itemid = item[0][0]
 			data['number_of_blocks'] = int(item[0][4]) + 1
-			data['count'] += int(item[0][3])
+			
+			if 'count' in data.keys():
+				data['count'] += int(item[0][3])
+			
 			self.update(data, itemid)
 				
 		return itemid
@@ -278,7 +281,7 @@ class Word(DbModel):
 		textBlocks = self.getTextNodesHavingWord(word)
 
 		if not textBlocks:
-			return None
+			return Nonesw
 
 		mostSimilarWord = ''
 		keys = []

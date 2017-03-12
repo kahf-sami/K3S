@@ -29,7 +29,7 @@ class WordCloud(DbModel):
 		limit = 500
 		offset = 0
 
-		self.truncate(self.tableName)
+		self.mysql.truncate(self.tableName)
 		words = self.getWordsByBatch(limit, offset)
 		totalWords = len(words)
 
@@ -39,21 +39,20 @@ class WordCloud(DbModel):
 
 			offset += totalWords
 			words = self.getWordsByBatch(limit, offset)
-			totalWords = totalWords = len(words)
+			totalWords = len(words)
 
 		return
 
 
 	def calculateAndSavePoint(self, word):
 		wordProcessor = Word(self.identifier)
-		localContextImportance = wordProcessor.saveLocalContextImportance(word)
+		localContextImportance = wordProcessor.localContextImportance(word[1])
 
 		data = {}
 		data['wordid'] = word[0]
 		data['label'] = word[1]
-		data['y'] = math.ceil(word[4])
+		data['y'] = math.ceil(word[4]) # Number of blocks
 		data['x'] = localContextImportance
-		print(data)
 		self.save(data);
 
 

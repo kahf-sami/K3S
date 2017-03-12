@@ -9,3 +9,9 @@ var x = d3.scale.linear()
 
 var y = d3.scale.linear()
     .range([height, 0]).nice();
+
+
+var xCat = "local_avg",
+    yCat = "global_docs",
+    rCat = "global_tf_idf",
+    colorCat = "global_cluster";

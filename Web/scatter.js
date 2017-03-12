@@ -138,19 +138,6 @@ d3.csv("Bukhari_1.csv", function(data) {
       .text(function(d) { return d; });
 
 
-    //This is the accessor function we talked about above
-    var lineFunction = d3.svg.line()
-                          .x(function(d) { return d[xCat]; })
-                          .y(function(d) { return d[yCat]; })
-                         .interpolate("linear");
-
-    //The line SVG Path we draw
-    var lineGraph = svg.append("path")
-                            .attr("d", lineFunction(data))
-                            .attr("stroke", "blue")
-                            .attr("stroke-width", 2)
-                            .attr("fill", "none");
-
   d3.select("input").on("click", change);
 
   function change() {
