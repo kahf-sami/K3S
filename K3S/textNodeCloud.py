@@ -84,8 +84,7 @@ class TextNodeCloud(DbModel):
 	def generateLCCsv(self, representatives = None, filePath = None):
 		limit = 500
 		offset = 0
-		points = self.getPointsByBatch(limit, offset)
-		totalPoints = len(points)
+		cursor = self.getPointsByBatch()
 
 		if filePath:
 			file = File(filePath)
@@ -93,8 +92,10 @@ class TextNodeCloud(DbModel):
 			file = File(self.mainPath)
 		file.remove()
 
-		while totalPoints:
-			for point in totalPoints:
+		for batch in cursor:
+			points = [item for item in cursor.fetchall()]
+
+			for point in points:
 				if len(word[1]) < 2:
 					continue
 
@@ -106,17 +107,12 @@ class TextNodeCloud(DbModel):
 				data['r'] = word[0]
 				
 				file.write(data)
-			
-			offset += totalWords
-			points = self.getPointsByBatch(limit, offset)
-			totalPoints = len(points)
 
 
 	def getPointsByBatch(self, limit, offset = 0):
 		sql = ("SELECT nodeid, label, x, y, r "
-			"FROM text_point "
-			"LIMIT " + str(limit) + " OFFSET " + str(offset))
-		return self.mysql.query(sql, [])
+			"FROM text_point ")
+		return self.mysql.query(sql, [], True)
 
 
 	def getWordDetails(self, word):

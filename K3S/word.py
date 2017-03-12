@@ -94,13 +94,13 @@ class Word(DbModel):
 		return words
 
 	def calculateTfIdf(self):
-		limit = 1000
-		offset = 0
-		words = self.getWordsByBatch(limit, offset)
+		cursor = self.getWordsByBatch()
 		totalWords = self.getTotalWords()
 		totalTextBlocks = self.getTotalTextBlocks()
 
-		while len(words):
+		for barch in cursor:
+			words = [item for item in cursor.fetchall()]
+
 			for word in words:
 				tf = int(word[2]) / int(totalWords[0][0])
 				idf = math.log(int(totalTextBlocks[0][0]) / (1 + int(word[3])))
@@ -109,27 +109,22 @@ class Word(DbModel):
 				data['tf_idf'] = tf * idf
 				self.update(data, int(word[0]))
 
-			offset += limit 
-			words = self.getWordsByBatch(limit, offset)
 		return
 
 
 	def calculateLocalContextImportance(self):
-		limit = 1000
-		offset = 0
-		words = self.getWordsByBatch(limit, offset)
+		cursor = self.getWordsByBatch()
 		totalWords = self.getTotalWords()
 		totalTextBlocks = self.getTotalTextBlocks()
 
-		while len(words):
+		for barch in cursor:
+			words = [item for item in cursor.fetchall()]
 			for word in words:
 				data = {}
 				data['wordid'] = word[0]
 				data['local_avg'] = "{0:.2f}".format(self.localContextImportance(word[1]))
 				self.update(data, int(word[0]))
 
-			offset += limit 
-			words = self.getWordsByBatch(limit, offset)
 		return
 
 
@@ -205,76 +200,9 @@ class Word(DbModel):
 		return pos_tag(words)
 
 
-	def addEdges(self, truncate = True):
-		if truncate:
-			self.mysql.truncate('word_edge')
-			
-		limit = 1000
-		offset = 0
-		words = self.getWordsByBatch(limit, offset)
-
-		while len(words):
-			for word in words:
-				relatedWords = self.getRelatedWords(word[1])
-				if relatedWords:
-					for relatedWord in relatedWords:
-						data = {}
-						data['source_wordid'] = word[0]
-						data['destination_wordid'] = relatedWord['wordid']
-						data['similaruty_score'] = relatedWord['similarity_score']
-						self.saveEdge(data)
-
-			offset += limit 
-			words = self.getWordsByBatch(limit, offset)
-
-		return
-
-
-	def saveEdge(self, data):
-		wordEdgeId = self.hasEdge(data)
-
-		if not wordEdgeId:
-			sql = 'INSERT INTO word_edge (source_wordid, destination_wordid, similaruty_score) VALUES (%s, %s, %s)'
-			params = []
-			params.append(data['source_wordid'])
-			params.append(data['destination_wordid'])
-			params.append(data['similaruty_score'])
-			wordEdgeId = self.mysql.insert(sql, params)
-			
-		return wordEdgeId
-
-
-	def hasEdge(self, data):
-		params = []
-		sql = "SELECT word_edgeid FROM word_edge WHERE "
-
-		where1 = ''
-		where2 = ''
-		joinRequired = False
-		keys = data.keys()
-		if 'source_wordid' in keys:
-			where1 += 'source_wordid = %s'
-			where2 += 'destination_wordid = %s'
-			params.append(data['source_wordid'])
-			joinRequired = True
-
-		if 'destination_wordid' in keys:
-			if joinRequired:
-				where1 += ' AND '
-				where2 += ' AND '
-
-			where1 += 'destination_wordid = %s'
-			where2 += 'source_wordid = %s'
-			params.append(data['destination_wordid'])
-
-		sql += '(' + where1 + ') OR (' + where2 + ')'
-
-		return self.mysql.query(sql, params + params)
-
-
-	def getWordsByBatch(self, limit, offset = 0):
-		sql = "SELECT wordid, word.word,count,number_of_blocks  FROM word ORDER BY wordid LIMIT " + str(limit) + " OFFSET " + str(offset)
-		return self.mysql.query(sql, [])
+	def getWordsByBatch(self):
+		sql = "SELECT wordid, word.word,count,number_of_blocks  FROM word ORDER BY wordid"
+		return self.mysql.query(sql, [], True)
 
 
 	def getRelatedWords(self, word, minAllowedSimilarityPercent = 50):

@@ -72,15 +72,11 @@ class DbModel():
 				sql += field + " = %s "
 				params.append(str(data[field]))
 			joinRequired = True
-		
-		if asBatch:
-			sql += ' LIMIT ' + str(self.limit) + ' OFFSET ' + str(self.offset)
-			self.offset += self.limit
 
 		#print(sql)
 		#print(params)
 		
-		return self.mysql.query(sql, params)
+		return self.mysql.query(sql, params, asBatch)
 
 
 	def insert(self, data):

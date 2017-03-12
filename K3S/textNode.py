@@ -47,9 +47,9 @@ class TextNode(DbModel):
 
 
 
-	def getAllByBatch(self, limit, offset = 0):
-		sql = "SELECT *  FROM text_node ORDER BY nodeid LIMIT " + str(limit) + " OFFSET " + str(offset)
-		return self.mysql.query(sql, [])
+	def getAllByBatch(self):
+		sql = "SELECT *  FROM text_node ORDER BY nodeid"
+		return self.mysql.query(sql, [], True)
 
 
 	def relate(self, textBlock, currentNodeId):

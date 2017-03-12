@@ -362,10 +362,11 @@ class Processor():
 		offset = 0
 
 		lda = LDA(self.sourceIdentifier, number, passes)
-		blocks = textNodeProcessor.getAllByBatch(limit, offset)
+		cursor = textNodeProcessor.getAllByBatch()
 
 		#index = 1
-		while len(blocks):
+		while batch in cursor:
+			
 			textBlocks = []
 			for block in blocks:
 				words = ast.literal_eval(block[3])

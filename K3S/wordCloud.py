@@ -26,20 +26,14 @@ class WordCloud(DbModel):
 
 
 	def savePoints(self):
-		limit = 500
-		offset = 0
-
 		self.mysql.truncate(self.tableName)
-		words = self.getWordsByBatch(limit, offset)
-		totalWords = len(words)
+		cursor = self.getWordsByBatch()
 
-		while totalWords:
+		for batch in cursor:
+			words = [item for item in cursor.fetchall()]
+			
 			for word in words:
 				self.calculateAndSavePoint(word)
-
-			offset += totalWords
-			words = self.getWordsByBatch(limit, offset)
-			totalWords = len(words)
 
 		return
 
@@ -56,12 +50,11 @@ class WordCloud(DbModel):
 		self.save(data);
 
 
-	def getWordsByBatch(self, limit, offset = 0):
+	def getWordsByBatch(self):
 		sql = ("SELECT wordid, word, stemmed_word, count, number_of_blocks, tf_idf, local_avg, signature "
-			"FROM word "
-			"LIMIT " + str(limit) + " OFFSET " + str(offset))
+			"FROM word ")
 		
-		return self.mysql.query(sql, [])
+		return self.mysql.query(sql, [], True)
 
 
 
@@ -80,10 +73,7 @@ class WordCloud(DbModel):
 
 
 	def generateLCCsv(self, representatives = None, filePath = None):
-		limit = 500
-		offset = 0
-		words = self.getWordsByBatch(limit, offset)
-		totalWords = len(words)
+		cursor = self.getWordsByBatch()
 
 		if filePath:
 			file = File(filePath)
@@ -91,7 +81,8 @@ class WordCloud(DbModel):
 			file = File(self.mainPath)
 		file.remove()
 
-		while totalWords:
+		for batch in cursor:
+			words = [item for item in cursor.fetchall()]
 			for word in words:
 				if len(word[1]) < 2:
 					continue
@@ -113,9 +104,6 @@ class WordCloud(DbModel):
 				
 				file.write(data)
 			
-			offset += totalWords
-			words = self.getWordsByBatch(limit, offset)
-			totalWords = len(words)
 
 
 	def buildTextNodeCloud(self, nodeid):
@@ -151,12 +139,11 @@ class WordCloud(DbModel):
 		return None
 
 
-	def getPointsByBatch(self, limit, offset = 0):
+	def getPointsByBatch(self):
 		sql = ("SELECT label, y as local_avg_weight, x as global_docs, tf_idf "
 			"FROM word "
-			"JOIN word_point ON word_point.wordid = word.wordid "
-			"LIMIT " + str(limit) + " OFFSET " + str(offset))
-		return self.mysql.query(sql, [])
+			"JOIN word_point ON word_point.wordid = word.wordid ")
+		return self.mysql.query(sql, [], True)
 
 		
 

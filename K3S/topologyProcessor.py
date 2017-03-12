@@ -108,15 +108,16 @@ class TopologyProcessor():
 
 	def generateLocalContextImages(self, limit = None):
 		textNodeProcessor = TextNode(self.sourceIdentifier)
-		textBlocks = textNodeProcessor.getAllByBatch(limit, 1)
+		cursor = textNodeProcessor.getAllByBatch()
 
 		index = 0
 		filterLowerRatedNouns = 0
-		while len(textBlocks):
-
+		for batch in cursor:
 			if index == limit:
 				break;
 
+			textBlocks = [item for item in cursor.fetchall()]
+			
 			for textBlock in textBlocks:
 				print(textBlock)
 				lc = LocalContext(textBlock[2], self.sourceIdentifier, filterLowerRatedNouns)
