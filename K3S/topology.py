@@ -82,6 +82,7 @@ class Topology():
 			"number_of_blocks INT(11) NOT NULL DEFAULT 0,"
 			"tf_idf DECIMAL(10,10) DEFAULT 0,"
 			"signature INT(64) DEFAULT 0,"
+			"local_avg DECIMAL(20,2) DEFAULT 0,"
 			"PRIMARY KEY (wordid)"
 			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
 

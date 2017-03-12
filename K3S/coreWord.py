@@ -18,7 +18,7 @@ class CoreWord(DbModel):
 		DbModel.__init__(self, identifier)
 		self.tableName = 'core_word'
 		self.primaryKey = 'core_wordid'
-		self.fields = ['core_wordid', 'stemmed_word', 'word', 'pos_type', 'number_of_blocks']
+		self.fields = ['core_wordid', 'stemmed_word', 'word', 'pos_type', 'number_of_blocks', 'count']
 		self.ignoreExists = ['number_of_blocks']
 		self.stemmer = PorterStemmer()
 		self.nlpProcessor = NLP()
@@ -77,6 +77,7 @@ class CoreWord(DbModel):
 				data['pos_type'] = word[1]
 				data['word'] = word[0]
 				data['stemmed_word'] = self.stemmer.stem(word[0])
+				
 				keys = totals.keys()
 				if data['stemmed_word'] in keys:
 					data['count'] = totals[data['stemmed_word']]
@@ -101,6 +102,11 @@ class CoreWord(DbModel):
 			return words
 		return pos_tag(words)
 
+
+	def markStopWords(self):
+		sql = ("UPDATE core_word SET stop_word = 1 WHERE pos_type NOT LIKE '%NN%'")
+		self.mysql.updateOrDelete(sql, [])
+		return 
 
 
  

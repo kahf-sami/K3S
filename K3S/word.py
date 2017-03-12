@@ -16,7 +16,7 @@ class Word(DbModel):
 		DbModel.__init__(self, identifier)
 		self.tableName = 'word'
 		self.primaryKey = 'wordid'
-		self.fields = ['wordid', 'contextid', 'word', 'count', 'number_of_blocks', 'tf_idf', 'stemmed_word', 'signature']
+		self.fields = ['wordid', 'contextid', 'word', 'count', 'number_of_blocks', 'tf_idf', 'stemmed_word', 'signature','local_avg']
 		self.ignoreExists = ['count', 'number_of_blocks', 'tf_idf']
 		self.stemmer = PorterStemmer()
 		self.nlpProcessor = NLP()
@@ -91,7 +91,7 @@ class Word(DbModel):
 		return words
 
 	def calculateTfIdf(self):
-		limit = 10
+		limit = 1000
 		offset = 0
 		words = self.getWordsByBatch(limit, offset)
 		totalWords = self.getTotalWords()
@@ -109,6 +109,31 @@ class Word(DbModel):
 			offset += limit 
 			words = self.getWordsByBatch(limit, offset)
 		return
+
+	def calculateLocalContextImportance(self):
+		limit = 1000
+		offset = 0
+		words = self.getWordsByBatch(limit, offset)
+		totalWords = self.getTotalWords()
+		totalTextBlocks = self.getTotalTextBlocks()
+
+		while len(words):
+			for word in words:
+				data = {}
+				data['wordid'] = word[0]
+				data['local_avg'] = "{0:.2f}".format(self.localContextImportance(word[1]))
+				self.update(data, int(word[0]))
+
+			offset += limit 
+			words = self.getWordsByBatch(limit, offset)
+		return
+
+	def localContextImportance(self, word):
+		sql = ("SELECT AVG(weight) FROM local_context WHERE word = %s")
+		params = []
+		params.append(word);
+		weight = self.mysql.query(sql, params)
+		return weight[0][0]
 
 
 	def getAsciiSum(self, words):

@@ -11,6 +11,8 @@ from .word import Word
 from .localContext import LocalContext
 from .localContextHighlighter import LocalContextHighlighter
 from .textNode import TextNode
+from .coreWord import CoreWord
+from .wordContext import WordContext
 
 
 class TopologyProcessor():
@@ -52,7 +54,7 @@ class TopologyProcessor():
 			data['text_block'] = file.read()
 			data['text_block'].encode("utf-8")
 			topologyBuilder.addTextNode(data)
-			sys.exit()
+
 			index += 1
 			if (index == limit):
 				break;
@@ -63,6 +65,22 @@ class TopologyProcessor():
 	def calculateTfIdf(self):
 		wordProcessor = Word(self.sourceIdentifier)
 		wordProcessor.calculateTfIdf()
+		return
+
+
+	def calculateLocalContextImportance(self):
+		wordProcessor = Word(self.sourceIdentifier)
+		wordProcessor.calculateLocalContextImportance()
+		return
+
+
+	def buildWordContext(self):
+		return;
+
+
+	def stopWordsUpdate(self):
+		coreWprdProcessor = CoreWord(self.sourceIdentifier)
+		coreWprdProcessor.markStopWords()
 		return
 
 

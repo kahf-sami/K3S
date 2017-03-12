@@ -3,9 +3,13 @@ import K3S
 
 identifier = 'Bukhari'
 processor = K3S.TopologyProcessor(identifier)
-processor.topologySetUp()
-processor.saveBlocksInMysql()
+#processor.topologySetUp()
+#processor.saveBlocksInMysql()
 #processor.calculateTfIdf()
+#processor.stopWordsUpdate()
+processor.calculateLocalContextImportance()
+
+processor.buildWordContext()
 #processor.generateLocalContextImages(1)
 
 
