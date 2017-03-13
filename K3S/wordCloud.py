@@ -29,11 +29,8 @@ class WordCloud(DbModel):
 		self.mysql.truncate(self.tableName)
 		cursor = self.getWordsByBatch()
 
-		for batch in cursor:
-			words = [item for item in cursor.fetchall()]
-			
-			for word in words:
-				self.calculateAndSavePoint(word)
+		for word in cursor:
+			self.calculateAndSavePoint(word)
 
 		return
 
@@ -47,6 +44,7 @@ class WordCloud(DbModel):
 		data['label'] = word[1]
 		data['y'] = math.ceil(word[4]) # Number of blocks
 		data['x'] = localContextImportance
+		print(data)
 		self.save(data);
 
 

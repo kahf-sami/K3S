@@ -40,13 +40,9 @@ class TextNodeCloud(DbModel):
 		self.mysql.truncate(self.tableName)
 		cursor = self.getRepresentativesByBatch()
 
-		for batch in cursor:
-			batch = [item for item in cursor.fetchall()]
-
-			for representative in batch:
-				representativeList = ast.literal_eval(re.sub('\'', '"', str(representative[1])))
-
-				self.calculateAndSavePoint(representativeList, representative[0])
+		for representative in cursor:
+			representativeList = ast.literal_eval(re.sub('\'', '"', str(representative[1])))
+			self.calculateAndSavePoint(representativeList, representative[0])
 
 		return
 
@@ -75,15 +71,11 @@ class TextNodeCloud(DbModel):
 		data['x'] = sumX / numberOfWords
 		data['r'] = math.sqrt(float(data['x']) * float(data['x']) + float(data['y']) * float(data['y']))
 		
-		#print(data)
-		
 		self.save(data);
 		return
 
 
 	def generateLCCsv(self, representatives = None, filePath = None):
-		limit = 500
-		offset = 0
 		cursor = self.getPointsByBatch()
 
 		if filePath:
@@ -92,24 +84,22 @@ class TextNodeCloud(DbModel):
 			file = File(self.mainPath)
 		file.remove()
 
-		for batch in cursor:
-			points = [item for item in cursor.fetchall()]
+		for point in cursor:
+			
+			if len(word[1]) < 2:
+				continue
 
-			for point in points:
-				if len(word[1]) < 2:
-					continue
-
-				data = {}
-				data['nodeid'] = word[0]
-				data['labe;'] = word[0]
-				data['x'] = word[0]
-				data['y'] = word[0]
-				data['r'] = word[0]
-				
-				file.write(data)
+			data = {}
+			data['nodeid'] = word[0]
+			data['labe;'] = word[0]
+			data['x'] = word[0]
+			data['y'] = word[0]
+			data['r'] = word[0]
+			print(data)
+			file.write(data)
 
 
-	def getPointsByBatch(self, limit, offset = 0):
+	def getPointsByBatch(self):
 		sql = ("SELECT nodeid, label, x, y, r "
 			"FROM text_point ")
 		return self.mysql.query(sql, [], True)

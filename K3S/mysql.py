@@ -10,7 +10,9 @@ class MySql():
 	def __init__(self, config):
 		self.config = config
 		self.connection = None
+		self.batchConnection = None
 		self.cursor = None
+		self.batchCursor = None
 		return
 
 
@@ -37,7 +39,10 @@ class MySql():
 	def connect(self):
 		self.connection = connector.connect(user = self.config['userName'], password = self.config['password'], host = self.config['host'], database=self.config['name'])
 		self.cursor = self.connection.cursor()
+		self.batchConnection = connector.connect(user = self.config['userName'], password = self.config['password'], host = self.config['host'], database=self.config['name'])
+		self.batchCursor =  self.batchConnection.cursor()
 		return
+
 
 	def createTables(self, tables):
 		if self.cursor == None:
@@ -71,11 +76,13 @@ class MySql():
 		if self.cursor == None:
 			self.connect()
 		
-		self.cursor.execute(sql, data)
+		
 		
 		if batch:
-			return self.cursor
+			self.batchCursor.execute(sql, data)
+			return self.batchCursor
 
+		self.cursor.execute(sql, data)
 		results = [item for item in self.cursor.fetchall()]
 		return results
 

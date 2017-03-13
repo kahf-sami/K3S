@@ -94,36 +94,33 @@ class Word(DbModel):
 		return words
 
 	def calculateTfIdf(self):
-		cursor = self.getWordsByBatch()
 		totalWords = self.getTotalWords()
 		totalTextBlocks = self.getTotalTextBlocks()
 
-		for barch in cursor:
-			words = [item for item in cursor.fetchall()]
+		cursor = self.getWordsByBatch()
 
-			for word in words:
-				tf = int(word[2]) / int(totalWords[0][0])
-				idf = math.log(int(totalTextBlocks[0][0]) / (1 + int(word[3])))
-				data = {}
-				data['wordid'] = word[0]
-				data['tf_idf'] = tf * idf
-				self.update(data, int(word[0]))
-
+		for word in cursor:
+			tf = int(word[2]) / int(totalWords[0][0])
+			idf = math.log(int(totalTextBlocks[0][0]) / (1 + int(word[3])))
+			data = {}
+			data['wordid'] = word[0]
+			data['tf_idf'] = tf * idf
+			self.update(data, int(word[0]))
+			
 		return
 
 
 	def calculateLocalContextImportance(self):
-		cursor = self.getWordsByBatch()
 		totalWords = self.getTotalWords()
 		totalTextBlocks = self.getTotalTextBlocks()
 
-		for barch in cursor:
-			words = [item for item in cursor.fetchall()]
-			for word in words:
-				data = {}
-				data['wordid'] = word[0]
-				data['local_avg'] = "{0:.2f}".format(self.localContextImportance(word[1]))
-				self.update(data, int(word[0]))
+		cursor = self.getWordsByBatch()
+
+		for word in cursor:
+			data = {}
+			data['wordid'] = word[0]
+			data['local_avg'] = "{0:.2f}".format(self.localContextImportance(word[1]))
+			self.update(data, int(word[0]))
 
 		return
 
@@ -201,7 +198,7 @@ class Word(DbModel):
 
 
 	def getWordsByBatch(self):
-		sql = "SELECT wordid, word.word,count,number_of_blocks  FROM word ORDER BY wordid"
+		sql = "SELECT wordid, word.word,count,number_of_blocks FROM word "
 		return self.mysql.query(sql, [], True)
 
 
