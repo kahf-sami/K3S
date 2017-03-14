@@ -51,13 +51,22 @@ class TextNodeCloud(DbModel):
 		if not representativeList:
 			return None
 
+		'''
+		info = {}
+		details = self.getDetailsFromLocalContext(nodeid)
+		totalWords = len(details)
+
+		for item in details:
+			info[item[0]]['lc_weight'] = item[1] / totalWords * 100
+			info[item[0]]['g_weight'] = item[2]
+		'''
+		
 		numberOfWords = 0
 		sumX = 0
 		sumY = 0
 		label = ''
 		divider = ''
 		for word in representativeList:
-			details = self.getWordDetails(word)
 			sumX += details[0][1]
 			sumY += details[0][0]
 			numberOfWords += 1
@@ -75,7 +84,7 @@ class TextNodeCloud(DbModel):
 		return
 
 
-	def generateLCCsv(self, representatives = None, filePath = None):
+	def generateCsv(self, representatives = None, filePath = None):
 		cursor = self.getPointsByBatch()
 
 		if filePath:
@@ -84,25 +93,27 @@ class TextNodeCloud(DbModel):
 			file = File(self.mainPath)
 		file.remove()
 
-		for point in cursor:
-			
+		for word in cursor:
+			print(word)
 			if len(word[1]) < 2:
 				continue
 
 			data = {}
 			data['nodeid'] = word[0]
-			data['labe;'] = word[0]
-			data['x'] = word[0]
-			data['y'] = word[0]
-			data['r'] = word[0]
-			print(data)
+			data['label'] = word[1]
+			data['x'] = word[2]
+			data['y'] = word[3]
+			data['r'] = word[4]
+			
 			file.write(data)
 
+		return
 
+			
 	def getPointsByBatch(self):
 		sql = ("SELECT nodeid, label, x, y, r "
 			"FROM text_point ")
-		return self.mysql.query(sql, [], True)
+		return self.mysql.query(sql, [], True)	
 
 
 	def getWordDetails(self, word):

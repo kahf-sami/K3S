@@ -21,9 +21,9 @@ class Topology():
 		return
 
 
-	def addTextNode(self, data):
+	def addTextNode(self, data, processCore):
 		textNode = TextNode(self.identifier)
-		return textNode.save(data)
+		return textNode.save(data, processCore)
 
 
 	def extractContext(self):

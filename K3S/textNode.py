@@ -29,12 +29,13 @@ class TextNode(DbModel):
 		return
 
 
-	def save(self, data):
+	def save(self, data, processCore):
 		keys = data.keys()
 		words = None
 		
 		if 'text_block' in keys:
-			self.coreWordProcessor.saveWords(data['text_block'])
+			if processCore:
+				self.coreWordProcessor.saveWords(data['text_block'])
 			lc = LocalContext(data['text_block'], self.identifier)
 			data['representatives'] = lc.getRepresentative()
 			words = self.wordProcessor.saveWords(lc.getCleanText(), data['representatives'])

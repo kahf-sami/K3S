@@ -6,8 +6,8 @@ import sys
 from nltk.stem.porter import PorterStemmer
 from .nlp import NLP
 import math
-
-
+import ast
+import re
 
 class Word(DbModel):
 
@@ -132,12 +132,26 @@ class Word(DbModel):
 		self.save(data)
 		return
 
+
 	def localContextImportance(self, word):
-		sql = ("SELECT AVG(weight) FROM local_context WHERE word = %s")
-		params = []
-		params.append(word);
-		weight = self.mysql.query(sql, params)
-		return weight[0][0]
+		sql = ("SELECT weight, representatives "
+			"FROM local_context "
+			"JOIN text_node ON text_node.nodeid = local_context.nodeid "
+			"WHERE local_context.word = %s")
+
+		results = self.mysql.query(sql, [word])
+
+		weight = 0
+
+		if not results:
+			return weight
+
+		for row in results:
+			representativeList = ast.literal_eval(re.sub('\'', '"', str(row[1])))
+			itemWeight = row[0] / len(representativeList) * 100
+			weight += itemWeight
+
+		return weight
 
 
 	def getAsciiSum(self, words):

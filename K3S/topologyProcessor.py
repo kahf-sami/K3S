@@ -35,7 +35,7 @@ class TopologyProcessor():
 		topologyBuilder.setUp()
 		return
 
-	def saveBlocksInMysql(self, limit = None):
+	def saveBlocksInMysql(self, limit = None, processCore = True):
 		topologyBuilder = Topology(self.sourceIdentifier)
 
 		sourceDir = Directory(self.processedPath)
@@ -55,7 +55,7 @@ class TopologyProcessor():
 			data['source_identifier'] = file.getFileName()
 			data['text_block'] = file.read()
 			data['text_block'].encode("utf-8")
-			topologyBuilder.addTextNode(data)
+			topologyBuilder.addTextNode(data, processCore)
 
 			index += 1
 			if (index == limit):
@@ -87,10 +87,11 @@ class TopologyProcessor():
 		return
 
 
-	def buildTextCloud(self):
+	def buildTextCloud(self, savePoints = False):
 		cloud = TextNodeCloud(self.sourceIdentifier)
-		cloud.savePoints()
-		cloud.generateLCCsv()
+		if(savePoints):
+			cloud.savePoints()
+		cloud.generateCsv()
 		return
 
 

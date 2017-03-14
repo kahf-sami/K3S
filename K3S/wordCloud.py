@@ -44,7 +44,7 @@ class WordCloud(DbModel):
 		data['label'] = word[1]
 		data['y'] = math.ceil(word[4]) # Number of blocks
 		data['x'] = localContextImportance
-		print(data)
+	
 		self.save(data);
 
 

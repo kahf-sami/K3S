@@ -4,12 +4,12 @@ import K3S
 identifier = 'Bukhari'
 processor = K3S.TopologyProcessor(identifier)
 #processor.topologySetUp()
-#processor.saveBlocksInMysql()
+#processor.saveBlocksInMysql(None, False)
 #processor.calculateTfIdf()
 #processor.stopWordsUpdate()
-#processor.calculateLocalContextImportance()
-#processor.buildCloud()
-processor.buildTextCloud()
+processor.calculateLocalContextImportance()
+processor.buildCloud()
+#processor.buildTextCloud()
 
 
 #processor.buildTextNodeCloud(1)
