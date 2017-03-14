@@ -15,7 +15,7 @@ var xCat = "local_avg",
     rCat = "global_tf_idf",
     colorCat = "global_cluster";
 
-d3.csv("Bukhari_1.csv", function(data) {
+d3.csv("Bukhari_all.csv", function(data) {
 
   //data.forEach(function(d){
   //});

@@ -82,7 +82,7 @@ class WordCloud(DbModel):
 		for batch in cursor:
 			words = [item for item in cursor.fetchall()]
 			for word in words:
-				if len(word[1]) < 2:
+				if len(word[1]) < 2 or word[4] == 1:
 					continue
 
 				data = {}
