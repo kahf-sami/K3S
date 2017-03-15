@@ -15,6 +15,7 @@ from .coreWord import CoreWord
 from .wordContext import WordContext
 from .wordCloud import WordCloud
 from .textNodeCloud import TextNodeCloud
+import re
 
 
 class TopologyProcessor():
@@ -46,6 +47,7 @@ class TopologyProcessor():
 
 		files.sort()
 		index = 0
+
 		for fileName in files:
 			if fileName[0] == '.':
 				continue
@@ -54,6 +56,9 @@ class TopologyProcessor():
 			data = {}
 			data['source_identifier'] = file.getFileName()
 			data['text_block'] = file.read()
+			data['text_block'] = re.sub('(-?)\n', '', str(data['text_block']))
+			data['text_block'] = re.sub('\'|"|\(|\)|\{|\}|[|\]|<[a-zA-Z0-9\"\'-_\s"]+>', '', str(data['text_block']))
+			data['text_block'] = re.sub('\s+', ' ', str(data['text_block']))
 			data['text_block'].encode("utf-8")
 			topologyBuilder.addTextNode(data, processCore)
 

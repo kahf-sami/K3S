@@ -36,8 +36,10 @@ class TextNode(DbModel):
 		if 'text_block' in keys:
 			if processCore:
 				self.coreWordProcessor.saveWords(data['text_block'])
+
 			lc = LocalContext(data['text_block'], self.identifier)
 			data['representatives'] = lc.getRepresentative()
+			
 			words = self.wordProcessor.saveWords(lc.getCleanText(), data['representatives'])
 			data['dna'] = Utility.getHash(data['representatives'])
 			self.nodeid = DbModel.save(self, data)

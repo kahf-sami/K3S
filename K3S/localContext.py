@@ -35,6 +35,7 @@ class LocalContext(DbModel):
 		self.positionContribution = 0
 		self.positionContributionFactor = 0.5
 		self.properNounFactor = 5
+		self.pureWords = {}
 		self.max = None
 		self.min = None
 
@@ -100,13 +101,12 @@ class LocalContext(DbModel):
 		minValue = self.max * filterLowerRatedNouns
 
 		allWords = self.blockWords.keys()
-
 		
-		for word in  allWords:
+		for word in allWords:
 			if self.blockWords[word] < minValue:
 				continue
 			else:
-				self.representatives.append(word)
+				self.representatives.append(self.pureWords[word])
 
 		return
 
@@ -278,6 +278,7 @@ class LocalContext(DbModel):
 			
 		for item in afterPartsOfSpeachTagging:
 			word =  self.stemmer.stem(item[0].lower())
+			self.pureWords[word] = item[0].lower()
 			currentType = item[1]
 			bloclWord = None
 
@@ -447,9 +448,11 @@ class LocalContext(DbModel):
 		if not self.representatives:
 			return
 
+		allWords = self.blockWords.keys()
+
 		self.deleteLocalContextsByNodeid(nodeid)
 
-		for representative in self.representatives:
+		for representative in allWords:
 			data = {}
 			data['nodeid'] = nodeid
 			data['word'] = representative

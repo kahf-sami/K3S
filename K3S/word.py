@@ -17,7 +17,7 @@ class Word(DbModel):
 		self.tableName = 'word'
 		self.primaryKey = 'wordid'
 		self.fields = ['wordid', 'contextid', 'word', 'count', 'number_of_blocks', 'tf_idf', 'stemmed_word', 'signature','local_avg']
-		self.ignoreExists = ['count', 'number_of_blocks', 'tf_idf']
+		self.ignoreExists = ['count', 'number_of_blocks', 'tf_idf', 'word']
 		self.stemmer = PorterStemmer()
 		self.nlpProcessor = NLP()
 		return
@@ -32,6 +32,7 @@ class Word(DbModel):
 			itemid = self.insert(data)
 		else:
 			itemid = item[0][0]
+			data['word'] = item[0][1]
 			data['number_of_blocks'] = int(item[0][4]) + 1
 			
 			if 'count' in data.keys():
