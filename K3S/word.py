@@ -16,24 +16,30 @@ class Word(DbModel):
 		DbModel.__init__(self, identifier)
 		self.tableName = 'word'
 		self.primaryKey = 'wordid'
-		self.fields = ['wordid', 'contextid', 'word', 'count', 'number_of_blocks', 'tf_idf', 'stemmed_word', 'signature','local_avg']
-		self.ignoreExists = ['count', 'number_of_blocks', 'tf_idf', 'word']
+		self.fields = ['wordid', 'contextid', 'word', 'count', 'number_of_blocks', 'tf_idf', 'stemmed_word', 'signature','local_avg', 'zone']
+		self.ignoreExists = ['count', 'number_of_blocks', 'tf_idf', 'word', 'zone']
 		self.stemmer = PorterStemmer()
 		self.nlpProcessor = NLP()
+		self.maxZone = 6
 		return
 
 
 	def save(self, data):
 		itemid = None
 		item = self.read(data)
+		totalTextBlocks = self.getTotalTextBlocks()
 
 		if not item:
+			# new text node
+			totalTextBlocks += 1
 			data['number_of_blocks'] = 1
 			itemid = self.insert(data)
+			data['zone'] = self.getZone(data['number_of_blocks'], totalTextBlocks)
 		else:
 			itemid = item[0][0]
 			data['word'] = item[0][1]
 			data['number_of_blocks'] = int(item[0][4]) + 1
+			data['zone'] = self.getZone(data['number_of_blocks'], totalTextBlocks)
 			
 			if 'count' in data.keys():
 				data['count'] += int(item[0][3])
@@ -110,6 +116,47 @@ class Word(DbModel):
 			self.update(data, int(word[0]))
 			
 		return
+
+
+	def calculateZone(self):
+		totalWords = self.getTotalWords()
+		totalTextBlocks = self.getTotalTextBlocks()
+
+		cursor = self.getWordsByBatch()
+
+		for word in cursor:
+			data = {}
+			data['wordid'] = word[0]
+			data['zone'] = self.getZone(word[3], totalTextBlocks)
+			self.update(data, int(word[0]))
+
+		return
+
+
+	def getZone(self, numberOfBlocks, totalTextBlocks):
+		if not numberOfBlocks:
+			return 0
+
+		percentageOfNumberOfBlocks = (numberOfBlocks * 100) / totalTextBlocks
+
+		if percentageOfNumberOfBlocks >= 40:
+			return 1
+		
+		if percentageOfNumberOfBlocks <= 5: 
+			return 6
+		
+		if percentageOfNumberOfBlocks <= 10: 
+			return 5
+		
+		if percentageOfNumberOfBlocks <= 15: 
+			return 4
+		
+		if percentageOfNumberOfBlocks <= 20: 
+			return 3
+			
+		return 2
+
+
 
 
 	def calculateLocalContextImportance(self):

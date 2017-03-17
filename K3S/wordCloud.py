@@ -22,10 +22,21 @@ class WordCloud(DbModel):
 		self.fields = ['word_pointid', 'wordid', 'label', 'x', 'y', 'r', 'theta']
 		self.maxX = self.maxNumberOfSimilarBlocks()
 		self.mainPath = File.join(self.config.ROOT_PATH, 'Web', self.identifier + '_all.csv')
+		self.radius = self.calculateRadius()
 		return
 
 
-	def savePoints(self):
+	def calculateRadius(self):
+		totalTextNodes = self.getTotalTextNodes();
+		if not totalTextNodes:
+			return 0
+
+		# The radius of a circle is number of nodes
+		radius = math.ceil(totalTextNodes * 7 / 44)
+
+		return radius
+
+	def savePoints(self):		
 		self.mysql.truncate(self.tableName)
 		cursor = self.getWordsByBatch()
 
@@ -50,7 +61,7 @@ class WordCloud(DbModel):
 
 	def getWordsByBatch(self):
 		sql = ("SELECT wordid, word, stemmed_word, count, number_of_blocks, tf_idf, local_avg, signature "
-			"FROM word ")
+			"FROM word ORDER BY number_of_blocks DESC")
 		
 		return self.mysql.query(sql, [], True)
 
@@ -143,6 +154,13 @@ class WordCloud(DbModel):
 			"JOIN word_point ON word_point.wordid = word.wordid ")
 		return self.mysql.query(sql, [], True)
 
+
+	def getTotalTextNodes(self):
+		sql = ("SELECT count(*) "
+			"FROM text_node "
+			"ORDER BY text_nodeid ")
+		result = self.mysql.query(sql, [], True)
+		return result[0][0]
 		
 
 				

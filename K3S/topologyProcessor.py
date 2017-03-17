@@ -113,6 +113,12 @@ class TopologyProcessor():
 		return
 
 
+	def calculateWordZone(self):
+		wordProcessor = Word(self.sourceIdentifier)
+		wordProcessor.calculateZone()
+		return
+
+
 	def generateLocalContextImages(self, limit = None):
 		textNodeProcessor = TextNode(self.sourceIdentifier)
 		cursor = textNodeProcessor.getAllByBatch()
@@ -132,6 +138,8 @@ class TopologyProcessor():
 				index += 1
 
 		return
+
+
 
 
 
