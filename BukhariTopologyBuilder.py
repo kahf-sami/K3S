@@ -8,8 +8,8 @@ processor = K3S.TopologyProcessor(identifier)
 #processor.calculateTfIdf()
 #processor.stopWordsUpdate()
 #processor.calculateLocalContextImportance()
-processor.calculateWordZone()
-#processor.buildCloud()
+#processor.calculateWordZone()
+processor.buildCloud()
 #processor.buildTextCloud()
 
 

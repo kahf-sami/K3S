@@ -34,12 +34,12 @@ class Word(DbModel):
 			totalTextBlocks += 1
 			data['number_of_blocks'] = 1
 			itemid = self.insert(data)
-			data['zone'] = self.getZone(data['number_of_blocks'], totalTextBlocks)
+			data['zone'] = self.getZone(data['number_of_blocks'], totalTextBlocks[0][0])
 		else:
 			itemid = item[0][0]
 			data['word'] = item[0][1]
 			data['number_of_blocks'] = int(item[0][4]) + 1
-			data['zone'] = self.getZone(data['number_of_blocks'], totalTextBlocks)
+			data['zone'] = self.getZone(data['number_of_blocks'], totalTextBlocks[0][0])
 			
 			if 'count' in data.keys():
 				data['count'] += int(item[0][3])
@@ -121,13 +121,13 @@ class Word(DbModel):
 	def calculateZone(self):
 		totalWords = self.getTotalWords()
 		totalTextBlocks = self.getTotalTextBlocks()
-
 		cursor = self.getWordsByBatch()
 
 		for word in cursor:
 			data = {}
 			data['wordid'] = word[0]
-			data['zone'] = self.getZone(word[3], totalTextBlocks)
+			data['zone'] = self.getZone(word[3], totalTextBlocks[0][0])
+			
 			self.update(data, int(word[0]))
 
 		return
@@ -137,10 +137,49 @@ class Word(DbModel):
 		if not numberOfBlocks:
 			return 0
 
-		percentageOfNumberOfBlocks = (numberOfBlocks * 100) / totalTextBlocks
+		percentageOfNumberOfBlocks = (int(numberOfBlocks) * 100) / totalTextBlocks
 
 		if percentageOfNumberOfBlocks >= 40:
 			return 1
+
+		if percentageOfNumberOfBlocks <= 0.10: 
+			return 19
+
+		if percentageOfNumberOfBlocks <= 0.20: 
+			return 18
+
+		if percentageOfNumberOfBlocks <= 0.30: 
+			return 17
+
+		if percentageOfNumberOfBlocks <= 0.40: 
+			return 16
+
+		if percentageOfNumberOfBlocks <= 0.50: 
+			return 15
+
+		if percentageOfNumberOfBlocks <= 0.60: 
+			return 14
+
+		if percentageOfNumberOfBlocks <= 0.70: 
+			return 13
+
+		if percentageOfNumberOfBlocks <= 0.80: 
+			return 12
+
+		if percentageOfNumberOfBlocks <= 0.90: 
+			return 11
+
+		if percentageOfNumberOfBlocks <= 1: 
+			return 10
+
+		if percentageOfNumberOfBlocks <= 2: 
+			return 9
+
+		if percentageOfNumberOfBlocks <= 3: 
+			return 8
+
+		if percentageOfNumberOfBlocks <= 4: 
+			return 7
 		
 		if percentageOfNumberOfBlocks <= 5: 
 			return 6
@@ -169,7 +208,8 @@ class Word(DbModel):
 			data = {}
 			data['wordid'] = word[0]
 			data['local_avg'] = "{0:.2f}".format(self.localContextImportance(word[4]))
-			self.update(data, int(word[0]))
+			#print(data)
+			self.update(data, word[0])
 
 		return
 
@@ -396,3 +436,9 @@ class Word(DbModel):
 
 		return self.mysql.query(sql, params)
 
+
+
+	''''
+	select word, count(local_contextid) as total from local_context where nodeid in (select lc.nodeid from local_context as lc where lc.word = 'paradis') group by word order by total;
+
+	'''

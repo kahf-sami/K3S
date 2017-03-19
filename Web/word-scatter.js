@@ -11,8 +11,8 @@ var y = d3.scale.linear()
     .range([height, 0]).nice();
 
 
-var xCat = "distance",
-    yCat = "global_tfidf",
+var xCat = "x",
+    yCat = "y",
     rCat = "number_of_docs",
     colorCat = "cluster";
 
@@ -116,7 +116,7 @@ d3.csv("Bukhari_all.csv", function(data) {
       .data(data)
     .enter().append("circle")
       .classed("dot", true)
-      .attr("r", function (d) { return  Math.sqrt(d[rCat] / Math.PI); })
+      .attr("r", function (d) { return  Math.sqrt(5 / Math.PI); })
       .attr("transform", transform)
       .style("fill", function(d) { return color(d[colorCat]); })
       .on("mouseover", tip.show)
