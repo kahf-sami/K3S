@@ -88,7 +88,7 @@ class TopologyProcessor():
 
 	def buildCloud(self):
 		wordCloud = WordCloud(self.sourceIdentifier)
-		wordCloud.savePoints()
+		#wordCloud.savePoints()
 		wordCloud.generateLCCsv()
 		return
 
@@ -132,7 +132,7 @@ class TopologyProcessor():
 			textBlocks = [item for item in cursor.fetchall()]
 			
 			for textBlock in textBlocks:
-				print(textBlock)
+				#print(textBlock)
 				lc = LocalContext(textBlock[2], self.sourceIdentifier, filterLowerRatedNouns)
 				lc.reflectRepresentatives(textBlock[1])
 				index += 1

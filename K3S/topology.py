@@ -124,10 +124,10 @@ class Topology():
 			"word_pointid INT(11) NOT NULL AUTO_INCREMENT,"
 			"wordid INT(11) NOT NULL,"
 			"label VARCHAR (255) NOT NULL DEFAULT '',"
-			"x int(11) DEFAULT 0,"
-			"y int(11) DEFAULT 0,"
-			"r int(11) DEFAULT 0,"
-			"theta int(11) DEFAULT 0,"
+			"x DOUBLE(11, 2) DEFAULT 0,"
+			"y DOUBLE(11, 2) DEFAULT 0,"
+			"r DOUBLE(11, 2) DEFAULT 0,"
+			"theta DOUBLE(11, 2) DEFAULT 0,"
 			"PRIMARY KEY (word_pointid)"
 			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
 

@@ -156,7 +156,7 @@ class WordCloud(DbModel):
 			if zone[0] == 0:
 				self.thetaIncrementFactorPerZone[zone[1]] = 0
 			else:
-				self.thetaIncrementFactorPerZone[zone[1]] = math.floor(360 / zone[0])
+				self.thetaIncrementFactorPerZone[zone[1]] = 360 / zone[0]
 		return
 
 
@@ -207,7 +207,7 @@ class WordCloud(DbModel):
 			"FROM word "
 			"GROUP BY zone")
 		result = self.mysql.query(sql, [])
-
+		
 		return result
 
 				
