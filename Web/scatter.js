@@ -1,6 +1,6 @@
 var margin = { top: 100, right: 10, bottom: 10, left: 10 },
-    outerWidth = 1050,
-    outerHeight = 600,
+    outerWidth = 1100,
+    outerHeight = 500,
     width = outerWidth - margin.left - margin.right,
     height = outerHeight - margin.top - margin.bottom;
 
@@ -10,12 +10,13 @@ var x = d3.scale.linear()
 var y = d3.scale.linear()
     .range([height, 0]).nice();
 
-var xCat = "local_avg",
-    yCat = "global_docs",
-    rCat = "global_tf_idf",
-    colorCat = "global_cluster";
 
-d3.csv("Bukhari_all.csv", function(data) {
+var xCat = "x",
+    yCat = "y",
+    rCat = "number_of_docs",
+    colorCat = "cluster";
+
+d3.csv("Bukhari_text_node.csv", function(data) {
 
   //data.forEach(function(d){
   //});
@@ -46,7 +47,7 @@ d3.csv("Bukhari_all.csv", function(data) {
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return "word:" + d['word'] + "<br>" + xCat + ": " + d[xCat] + "<br>" + yCat + ": " + d[yCat];
+        return "word:" + d['label'];
       });
 
   var zoomBeh = d3.behavior.zoom()
@@ -115,9 +116,9 @@ d3.csv("Bukhari_all.csv", function(data) {
       .data(data)
     .enter().append("circle")
       .classed("dot", true)
-      .attr("r", function (d) { return 5 * Math.sqrt(d[rCat] / Math.PI); })
+      .attr("r", function (d) { return  Math.sqrt(5 / Math.PI); })
       .attr("transform", transform)
-      .style("fill", function(d) { return color(d[colorCat]); })
+      .style("fill", function(d) { return color(1); })
       .on("mouseover", tip.show)
       .on("mouseout", tip.hide);
 
@@ -136,7 +137,6 @@ d3.csv("Bukhari_all.csv", function(data) {
       .attr("x", width + 26)
       .attr("dy", ".35em")
       .text(function(d) { return d; });
-
 
   d3.select("input").on("click", change);
 
@@ -166,4 +166,3 @@ d3.csv("Bukhari_all.csv", function(data) {
     return "translate(" + x(d[xCat]) + "," + y(d[yCat]) + ")";
   }
 });
-

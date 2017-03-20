@@ -26,6 +26,7 @@ class TextNodeCloud(DbModel):
 		self.ignoreExists = ['theta', 'r', 'x', 'y', 'label']
 		self.wordProcessor = Word(identifier)
 		self.mainPath = File.join(self.config.ROOT_PATH, 'Web', self.identifier + '_text_node.csv')
+		self.maxPoints = 3
 		return
 
 
@@ -51,35 +52,33 @@ class TextNodeCloud(DbModel):
 		if not representativeList:
 			return None
 
-		'''
-		info = {}
-		details = self.getDetailsFromLocalContext(nodeid)
-		totalWords = len(details)
-
-		for item in details:
-			info[item[0]]['lc_weight'] = item[1] / totalWords * 100
-			info[item[0]]['g_weight'] = item[2]
-		'''
+		details = self.getRepresentativesDetails(nodeid, representativeList)
 		
 		numberOfWords = 0
 		sumX = 0
 		sumY = 0
 		label = ''
 		divider = ''
-		for word in representativeList:
-			sumX += details[0][1]
-			sumY += details[0][0]
-			numberOfWords += 1
-			label += divider + word
+		for word in details:
+			if numberOfWords <= self.maxPoints:
+				sumX += word[3]
+				sumY += word[4]
+				numberOfWords += 1
+			
+			label += divider + word[0]
 			divider = ', '
+
 
 		data = {}
 		data['nodeid'] = nodeid
 		data['label'] = label
-		data['y'] = sumY / numberOfWords
-		data['x'] = sumX / numberOfWords
-		data['r'] = math.sqrt(float(data['x']) * float(data['x']) + float(data['y']) * float(data['y']))
-		
+		if numberOfWords:
+			data['y'] = sumY / numberOfWords
+			data['x'] = sumX / numberOfWords
+			data['r'] = math.sqrt(float(data['x']) * float(data['x']) + float(data['y']) * float(data['y']))
+		else:
+			return
+
 		self.save(data);
 		return
 
@@ -122,3 +121,24 @@ class TextNodeCloud(DbModel):
 			"WHERE word.word = %s")
 		
 		return self.mysql.query(sql, [word])
+
+
+	def getRepresentativesDetails(self, nodeid, representativeList):
+		sql = ("select word.word, weight, zone, x, y "
+			"from local_context "
+			"join word on local_context.word = word.stemmed_word "
+			"join word_point on word.wordid = word_point.wordid "
+			"where local_context.nodeid = %s "
+			"and local_context.word in ( ")
+
+		params = []
+		params.append(nodeid)
+		divider = ''
+		for word in representativeList:
+			sql += divider + '%s'
+			divider = ', '
+			params.append(word)
+
+		sql += ") and number_of_blocks > 1 order by zone desc, weight desc"
+
+		return self.mysql.query(sql, params)

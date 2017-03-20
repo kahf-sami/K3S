@@ -34,6 +34,9 @@ class TextNode(DbModel):
 		words = None
 		
 		if 'text_block' in keys:
+			if not data['text_block']:
+				return
+				
 			if processCore:
 				self.coreWordProcessor.saveWords(data['text_block'])
 

@@ -28,6 +28,7 @@ class WordCloud(DbModel):
 		self.radiusIncrementFactor = 10
 		self.thetaIncrementFactorPerZone = {}
 		self.loadThetaIncrementFactor()
+		print(self.mainPath)
 		return
 
 

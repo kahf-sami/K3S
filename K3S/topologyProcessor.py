@@ -88,7 +88,7 @@ class TopologyProcessor():
 
 	def buildCloud(self):
 		wordCloud = WordCloud(self.sourceIdentifier)
-		#wordCloud.savePoints()
+	#	wordCloud.savePoints()
 		wordCloud.generateLCCsv()
 		return
 

@@ -82,8 +82,8 @@ class Topology():
 			"number_of_blocks INT(11) NOT NULL DEFAULT 0,"
 			"tf_idf DECIMAL(10,10) DEFAULT 0,"
 			"signature INT(64) DEFAULT 0,"
-			"local_avg DECIMAL(20,2) DEFAULT 0,"
-			"zone TINYINT(1) DEFAILT 0"
+			"local_avg DECIMAL(20,2) DEFAULT 0.00,"
+			"zone TINYINT(1) DEFAULT 0,"
 			"PRIMARY KEY (wordid)"
 			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
 
@@ -136,9 +136,9 @@ class Topology():
 			"text_pointid INT(11) NOT NULL AUTO_INCREMENT,"
 			"nodeid INT(11) NOT NULL,"
 			"label TEXT NOT NULL,"
-			"x int(11) DEFAULT 0,"
-			"y int(11) DEFAULT 0,"
-			"r int(11) DEFAULT 0,"
+			"x DOUBLE(11, 2) DEFAULT 0,"
+			"y DOUBLE(11, 2) DEFAULT 0,"
+			"r DOUBLE(11, 2) DEFAULT 0,"
 			"theta int(11) DEFAULT 0,"
 			"PRIMARY KEY (text_pointid)"
 			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")

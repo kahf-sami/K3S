@@ -34,12 +34,12 @@ class Word(DbModel):
 			totalTextBlocks += 1
 			data['number_of_blocks'] = 1
 			itemid = self.insert(data)
-			data['zone'] = self.getZone(data['number_of_blocks'], totalTextBlocks[0][0])
+			data['zone'] = self.getZone(data['number_of_blocks'], totalTextBlocks)
 		else:
 			itemid = item[0][0]
 			data['word'] = item[0][1]
 			data['number_of_blocks'] = int(item[0][4]) + 1
-			data['zone'] = self.getZone(data['number_of_blocks'], totalTextBlocks[0][0])
+			data['zone'] = self.getZone(data['number_of_blocks'], totalTextBlocks)
 			
 			if 'count' in data.keys():
 				data['count'] += int(item[0][3])
@@ -103,13 +103,14 @@ class Word(DbModel):
 
 	def calculateTfIdf(self):
 		totalWords = self.getTotalWords()
+
 		totalTextBlocks = self.getTotalTextBlocks()
 
 		cursor = self.getWordsByBatch()
 
 		for word in cursor:
 			tf = int(word[2]) / int(totalWords[0][0])
-			idf = math.log(int(totalTextBlocks[0][0]) / (1 + int(word[3])))
+			idf = math.log(int(totalTextBlocks) / (1 + int(word[3])))
 			data = {}
 			data['wordid'] = word[0]
 			data['tf_idf'] = tf * idf * 10
@@ -126,7 +127,7 @@ class Word(DbModel):
 		for word in cursor:
 			data = {}
 			data['wordid'] = word[0]
-			data['zone'] = self.getZone(word[3], totalTextBlocks[0][0])
+			data['zone'] = self.getZone(word[3], totalTextBlocks)
 			
 			self.update(data, int(word[0]))
 
@@ -134,7 +135,7 @@ class Word(DbModel):
 
 
 	def getZone(self, numberOfBlocks, totalTextBlocks):
-		if not numberOfBlocks:
+		if not numberOfBlocks or not totalTextBlocks:
 			return 0
 
 		percentageOfNumberOfBlocks = (int(numberOfBlocks) * 100) / totalTextBlocks
@@ -390,9 +391,8 @@ class Word(DbModel):
 	def getTotalTextBlocks(self):
 		sql = "SELECT count(*) FROM text_node"
 
-		params = []
-		return self.mysql.query(sql, params)
-
+		result = self.mysql.query(sql, [])
+		return result[0][0]
 
 	def getTextNodesHavingWord(self, word):
 		sql = "SELECT text_block FROM text_node WHERE text_block LIKe %s ORDER BY nodeid"
@@ -441,4 +441,5 @@ class Word(DbModel):
 	''''
 	select word, count(local_contextid) as total from local_context where nodeid in (select lc.nodeid from local_context as lc where lc.word = 'paradis') group by word order by total;
 
+	select nodeid, count(word) as total from local_context group by nodeid order by total desc
 	'''
