@@ -25,7 +25,7 @@ class LocalContextReflector():
 		return
 
 
-	def create(self, x, y, colors, nodes, pointSizes = 1, fileName = None):
+	def create(self, x, y, colors, nodes, pointSizes = 5, fileName = None):
 		plot.cla() # Clear the figure
 
 		self.figure = plot.figure(figsize=(200, 200))
@@ -43,7 +43,7 @@ class LocalContextReflector():
 			else:
 				verticalalignment = 'top'
 			
-			self.axis.annotate(nodes[node]['label'], (nodes[node]['x'], nodes[node]['y']), color='black', horizontalalignment=horizontalalignment, verticalalignment=verticalalignment)
+			self.axis.annotate(nodes[node]['label'], (nodes[node]['x'], nodes[node]['y']), color='green', horizontalalignment=horizontalalignment, verticalalignment=verticalalignment, fontsize=10)
 
 		'''
 		index = 0
@@ -70,12 +70,12 @@ class LocalContextReflector():
 			#patch = patches.PathPatch(path, color=contextColors[index], alpha=0.2)
 			#self.axis.add_patch(patch)
 			index += 1
-			'''
+		'''
 
 
 		plot.show()
 
-		#self.figure.savefig(File.join(self.path, fileName + '.png'))
+		self.figure.savefig(File.join(self.path, fileName + '.png'))
 		return
 
 

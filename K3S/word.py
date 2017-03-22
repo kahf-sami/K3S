@@ -113,7 +113,7 @@ class Word(DbModel):
 			idf = math.log(int(totalTextBlocks) / (1 + int(word[3])))
 			data = {}
 			data['wordid'] = word[0]
-			data['tf_idf'] = tf * idf * 10
+			data['tf_idf'] = "{0:.2f}".format(tf * idf * 10)
 			self.update(data, int(word[0]))
 			
 		return

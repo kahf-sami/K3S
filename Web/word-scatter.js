@@ -16,7 +16,7 @@ var xCat = "x",
     rCat = "number_of_docs",
     colorCat = "cluster";
 
-d3.csv("Bukhari_all.csv", function(data) {
+d3.csv("bhot_all.csv", function(data) {
 
   //data.forEach(function(d){
   //});

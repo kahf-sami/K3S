@@ -118,7 +118,7 @@ class LocalContext(DbModel):
 		minValue = self.max * filterLowerRatedNouns
 		nodes = {}
 		nodeIndex = 0
-		totalWords = len(self.blockWords)
+		totalWords = len(self.representatives)
 		thetaGap = 360 / totalWords
 		theta = 0
 		x = []
@@ -128,10 +128,11 @@ class LocalContext(DbModel):
 		colTest = lambda: random.randint(0,255)
 
 		wordProcessor = Word(self.identifier)
-
 		
 		for word in  self.representatives:
+			word =  self.stemmer.stem(word)
 			if self.blockWords[word] < minValue:
+				theta += thetaGap
 				continue
 
 			itemColor = '#%02X%02X%02X' % (colTest(),colTest(),colTest())
@@ -141,9 +142,10 @@ class LocalContext(DbModel):
 
 				node = {}
 				node['index'] = nodeIndex
-				node['label'] = word + '-' + str(self.blockWords[word]) + '-' + str(getGlobalContribution)
+				node['label'] = word 
+				#+ '-' + str(self.blockWords[word]) + '-' + str(getGlobalContribution)
 				node['color'] = itemColor
-				node['r'] =  self.blockWords[word]
+				node['r'] = self.max - self.blockWords[word]
 				node['theta'] = theta
 				node['x'] = node['r'] * numpy.cos(numpy.deg2rad(theta))
 				node['y'] = node['r'] * numpy.sin(numpy.deg2rad(theta))

@@ -80,7 +80,7 @@ class Topology():
 			"stemmed_word VARCHAR(255) NOT NULL,"
 			"count INT(11) NOT NULL DEFAULT 0,"
 			"number_of_blocks INT(11) NOT NULL DEFAULT 0,"
-			"tf_idf DECIMAL(10,10) DEFAULT 0,"
+			"tf_idf DOUBLE(11, 2) DEFAULT 0,"
 			"signature INT(64) DEFAULT 0,"
 			"local_avg DECIMAL(20,2) DEFAULT 0.00,"
 			"zone TINYINT(1) DEFAULT 0,"

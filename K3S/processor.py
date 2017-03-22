@@ -84,10 +84,13 @@ class Processor():
 		if not path:
 			path = self.rawPath
 
+		print(path)
+		print('-----')
 		hasExtracted = False
 		
 		for root, dirs, files in os.walk(self.rawPath, topdown=False):
 			if files:
+				print(files);
 				for name in files:
 					if name[0] == '.':
 						continue
@@ -101,6 +104,7 @@ class Processor():
 						file.untar()
 						file.remove()
 					elif file.isPdfFile():
+						print('Pdf file')
 						pdfToText = ToText(filePath, self.processedPath)
 						pdfToText.convertFromPdf()
 						hasExtracted = True

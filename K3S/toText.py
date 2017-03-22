@@ -43,7 +43,7 @@ class ToText():
 
 		currentHeader = []
 		for pageNumber, page in enumerate(document.get_pages()):
-			if i < 5:
+			if i < 3:
 				i = i + 1
 				continue
 
@@ -115,6 +115,9 @@ class ToText():
 		if re.search('Volume[0-9-\/\s]+1700', text, re.IGNORECASE):
 			return True
 		elif re.search('VOLUME[0-9-\/\s]+ > BOOK', text, re.IGNORECASE):
+			return True
+
+		elif re.search('^CHAPTER.[0-9a-zA-Z\-_\\n\s]+$', text, re.IGNORECASE):
 			return True
 		return False
 	
