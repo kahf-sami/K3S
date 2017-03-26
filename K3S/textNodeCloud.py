@@ -57,7 +57,7 @@ class TextNodeCloud(DbModel):
 		numberOfWords = 0
 		sumX = 0
 		sumY = 0
-		label = ''
+		label = str(nodeid) + ': '
 		divider = ''
 		for word in details:
 			if numberOfWords <= self.maxPoints:
@@ -93,7 +93,7 @@ class TextNodeCloud(DbModel):
 		file.remove()
 
 		for word in cursor:
-			print(word)
+			#print(word)
 			if len(word[1]) < 2:
 				continue
 

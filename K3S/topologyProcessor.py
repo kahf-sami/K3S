@@ -86,9 +86,10 @@ class TopologyProcessor():
 		return;
 
 
-	def buildCloud(self):
+	def buildCloud(self, savePoints = False):
 		wordCloud = WordCloud(self.sourceIdentifier)
-		#wordCloud.savePoints()
+		if(savePoints):
+			wordCloud.savePoints()
 		wordCloud.generateLCCsv()
 		return
 
@@ -100,12 +101,12 @@ class TopologyProcessor():
 		cloud.generateCsv()
 		return
 
-
+	'''
 	def buildTextNodeCloud(self, nodeid):
 		wordCloud = WordCloud(self.sourceIdentifier)
 		wordCloud.buildTextNodeCloud(nodeid)
 		return
-
+	'''
 
 	def stopWordsUpdate(self):
 		coreWprdProcessor = CoreWord(self.sourceIdentifier)
@@ -121,23 +122,20 @@ class TopologyProcessor():
 
 	def generateLocalContextImages(self, limit = None):
 		textNodeProcessor = TextNode(self.sourceIdentifier)
-		cursor = textNodeProcessor.getAllByBatch()
 
 		index = 0
 		filterLowerRatedNouns = 0
-		for batch in cursor:
+		for textBlock in textNodeProcessor.getAllByBatch():
 			if index == limit:
 				break;
 
-			textBlocks = [item for item in cursor.fetchall()]
-			
-			for textBlock in textBlocks:
-				#print(textBlock)
-				lc = LocalContext(textBlock[2], self.sourceIdentifier, filterLowerRatedNouns)
-				lc.reflectRepresentatives(textBlock[1])
-				index += 1
-				if index == limit:
-					break
+			textBlockText = re.sub('file:.+M\]', '', textBlock[2])
+				
+			lc = LocalContext(textBlockText, self.sourceIdentifier, 0)
+			lc.reflectRepresentatives(textBlock[1], filterLowerRatedNouns)
+			index += 1
+			if index == limit:
+				break
 
 		return
 

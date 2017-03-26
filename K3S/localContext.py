@@ -15,7 +15,7 @@ from .word import Word
 class LocalContext(DbModel):
 
 
-	def __init__(self, textBlock, identifier = None, filterLowerRatedNouns = 0.1):
+	def __init__(self, textBlock, identifier = None, filterLowerRatedNouns = 0.2):
 		DbModel.__init__(self, identifier)
 		self.identifier = identifier
 		self.tableName = 'local_context'
@@ -33,11 +33,19 @@ class LocalContext(DbModel):
 		self.combinedContexts = {}
 		self.relatedContexts = {}
 		self.positionContribution = 0
-		self.positionContributionFactor = 0.5
+		self.positionContributionFactor = 0.8
+		self.globalContributionFactor = 10
 		self.properNounFactor = 5
 		self.pureWords = {}
+		self.orderedWords = []
 		self.max = None
 		self.min = None
+		self.circleSizeMultiplier = 10
+		self.zoneColors = ['crimson', 'fuchsia', 'pink', 'plum', 
+			'violet', 'darkorchid', 'rebeccapurple', 'royalblue', 
+			'dodgerblue', 'lightskyblue', 'aqua', 'aquamarine', 'green', 
+			'lawangreen', 'yellowgreen', 'yellow', 'lightyellow', 'lightsalmon', 
+			'coral', 'tomato', 'brown', 'maroon']
 
 		self.buildDetails()
 		self.buildRepresentatives(filterLowerRatedNouns)
@@ -97,12 +105,12 @@ class LocalContext(DbModel):
 		return
 
 
-	def buildRepresentatives(self, filterLowerRatedNouns = 0.1):
+	def buildRepresentatives(self, filterLowerRatedNouns = 0.2):
 		minValue = self.max * filterLowerRatedNouns
 
 		allWords = self.blockWords.keys()
 		
-		for word in allWords:
+		for word in self.orderedWords:
 			if self.blockWords[word] < minValue:
 				continue
 			else:
@@ -111,7 +119,7 @@ class LocalContext(DbModel):
 		return
 
 
-	def reflectRepresentatives(self, fileName, filterLowerRatedNouns = 0.1):
+	def reflectRepresentatives(self, fileName, filterLowerRatedNouns = 0.2):
 		if not len(self.representatives):
 			return
 
@@ -119,6 +127,7 @@ class LocalContext(DbModel):
 		nodes = {}
 		nodeIndex = 0
 		totalWords = len(self.representatives)
+
 		thetaGap = 360 / totalWords
 		theta = 0
 		x = []
@@ -126,26 +135,50 @@ class LocalContext(DbModel):
 		colors = []
 		sizes = []
 		colTest = lambda: random.randint(0,255)
+		maxRadius = None
 
 		wordProcessor = Word(self.identifier)
+		'''
+		node = {}
+		node['index'] = nodeIndex
+		node['label'] = '0'
+		node['color'] = 'black'
+		node['r'] = 0
+		node['theta'] = 0
+		node['x'] = 0
+		node['y'] = 0
+
+		nodes['0'] = node
+
+		nodeIndex += 1
+		'''
 		
 		for word in  self.representatives:
+			mainWord = word
 			word =  self.stemmer.stem(word)
+
+			#if word not in self.representatives:
+			#	continue
+
 			if self.blockWords[word] < minValue:
 				theta += thetaGap
 				continue
 
-			itemColor = '#%02X%02X%02X' % (colTest(),colTest(),colTest())
-
 			if word not in nodes.keys():
-				getGlobalContribution = wordProcessor.getGlobalContribution(word)
+				getGlobalContributionDetails = wordProcessor.getGlobalContributionDetails(word)
+				if getGlobalContributionDetails:
+					zone = getGlobalContributionDetails[1]
+					number_of_blocks = getGlobalContributionDetails[0]
+				else:
+					zone = 19
+					number_of_blocks = 0
 
 				node = {}
 				node['index'] = nodeIndex
-				node['label'] = word 
+				node['label'] = mainWord + '-' + str(zone)
 				#+ '-' + str(self.blockWords[word]) + '-' + str(getGlobalContribution)
-				node['color'] = itemColor
-				node['r'] = self.max - self.blockWords[word]
+				node['color'] = self.zoneColors[zone]
+				node['r'] = (self.max) - (self.blockWords[word])
 				node['theta'] = theta
 				node['x'] = node['r'] * numpy.cos(numpy.deg2rad(theta))
 				node['y'] = node['r'] * numpy.sin(numpy.deg2rad(theta))
@@ -155,18 +188,70 @@ class LocalContext(DbModel):
 				theta += thetaGap
 				x.append(node['x'])
 				y.append(node['y'])
-				colors.append(itemColor)
-				sizes.append(getGlobalContribution)
-			
+				colors.append(node['color'])
+				sizes.append(number_of_blocks * self.circleSizeMultiplier)
+				#print(mainWord + '(' + str(node['theta']) + ')' + str(node['r']))
 
+				if not maxRadius or maxRadius < node['r']:
+					maxRadius = node['r']
+
+		distance = maxRadius * 0.2
+		
+		polygons = self.getPolygons(nodes, distance)
 
 
 		lcr = LocalContextReflector(self.identifier)
-		lcr.create(x, y, colors, nodes, sizes, fileName)
+		lcr.create(x, y, colors, nodes, sizes, fileName, polygons)
 		
 		return
-		
 
+
+	def getPolygons(self, nodes, distance):
+		if not nodes:
+			return None
+
+
+		edges = {}	
+
+		for node1 in nodes:
+			node1 = nodes[node1]
+			
+			for node2 in nodes:
+				node2 = nodes[node2]
+
+				if node1['index'] == node2['index']:
+					continue
+
+
+
+				xDistance = node2['x'] - node1['x']
+				yDistance = node2['y'] - node1['y']
+				distanceBetweenNodes = math.sqrt(xDistance * xDistance + yDistance * yDistance)
+
+				if distanceBetweenNodes > distance:
+					continue
+
+				identifier = str(node2['index']) + '-' + str(node1['index'])
+				if identifier in edges.keys():
+					continue
+
+				edges[identifier] = {'start-x' : node1['x'], 'start-y' : node1['y'], 'start-w' : node1['label'], 'end-x' : node2['x'], 'end-y' : node2['y'], 'end-w' : node2['label']}
+				#print(node1)
+				#print(node2)
+				#print(distanceBetweenNodes)
+				#print(edges[identifier])
+				
+
+
+		#print(edges)
+		#print(len(edges))
+		#print(len(nodes))
+		#print(distance)
+		return edges
+
+
+		
+	'''
 	def reflect(self, fileName, filterLowerRatedNouns = 0):
 		lcr = LocalContextReflector(self.identifier)
 
@@ -228,7 +313,8 @@ class LocalContext(DbModel):
 		#pyplot.plot([point[0], point2[0]], [point[1], point2[1]])
 
 		return
-
+	'''
+	'''
 	def addToCombinedContext(self, words):
 		uniqueWords = Utility.unique(words)
 		contextIndex = len(self.combinedContexts)		
@@ -265,6 +351,7 @@ class LocalContext(DbModel):
 				self.relatedContexts[contextIndex].append(cIndex)
 
 		return
+	'''
 
 	def processSentenceWords(self, sentence):
 		afterPartsOfSpeachTagging = self.nlpProcessor.getWords(sentence, True)
@@ -295,6 +382,7 @@ class LocalContext(DbModel):
 
 			if blockWord not in self.blockWords.keys():
 				self.blockWords[blockWord] = (1 + (self.positionContribution * self.positionContributionFactor))
+				self.orderedWords.append(blockWord)
 			else:
 				self.blockWords[blockWord] += (1 + (self.positionContribution * self.positionContributionFactor))
 

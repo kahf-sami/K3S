@@ -43,16 +43,18 @@ class WordCloud(DbModel):
 
 
 	def savePoints(self):
+		totalTextNodes = self.getTotalTextNodes();
+
 		self.mysql.truncate(self.tableName)
 		cursor = self.getWordsByBatch()
 
 		for word in cursor:
-			self.calculateAndSavePoint(word)
+			self.calculateAndSavePoint(word, totalTextNodes)
 
 		return
 
 
-	def calculateAndSavePoint(self, word):
+	def calculateAndSavePoint(self, word, totalTextNodes):
 		wordProcessor = Word(self.identifier)
 		#localContextImportance = wordProcessor.localContextImportance(word[1])
 
@@ -65,7 +67,8 @@ class WordCloud(DbModel):
 		data = {}
 		data['wordid'] = word[0]
 		data['label'] = word[1]
-		data['r'] = self.radiusIncrementFactor * zone
+		data['r'] = totalTextNodes - word[4]
+		#data['r'] = self.radiusIncrementFactor * zone
 		data['theta'] = self.thetaIncrementPerZone[zone]
 		data['x'] = data['r'] * numpy.cos(numpy.deg2rad(data['theta']))
 		data['y'] = data['r'] * numpy.sin(numpy.deg2rad(data['theta']))

@@ -355,17 +355,17 @@ class Word(DbModel):
 		return relatetedWords
 
 
-	def getGlobalContribution(self, word):
-		sql = "SELECT number_of_blocks FROM word WHERE word.word = %s"
+	def getGlobalContributionDetails(self, word):
+		sql = "SELECT number_of_blocks, zone, tf_idf FROM word WHERE word.stemmed_word = %s"
 
 		params = []
 		params.append(word)
 		result = self.mysql.query(sql, params)
 
 		if not result:
-			return 0
-
-		return math.ceil(result[0][0])
+			return None
+			
+		return result[0]
 
 			
 	def getWordId(self, word):
