@@ -193,6 +193,7 @@ class WordCloud(DbModel):
 		lcr = LocalContextReflector(self.identifier)
 		polygons = lcr.getPolygons(nodes, distance)
 		lcr.create(x, y, colors, nodes, sizes, 'word-global', polygons)
+		return
 
 			
 

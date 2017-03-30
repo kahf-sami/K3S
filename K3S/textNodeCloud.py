@@ -12,6 +12,7 @@ from .coreWord import CoreWord
 import ast
 from .config import Config
 from .file import File
+from .localContextReflector import LocalContextReflector
 
 class TextNodeCloud(DbModel):
 
@@ -108,10 +109,57 @@ class TextNodeCloud(DbModel):
 
 		return
 
+	def textCloudMatPlotLib(self):
+		cursor = self.getPointsByBatch()
+
+		nodes = {}
+		x = []
+		y = []
+		sizes = []
+		colors = []
+		theta = 360
+		maxR = None
+		minR = None
+
+		nodeIndex = 0
+		for batch in cursor:
+			node = {}
+			node['index'] = nodeIndex
+			node['label'] = batch[5] 
+			node['color'] = 'orange'
+			node['size'] = 10
+			node['x'] = batch[2]
+			node['y'] = batch[3]
+			node['r'] = batch[4]
+			
+			x.append(node['x'])
+			y.append(node['y'])
+			colors.append(node['color'])
+			sizes.append(node['size'])
+
+			nodes[batch[0]] = node
+
+			if not minR or minR > node['r']:
+				minR = node['r']
+
+			if not maxR or maxR < node['r']:
+				maxR = node['r']
+
+			nodeIndex += 1
+
+		distance = maxR * 0.4
+
+		lcr = LocalContextReflector(self.identifier)
+		polygons = lcr.getPolygons(nodes, distance)
+		lcr.create(x, y, colors, nodes, sizes, 'text-global', polygons)
+
+		return
+
 			
 	def getPointsByBatch(self):
-		sql = ("SELECT nodeid, label, x, y, r "
-			"FROM text_point ")
+		sql = ("SELECT text_point.nodeid, label, x, y, r, source_identifier "
+			"FROM text_point "
+			"JOIN text_node ON text_node.nodeid = text_point.nodeid ")
 		return self.mysql.query(sql, [], True)	
 
 
