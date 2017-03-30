@@ -94,6 +94,18 @@ class TopologyProcessor():
 		return
 
 
+	def buildGlobalWord(self):
+		wordCloud = WordCloud(self.sourceIdentifier)
+		wordCloud.wordCloudMatPlotLib()
+		return
+
+
+	def buildGlobalText(self):
+		cloud = TextNodeCloud(self.sourceIdentifier)
+		cloud.textCloudMatPlotLib()
+		return
+
+
 	def buildTextCloud(self, savePoints = False):
 		cloud = TextNodeCloud(self.sourceIdentifier)
 		if(savePoints):
@@ -131,7 +143,7 @@ class TopologyProcessor():
 
 			textBlockText = re.sub('file:.+M\]', '', textBlock[2])
 				
-			lc = LocalContext(textBlockText, self.sourceIdentifier, 0)
+			lc = LocalContext(textBlockText, self.sourceIdentifier, 0.2)
 			lc.reflectRepresentatives(textBlock[1], filterLowerRatedNouns)
 			index += 1
 			if index == limit:

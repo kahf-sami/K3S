@@ -142,3 +142,5 @@ class TextNodeCloud(DbModel):
 		sql += ") and number_of_blocks > 1 order by zone desc, weight desc"
 
 		return self.mysql.query(sql, params)
+
+

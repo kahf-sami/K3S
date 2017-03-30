@@ -43,13 +43,13 @@ class LocalContextReflector():
 			else:
 				verticalalignment = 'top'
 			
-			self.axis.annotate(nodes[node]['label'], (nodes[node]['x'], nodes[node]['y']), color='green', horizontalalignment=horizontalalignment, verticalalignment=verticalalignment, fontsize=10)
+			self.axis.annotate(nodes[node]['label'], (nodes[node]['x'], nodes[node]['y']), color='darkorchid', horizontalalignment=horizontalalignment, verticalalignment=verticalalignment, fontsize=10)
 		
 
 		if edges:
 			for edge in edges:
-				print(edge)
-				plot.plot([edges[edge]['start-x'], edges[edge]['end-x']], [edges[edge]['start-y'], edges[edge]['end-y']], lw=2)
+				#print(edge)
+				plot.plot([edges[edge]['start-x'], edges[edge]['end-x']], [edges[edge]['start-y'], edges[edge]['end-y']], lw=2, c = 'skyblue')
 
 
 		'''
@@ -85,6 +85,48 @@ class LocalContextReflector():
 
 		self.figure.savefig(File.join(self.path, fileName + '.png'))
 		return
+
+
+	def getPolygons(self, nodes, distance):
+		if not nodes:
+			return None
+
+
+		edges = {}	
+
+		for node1 in nodes:
+			node1 = nodes[node1]
+			
+			for node2 in nodes:
+				node2 = nodes[node2]
+
+				if node1['index'] == node2['index']:
+					continue
+
+				xDistance = node2['x'] - node1['x']
+				yDistance = node2['y'] - node1['y']
+				distanceBetweenNodes = math.sqrt(xDistance * xDistance + yDistance * yDistance)
+
+				if distanceBetweenNodes > distance:
+					continue
+
+				identifier = str(node2['index']) + '-' + str(node1['index'])
+				if identifier in edges.keys():
+					continue
+
+				edges[identifier] = {'start-x' : node1['x'], 'start-y' : node1['y'], 'start-w' : node1['label'], 'end-x' : node2['x'], 'end-y' : node2['y'], 'end-w' : node2['label']}
+				#print(node1)
+				#print(node2)
+				#print(distanceBetweenNodes)
+				#print(edges[identifier])
+				
+
+
+		#print(edges)
+		#print(len(edges))
+		#print(len(nodes))
+		#print(distance)
+		return edges
 
 
 

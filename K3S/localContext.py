@@ -15,7 +15,7 @@ from .word import Word
 class LocalContext(DbModel):
 
 
-	def __init__(self, textBlock, identifier = None, filterLowerRatedNouns = 0.2):
+	def __init__(self, textBlock, identifier = None, filterLowerRatedNouns = 0):
 		DbModel.__init__(self, identifier)
 		self.identifier = identifier
 		self.tableName = 'local_context'
@@ -106,20 +106,25 @@ class LocalContext(DbModel):
 
 
 	def buildRepresentatives(self, filterLowerRatedNouns = 0.2):
+
 		minValue = self.max * filterLowerRatedNouns
 
 		allWords = self.blockWords.keys()
 		
 		for word in self.orderedWords:
-			if self.blockWords[word] < minValue:
+			if filterLowerRatedNouns and self.blockWords[word] < minValue:
 				continue
-			else:
-				self.representatives.append(self.pureWords[word])
+			
+			self.representatives.append(word)
 
 		return
 
 
 	def reflectRepresentatives(self, fileName, filterLowerRatedNouns = 0.2):
+		#print(filterLowerRatedNouns)
+		#print(len(self.blockWords))
+		#print(len(self.representatives))
+		#sys.exit()
 		if not len(self.representatives):
 			return
 
@@ -152,10 +157,13 @@ class LocalContext(DbModel):
 
 		nodeIndex += 1
 		'''
+
+		radiusGroups = {}
+		processedNodes = {}
 		
 		for word in  self.representatives:
-			mainWord = word
-			word =  self.stemmer.stem(word)
+			mainWord = self.pureWords[word]
+			#word =  self.stemmer.stem(word)
 
 			#if word not in self.representatives:
 			#	continue
@@ -173,13 +181,15 @@ class LocalContext(DbModel):
 					zone = 19
 					number_of_blocks = 0
 
+
 				node = {}
 				node['index'] = nodeIndex
-				node['label'] = mainWord + '-' + str(zone)
+				node['label'] = mainWord #+ '-' + str(zone)
 				#+ '-' + str(self.blockWords[word]) + '-' + str(getGlobalContribution)
 				node['color'] = self.zoneColors[zone]
 				node['r'] = (self.max) - (self.blockWords[word])
 				node['theta'] = theta
+				node['zone'] = zone
 				node['x'] = node['r'] * numpy.cos(numpy.deg2rad(theta))
 				node['y'] = node['r'] * numpy.sin(numpy.deg2rad(theta))
 
@@ -195,9 +205,22 @@ class LocalContext(DbModel):
 				if not maxRadius or maxRadius < node['r']:
 					maxRadius = node['r']
 
-		distance = maxRadius * 0.2
+				if zone <= 18:
+					r = math.ceil(node['r'] / 10)
+					if not r in radiusGroups.keys():
+						radiusGroups[r] = []
+					
+					processedNodes[word] = node
+					radiusGroups[r].append(word)
+
+
+		distance = maxRadius * 0.5
+
+		print(radiusGroups)
+		#sys.exit()
+		#polygons = None
 		
-		polygons = self.getPolygons(nodes, distance)
+		polygons = self.getPolygons(processedNodes, distance)
 
 
 		lcr = LocalContextReflector(self.identifier)
@@ -221,8 +244,6 @@ class LocalContext(DbModel):
 
 				if node1['index'] == node2['index']:
 					continue
-
-
 
 				xDistance = node2['x'] - node1['x']
 				yDistance = node2['y'] - node1['y']
@@ -543,6 +564,9 @@ class LocalContext(DbModel):
 		self.deleteLocalContextsByNodeid(nodeid)
 
 		for representative in allWords:
+			if representative not in self.representatives:
+				continue
+
 			data = {}
 			data['nodeid'] = nodeid
 			data['word'] = representative

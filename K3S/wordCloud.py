@@ -9,6 +9,7 @@ from .word import Word
 import ast
 import re
 import numpy
+from .localContextReflector import LocalContextReflector
 
 
 class WordCloud(DbModel):
@@ -29,6 +30,12 @@ class WordCloud(DbModel):
 		self.thetaIncrementFactorPerZone = {}
 		self.loadThetaIncrementFactor()
 		print(self.mainPath)
+		self.zoneColors = ['crimson', 'fuchsia', 'pink', 'plum', 
+			'violet', 'darkorchid', 'rebeccapurple', 'royalblue', 
+			'dodgerblue', 'lightskyblue', 'aqua', 'aquamarine', 'green', 
+			'lawangreen', 'yellowgreen', 'yellow', 'lightyellow', 'lightsalmon', 
+			'coral', 'tomato', 'brown', 'maroon']
+
 		return
 
 
@@ -107,10 +114,12 @@ class WordCloud(DbModel):
 			file = File(self.mainPath)
 		file.remove()
 
+		nodes = {}
+
 		for batch in cursor:
 			words = [item for item in cursor.fetchall()]
 			for word in words:
-				if len(word[1]) < 2 or word[4] == 1:
+				if len(word[1]) < 2 or word[4] == 1 or word[8] > 18:
 					continue
 
 				data = {}
@@ -133,6 +142,58 @@ class WordCloud(DbModel):
 				#self.getRelatedWords(word[0])
 				
 				file.write(data)
+
+
+	def wordCloudMatPlotLib(self, representatives = None, filePath = None):
+		cursor = self.getPointsByBatch()
+
+		nodes = {}
+		x = []
+		y = []
+		sizes = []
+		colors = []
+		theta = 360
+		maxR = None
+		minR = None
+
+		nodeIndex = 0
+		for batch in cursor:
+			words = [item for item in cursor.fetchall()]
+			for word in words:
+				if len(word[1]) < 2 or word[4] == 1 or word[8] > 18:
+					continue
+
+				node = {}
+				node['index'] = nodeIndex
+				node['label'] = word[1]
+				node['color'] = self.zoneColors[19 - word[8]]
+				node['size'] = math.ceil(word[6] * 5 / 1000) #Based on local context
+				node['x'] = word[9]
+				node['y'] = word[10]
+				node['r'] = word[11]
+
+				x.append(node['x'])
+				y.append(node['y'])
+				colors.append(node['color'])
+				sizes.append(node['size'])
+
+				nodes[word[1]] = node
+
+				if not minR or minR > node['r']:
+					minR = node['r']
+
+				if not maxR or maxR < node['r']:
+					maxR = node['r']
+
+				nodeIndex += 1
+
+		distance = maxR * 0.4
+
+
+		lcr = LocalContextReflector(self.identifier)
+		polygons = lcr.getPolygons(nodes, distance)
+		lcr.create(x, y, colors, nodes, sizes, 'word-global', polygons)
+
 			
 
 
@@ -162,6 +223,7 @@ class WordCloud(DbModel):
 			else:
 				self.thetaIncrementFactorPerZone[zone[1]] = 360 / zone[0]
 		return
+
 
 
 	def getWordDetails(self, word):
@@ -197,6 +259,13 @@ class WordCloud(DbModel):
 			"FROM word "
 			"JOIN word_point ON word_point.wordid = word.wordid ")
 		return self.mysql.query(sql, [], True)
+
+
+	def getTotalWords(self):
+		sql = ("SELECT count(*) "
+			"FROM wordQA ")
+		result = self.mysql.query(sql, [])
+		return result[0][0]
 
 
 	def getTotalTextNodes(self):
