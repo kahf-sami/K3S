@@ -15,7 +15,7 @@ from .word import Word
 class LocalContext(DbModel):
 
 
-	def __init__(self, textBlock, identifier = None, filterLowerRatedNouns = 0):
+	def __init__(self, textBlock, identifier = None, filterLowerRatedNouns = 0.2):
 		DbModel.__init__(self, identifier)
 		self.identifier = identifier
 		self.tableName = 'local_context'
@@ -106,9 +106,10 @@ class LocalContext(DbModel):
 
 
 	def buildRepresentatives(self, filterLowerRatedNouns = 0.2):
-
+		print(len(self.blockWords))
+		print('----------------')
 		minValue = self.max * filterLowerRatedNouns
-
+		print(minValue)
 		allWords = self.blockWords.keys()
 		
 		for word in self.orderedWords:
@@ -116,7 +117,7 @@ class LocalContext(DbModel):
 				continue
 			
 			self.representatives.append(word)
-
+		print(len(self.representatives))
 		return
 
 

@@ -58,6 +58,7 @@ class TopologyProcessor():
 			data['text_block'] = file.read()
 			data['text_block'] = re.sub('\'s', '', str(data['text_block']))
 			data['text_block'] = re.sub('(-?)\n', '', str(data['text_block']))
+			data['text_block'] = re.sub('/|\|', ' ', str(data['text_block']))
 			data['text_block'] = re.sub('\'|"|\(|\)|\{|\}|[|\]|<[a-zA-Z0-9\"\'-_\s"]+>', '', str(data['text_block']))
 			data['text_block'] = re.sub('\s+', ' ', str(data['text_block']))
 			data['text_block'].encode("utf-8")
@@ -90,7 +91,9 @@ class TopologyProcessor():
 		wordCloud = WordCloud(self.sourceIdentifier)
 		if(savePoints):
 			wordCloud.savePoints()
-		wordCloud.generateLCCsv()
+
+		wordCloud1 = WordCloud(self.sourceIdentifier)
+		wordCloud1.generateLCCsv()
 		return
 
 
@@ -110,7 +113,8 @@ class TopologyProcessor():
 		cloud = TextNodeCloud(self.sourceIdentifier)
 		if(savePoints):
 			cloud.savePoints()
-		cloud.generateCsv()
+		cloud1 = TextNodeCloud(self.sourceIdentifier)
+		cloud1.generateCsv()
 		return
 
 	'''

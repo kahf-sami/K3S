@@ -42,7 +42,8 @@ class TextNode(DbModel):
 
 			lc = LocalContext(data['text_block'], self.identifier)
 			data['representatives'] = lc.getRepresentative()
-			
+			print(data['representatives'])
+			#sys.exit()
 			words = self.wordProcessor.saveWords(lc.getCleanText(), data['representatives'])
 			data['dna'] = Utility.getHash(data['representatives'])
 			self.nodeid = DbModel.save(self, data)

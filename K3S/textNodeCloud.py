@@ -13,6 +13,7 @@ import ast
 from .config import Config
 from .file import File
 from .localContextReflector import LocalContextReflector
+from .wordCloud import WordCloud
 
 class TextNodeCloud(DbModel):
 
@@ -60,15 +61,21 @@ class TextNodeCloud(DbModel):
 		sumY = 0
 		label = str(nodeid) + ': '
 		divider = ''
+
 		for word in details:
-			if numberOfWords <= self.maxPoints:
-				sumX += word[3]
-				sumY += word[4]
-				numberOfWords += 1
+			#print(word)
+			#if numberOfWords <= self.maxPoints:
+			sumX += word[3]
+			sumY += word[4]
+			numberOfWords += 1
 			
 			label += divider + word[0]
 			divider = ', '
+			#print(sumX)
+			#print(sumY)
+			#print('------------------')
 
+		#print(numberOfWords)
 
 		data = {}
 		data['nodeid'] = nodeid
@@ -80,6 +87,9 @@ class TextNodeCloud(DbModel):
 		else:
 			return
 
+		print(data)
+		print('--------------')
+		#sys.exit()
 		self.save(data);
 		return
 
@@ -110,6 +120,16 @@ class TextNodeCloud(DbModel):
 		return
 
 	def textCloudMatPlotLib(self):
+		'''
+		wordCloud = WordCloud(self.identifier)
+		results = wordCloud.getWordNodes()
+
+		nodes = results[0]
+		x = results[3] 
+		y =  results[4]
+		sizes = results[5] 
+		colors = results[6]
+		'''
 		cursor = self.getPointsByBatch()
 
 		nodes = {}
@@ -125,8 +145,8 @@ class TextNodeCloud(DbModel):
 		for batch in cursor:
 			node = {}
 			node['index'] = nodeIndex
-			node['label'] = batch[5] 
-			node['color'] = 'orange'
+			node['label'] = str(batch[5]) + ': ' + str(batch[1])
+			node['color'] = 'red'
 			node['size'] = 10
 			node['x'] = batch[2]
 			node['y'] = batch[3]
@@ -166,7 +186,7 @@ class TextNodeCloud(DbModel):
 	def getWordDetails(self, word):
 		sql = ("SELECT number_of_blocks, local_avg "
 			"FROM word "
-			"WHERE word.word = %s")
+			"WHERE word.stemmed_word = %s")
 		
 		return self.mysql.query(sql, [word])
 

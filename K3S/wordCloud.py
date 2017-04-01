@@ -74,8 +74,8 @@ class WordCloud(DbModel):
 		data = {}
 		data['wordid'] = word[0]
 		data['label'] = word[1]
-		data['r'] = totalTextNodes - word[4]
-		#data['r'] = self.radiusIncrementFactor * zone
+		#data['r'] = word[5] #tf-idf
+		data['r'] = self.radiusIncrementFactor * zone
 		data['theta'] = self.thetaIncrementPerZone[zone]
 		data['x'] = data['r'] * numpy.cos(numpy.deg2rad(data['theta']))
 		data['y'] = data['r'] * numpy.sin(numpy.deg2rad(data['theta']))
@@ -145,6 +145,22 @@ class WordCloud(DbModel):
 
 
 	def wordCloudMatPlotLib(self, representatives = None, filePath = None):
+		results = self.getWordNodes()
+
+		nodes = results[0]
+		maxR = results[2]
+		x = results[3] 
+		y =  results[4]
+		sizes = results[5] 
+		colors = results[6]
+		distance = maxR * 0.4
+		lcr = LocalContextReflector(self.identifier)
+		polygons = lcr.getPolygons(nodes, distance)
+		lcr.create(x, y, colors, nodes, sizes, 'word-global', polygons)
+		return
+
+
+	def getWordNodes(self):
 		cursor = self.getPointsByBatch()
 
 		nodes = {}
@@ -187,13 +203,9 @@ class WordCloud(DbModel):
 
 				nodeIndex += 1
 
-		distance = maxR * 0.4
+		
 
-
-		lcr = LocalContextReflector(self.identifier)
-		polygons = lcr.getPolygons(nodes, distance)
-		lcr.create(x, y, colors, nodes, sizes, 'word-global', polygons)
-		return
+		return [nodes, minR, maxR, x, y, sizes, colors]
 
 			
 
