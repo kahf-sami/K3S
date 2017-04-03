@@ -145,7 +145,8 @@ class TextNodeCloud(DbModel):
 		for batch in cursor:
 			node = {}
 			node['index'] = nodeIndex
-			node['label'] = str(batch[5]) + ': ' + str(batch[1])
+			node['label'] = str(batch[5])
+			#node['label'] = str(batch[5]) + ': ' + str(batch[1])
 			node['color'] = 'red'
 			node['size'] = 10
 			node['x'] = batch[2]
@@ -170,6 +171,7 @@ class TextNodeCloud(DbModel):
 		distance = maxR * 0.4
 
 		lcr = LocalContextReflector(self.identifier)
+		polygons = None
 		polygons = lcr.getPolygons(nodes, distance)
 		lcr.create(x, y, colors, nodes, sizes, 'text-global', polygons)
 

@@ -31,9 +31,9 @@ class WordCloud(DbModel):
 		self.loadThetaIncrementFactor()
 		print(self.mainPath)
 		self.zoneColors = ['crimson', 'fuchsia', 'pink', 'plum', 
-			'violet', 'darkorchid', 'rebeccapurple', 'royalblue', 
+			'violet', 'darkorchid', 'lavender', 'royalblue', 
 			'dodgerblue', 'lightskyblue', 'aqua', 'aquamarine', 'green', 
-			'lawangreen', 'yellowgreen', 'yellow', 'lightyellow', 'lightsalmon', 
+			'lime', 'yellowgreen', 'yellow', 'lightyellow', 'lightsalmon', 
 			'coral', 'tomato', 'brown', 'maroon']
 
 		return
@@ -153,9 +153,11 @@ class WordCloud(DbModel):
 		y =  results[4]
 		sizes = results[5] 
 		colors = results[6]
+
 		distance = maxR * 0.4
 		lcr = LocalContextReflector(self.identifier)
-		polygons = lcr.getPolygons(nodes, distance)
+		polygons = None
+		#polygons = lcr.getPolygons(nodes, distance)
 		lcr.create(x, y, colors, nodes, sizes, 'word-global', polygons)
 		return
 
@@ -169,14 +171,14 @@ class WordCloud(DbModel):
 		sizes = []
 		colors = []
 		theta = 360
-		maxR = None
+		maxR = 0
 		minR = None
 
 		nodeIndex = 0
 		for batch in cursor:
 			words = [item for item in cursor.fetchall()]
 			for word in words:
-				if len(word[1]) < 2 or word[4] == 1 or word[8] > 18:
+				if len(word[1]) < 2 or word[4] == 1 or word[8] > 18 or len(word[1]) > 25:
 					continue
 
 				node = {}

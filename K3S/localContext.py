@@ -38,7 +38,7 @@ class LocalContext(DbModel):
 		self.properNounFactor = 5
 		self.pureWords = {}
 		self.orderedWords = []
-		self.max = None
+		self.max = 0
 		self.min = None
 		self.circleSizeMultiplier = 10
 		self.zoneColors = ['crimson', 'fuchsia', 'pink', 'plum', 
