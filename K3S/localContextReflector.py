@@ -43,7 +43,7 @@ class LocalContextReflector():
 			else:
 				verticalalignment = 'top'
 			
-			self.axis.annotate(nodes[node]['label'], (nodes[node]['x'], nodes[node]['y']), color='darkorchid', horizontalalignment=horizontalalignment, verticalalignment=verticalalignment, fontsize=10)
+			self.axis.annotate(nodes[node]['label'], (nodes[node]['x'] + 5, nodes[node]['y'] + 5), color='darkorchid', horizontalalignment=horizontalalignment, verticalalignment=verticalalignment, fontsize=15)
 		
 
 		if edges:

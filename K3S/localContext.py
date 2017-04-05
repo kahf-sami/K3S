@@ -134,7 +134,7 @@ class LocalContext(DbModel):
 		nodeIndex = 0
 		totalWords = len(self.representatives)
 
-		thetaGap = 360 / totalWords
+		thetaGap = 360 / (totalWords)
 		theta = 0
 		x = []
 		y = []
@@ -161,6 +161,8 @@ class LocalContext(DbModel):
 
 		radiusGroups = {}
 		processedNodes = {}
+
+		currentColors = {}
 		
 		for word in  self.representatives:
 			mainWord = self.pureWords[word]
@@ -187,7 +189,10 @@ class LocalContext(DbModel):
 				node['index'] = nodeIndex
 				node['label'] = mainWord #+ '-' + str(zone)
 				#+ '-' + str(self.blockWords[word]) + '-' + str(getGlobalContribution)
-				node['color'] = self.zoneColors[zone]
+				if not zone:
+					node['color'] = 'black'
+				else:
+					node['color'] = self.zoneColors[zone]
 				node['r'] = (self.max) - (self.blockWords[word])
 				node['theta'] = theta
 				node['zone'] = zone
@@ -200,12 +205,18 @@ class LocalContext(DbModel):
 				x.append(node['x'])
 				y.append(node['y'])
 				colors.append(node['color'])
-				sizes.append(number_of_blocks * self.circleSizeMultiplier)
+
+				size = number_of_blocks * self.circleSizeMultiplier
+				if not size:
+					size = 2
+				sizes.append(size)
 				#print(mainWord + '(' + str(node['theta']) + ')' + str(node['r']))
+
+				currentColors[zone] = self.zoneColors[zone]
 
 				if not maxRadius or maxRadius < node['r']:
 					maxRadius = node['r']
-
+				'''	
 				if zone <= 18:
 					r = math.ceil(node['r'] / 10)
 					if not r in radiusGroups.keys():
@@ -213,21 +224,58 @@ class LocalContext(DbModel):
 					
 					processedNodes[word] = node
 					radiusGroups[r].append(word)
+				'''	
 
+		distance = maxRadius * 0.3
 
-		distance = maxRadius * 0.5
-
-		print(radiusGroups)
+		#print(currentColors)
 		#sys.exit()
 		#polygons = None
 		
-		polygons = self.getPolygons(processedNodes, distance)
+		polygons = self.getPolygons(nodes, distance)
 
-
+		
+		results = self.addCurrentColorLegend(nodes, nodeIndex, maxRadius, currentColors, x, y, colors, sizes)
+		nodes = results[0]
+		x = results[1]
+		y = results[2]
+		colors = results[3]
+		sizes = results[4]
+		
 		lcr = LocalContextReflector(self.identifier)
 		lcr.create(x, y, colors, nodes, sizes, fileName, polygons)
 		
 		return
+
+
+	def addCurrentColorLegend(self, nodes, nodeIndex, maxRadius, currentColors, x, y, colors, sizes):
+		Y = 400
+
+		if len(currentColors):
+			for zone in range(1, 20):
+				if zone not in currentColors.keys():
+					continue
+				node = {}
+				node['index'] = nodeIndex
+				node['label'] = 'zone - ' + str(zone)
+				node['color'] = currentColors[zone]
+				node['r'] = 0
+				node['theta'] = 0
+				node['zone'] = zone
+				node['x'] = maxRadius - 15
+				node['y'] = Y
+
+				nodes[zone] = node 
+
+				x.append(node['x'])
+				y.append(node['y'])
+				colors.append(node['color'])
+				sizes.append(10)
+				Y -= 20
+				nodeIndex += 1
+
+		return [nodes, x, y, colors, sizes]
+
 
 
 	def getPolygons(self, nodes, distance):
@@ -248,7 +296,7 @@ class LocalContext(DbModel):
 
 				xDistance = node2['x'] - node1['x']
 				yDistance = node2['y'] - node1['y']
-				distanceBetweenNodes = math.sqrt(xDistance * xDistance + yDistance * yDistance)
+				distanceBetweenNodes = abs(math.sqrt(xDistance * xDistance + yDistance * yDistance))
 
 				if distanceBetweenNodes > distance:
 					continue
@@ -266,7 +314,7 @@ class LocalContext(DbModel):
 
 
 		#print(edges)
-		#print(len(edges))
+		print(len(edges))
 		#print(len(nodes))
 		#print(distance)
 		return edges

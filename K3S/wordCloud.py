@@ -153,11 +153,20 @@ class WordCloud(DbModel):
 		y =  results[4]
 		sizes = results[5] 
 		colors = results[6]
+		currentColors = results[7]
 
 		distance = maxR * 0.4
 		lcr = LocalContextReflector(self.identifier)
 		polygons = None
 		#polygons = lcr.getPolygons(nodes, distance)
+		'''
+		results = self.addCurrentColorLegend(nodes, len(nodes), maxR, currentColors, x, y, colors, sizes)
+		nodes = results[0]
+		x = results[1]
+		y = results[2]
+		colors = results[3]
+		sizes = results[4]		
+		'''
 		lcr.create(x, y, colors, nodes, sizes, 'word-global', polygons)
 		return
 
@@ -173,6 +182,7 @@ class WordCloud(DbModel):
 		theta = 360
 		maxR = 0
 		minR = None
+		currentColors = {}
 
 		nodeIndex = 0
 		for batch in cursor:
@@ -184,7 +194,7 @@ class WordCloud(DbModel):
 				node = {}
 				node['index'] = nodeIndex
 				node['label'] = word[1]
-				node['color'] = self.zoneColors[19 - word[8]]
+				node['color'] = self.zoneColors[word[8]]
 				node['size'] = math.ceil(word[6] * 5 / 1000) #Based on local context
 				node['x'] = word[9]
 				node['y'] = word[10]
@@ -197,6 +207,8 @@ class WordCloud(DbModel):
 
 				nodes[word[1]] = node
 
+				currentColors[word[8]] = self.zoneColors[word[8]]
+
 				if not minR or minR > node['r']:
 					minR = node['r']
 
@@ -207,7 +219,36 @@ class WordCloud(DbModel):
 
 		
 
-		return [nodes, minR, maxR, x, y, sizes, colors]
+		return [nodes, minR, maxR, x, y, sizes, colors, currentColors]
+
+
+	def addCurrentColorLegend(self, nodes, nodeIndex, maxRadius, currentColors, x, y, colors, sizes):
+		Y = 400
+
+		if len(currentColors):
+			for zone in range(1, 20):
+				if zone not in currentColors.keys():
+					continue
+				node = {}
+				node['index'] = nodeIndex
+				node['label'] = 'zone - ' + str(zone)
+				node['color'] = currentColors[zone]
+				node['r'] = 0
+				node['theta'] = 0
+				node['zone'] = zone
+				node['x'] = maxRadius - 15
+				node['y'] = Y
+
+				nodes[zone] = node 
+
+				x.append(node['x'])
+				y.append(node['y'])
+				colors.append(node['color'])
+				sizes.append(10)
+				Y -= 20
+				nodeIndex += 1
+
+		return [nodes, x, y, colors, sizes]
 
 			
 

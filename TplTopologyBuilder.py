@@ -15,10 +15,10 @@ processor.calculateWordZone()
 
 processor.buildCloud(True)
 processor.buildTextCloud(True)
-
-processor.buildGlobalWord()
 '''
-processor.buildGlobalText()
+processor.buildGlobalWord()
+
+#processor.buildGlobalText()
 
 
 

@@ -120,7 +120,7 @@ class TextNodeCloud(DbModel):
 		return
 
 	def textCloudMatPlotLib(self):
-		'''
+		
 		wordCloud = WordCloud(self.identifier)
 		results = wordCloud.getWordNodes()
 
@@ -129,17 +129,20 @@ class TextNodeCloud(DbModel):
 		y =  results[4]
 		sizes = results[5] 
 		colors = results[6]
-		'''
+		currentColors = results[7]
+		
 		cursor = self.getPointsByBatch()
-
+		'''
 		nodes = {}
 		x = []
 		y = []
 		sizes = []
 		colors = []
+		'''
 		theta = 360
 		maxR = None
 		minR = None
+		polygonNodes = {}
 
 		nodeIndex = 0
 		for batch in cursor:
@@ -159,6 +162,7 @@ class TextNodeCloud(DbModel):
 			sizes.append(node['size'])
 
 			nodes[batch[0]] = node
+			polygonNodes[batch[0]] = node
 
 			if not minR or minR > node['r']:
 				minR = node['r']
@@ -172,7 +176,15 @@ class TextNodeCloud(DbModel):
 
 		lcr = LocalContextReflector(self.identifier)
 		polygons = None
-		polygons = lcr.getPolygons(nodes, distance)
+		#polygons = lcr.getPolygons(polygonNodes, distance)
+
+		results = wordCloud.addCurrentColorLegend(nodes, nodeIndex, maxR, currentColors, x, y, colors, sizes)
+		nodes = results[0]
+		x = results[1]
+		y = results[2]
+		colors = results[3]
+		sizes = results[4]
+
 		lcr.create(x, y, colors, nodes, sizes, 'text-global', polygons)
 
 		return
@@ -181,7 +193,7 @@ class TextNodeCloud(DbModel):
 	def getPointsByBatch(self):
 		sql = ("SELECT text_point.nodeid, label, x, y, r, source_identifier "
 			"FROM text_point "
-			"JOIN text_node ON text_node.nodeid = text_point.nodeid ")
+			"JOIN text_node ON text_node.nodeid = text_point.nodeid WHERE text_point.nodeid != 10")
 		return self.mysql.query(sql, [], True)	
 
 
