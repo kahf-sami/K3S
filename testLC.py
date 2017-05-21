@@ -4,7 +4,7 @@ import colorama
 import scipy
 import numpy
 
-text = ("The Eagle and the Jackdaw "
+text = ("The Eagle and the Jackdaw: "
 	"AN EAGLE, flying down from his perch on a lofty rock, seized upon "
 	"a lamb and carried him aloft in his talons.  A Jackdaw, who "
 	"witnessed the capture of the lamb, was stirred with envy and "
@@ -24,7 +24,7 @@ processor = K3S.LocalContext(text)
 #print(processor.getLocalContexts())
 
 print("===============================================")
-text2 = ("The Farmer and His Sons "
+text2 = ("The Farmer and His Sons: "
 	"A FATHER, being on the point of death, wished to be sure that his "
 	"sons would give the same attention to his farm as he himself had "
 	"given it.  He called them to his bedside and said, \"My sons, "
@@ -34,7 +34,7 @@ text2 = ("The Farmer and His Sons "
 	"the vines repaid their labor by an extraordinary and "
 	"superabundant crop.")
 
-processor = K3S.LocalContext(text2)
+processor = K3S.LocalContext(text1)
 #print(processor.getRepresentative())
 print(processor.getLocalContexts())
 sys.exit()

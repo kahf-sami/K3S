@@ -107,15 +107,10 @@ tplText1 = ("New biosimilars facility opens in IcelandAlvotech, an independent s
 
 #image.loadTfIdf(vocab.tfidfCalculation, vocab.getTfIdfVocabulary())
 
-nlpProcessor = K3S.NLP()
-textBlock = nlpProcessor.removeHtmlTags(text6)
-textBlock = nlpProcessor.removePunctuation(textBlock)
+#nlpProcessor = K3S.NLP()
+#textBlock = nlpProcessor.removeHtmlTags(text6)
+#textBlock = nlpProcessor.removePunctuation(textBlock)
 #image.create(123, '0123', textBlock)
 
-lc = K3S.LocalContext(text6, identifier)
-
-#image.create(123, '0123', lc.getCleanedTextBlock())
-lc.reflect('0123')
-sys.exit()
-print(lc.getRepresentative())
-print(lc.getLocalContexts())
+lc = K3S.LocalContext(text3, identifier, 0.1)
+lc.reflectRepresentatives('test', 0)

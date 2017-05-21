@@ -16,9 +16,9 @@ processor.calculateWordZone()
 processor.buildCloud(True)
 processor.buildTextCloud(True)
 '''
-processor.buildGlobalWord()
+#processor.buildGlobalWord()
 
-#processor.buildGlobalText()
+processor.buildGlobalText()
 
 
 

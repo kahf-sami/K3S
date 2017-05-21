@@ -9,6 +9,7 @@ import sys
 from .topology import Topology
 from .word import Word
 from .localContext import LocalContext
+from .verbContext import VerbContext
 from .localContextHighlighter import LocalContextHighlighter
 from .textNode import TextNode
 from .coreWord import CoreWord
@@ -23,7 +24,7 @@ class TopologyProcessor():
 
 	def __init__(self, sourceIdentifier):
 		self.config = Config()
-		self.log = Log()
+		#self.log = Log()
 		self.mainPath = File.join(self.config.DATA_PATH, sourceIdentifier)
 		self.processedPath = File.join(self.mainPath, 'processed')
 		self.localContextImagesPath = File.join(self.mainPath, 'local-context')
@@ -57,8 +58,8 @@ class TopologyProcessor():
 			data['source_identifier'] = file.getFileName()
 			data['text_block'] = file.read()
 			data['text_block'] = re.sub('\'s', '', str(data['text_block']))
-			data['text_block'] = re.sub('(-?)\n', '', str(data['text_block']))
-			data['text_block'] = re.sub('/|\|', ' ', str(data['text_block']))
+			data['text_block'] = re.sub('(-?)\n', ' ', str(data['text_block']))
+			data['text_block'] = re.sub('/|\|,|:', ' ', str(data['text_block']))
 			data['text_block'] = re.sub('\'|"|\(|\)|\{|\}|[|\]|<[a-zA-Z0-9\"\'-_\s"]+>', '', str(data['text_block']))
 			data['text_block'] = re.sub('\s+', ' ', str(data['text_block']))
 			data['text_block'].encode("utf-8")
@@ -153,8 +154,31 @@ class TopologyProcessor():
 			if index == limit:
 				break
 
+		
+
 		return
 
+
+	def generateVerbContextImages(self, limit = None):
+		textNodeProcessor = TextNode(self.sourceIdentifier)
+
+		index = 0
+		filterLowerRatedNouns = 0
+		for textBlock in textNodeProcessor.getAllByBatch():
+			if index == limit:
+				break;
+
+			textBlockText = re.sub('file:.+M\]', ' ', textBlock[2])
+				
+			lc = VerbContext(textBlockText, self.sourceIdentifier, 0.2)
+			#lc.reflectRepresentatives(textBlock[1], filterLowerRatedNouns)
+			index += 1
+			if index == limit:
+				break
+
+		lc.renderContext('moon')
+
+		return
 
 
 

@@ -40,12 +40,12 @@ class LocalContext(DbModel):
 		self.orderedWords = []
 		self.max = 0
 		self.min = None
-		self.circleSizeMultiplier = 10
+		self.circleSizeMultiplier = 0.5
 		self.zoneColors = ['crimson', 'fuchsia', 'pink', 'plum', 
-			'violet', 'darkorchid', 'rebeccapurple', 'royalblue', 
+			'violet', 'darkorchid', 'royalblue', 
 			'dodgerblue', 'lightskyblue', 'aqua', 'aquamarine', 'green', 
-			'lawangreen', 'yellowgreen', 'yellow', 'lightyellow', 'lightsalmon', 
-			'coral', 'tomato', 'brown', 'maroon']
+			'yellowgreen', 'yellow', 'lightyellow', 'lightsalmon', 
+			'coral', 'tomato', 'brown', 'maroon', 'gray']
 
 		self.buildDetails()
 		self.buildRepresentatives(filterLowerRatedNouns)
@@ -80,7 +80,7 @@ class LocalContext(DbModel):
 
 	def setCleanText(self, textBlock):
 		textBlock = re.sub(r'\s(bin|ibn)\s', r'_\1_', str(self.textBlock), flags=re.IGNORECASE)
-		textBlock = re.sub(r'([\']s?)|(-\n)|(\")|(Volume.+Book.+:)', '', str(textBlock))
+		textBlock = re.sub(r'([\']s?)|(-\n)|(\")|(Volume.+Book.+:)|(\n)', ' ', str(textBlock))
 		textBlock = re.sub('(\s+)|(\s\n)', ' ', str(textBlock.strip()))
 		textBlock = re.sub('-', '_', str(textBlock))
 		return textBlock
@@ -92,9 +92,13 @@ class LocalContext(DbModel):
 		if not len(sentenceContexts):
 			return
 
+		#limit = 10
+		#count = 0
 		for sentence in sentenceContexts:
 			words = self.processSentenceWords(sentence)
-
+			#count += 1
+			#if limit == count:
+			#	sys.exit()
 			#if len(words):
 			#	self.addToCombinedContext(words)
 
@@ -193,7 +197,7 @@ class LocalContext(DbModel):
 					node['color'] = 'black'
 				else:
 					node['color'] = self.zoneColors[zone]
-				node['r'] = (self.max) - (self.blockWords[word])
+				node['r'] = (self.max) - (self.blockWords[word]) #+ ( (self.max) - (self.blockWords[word])) * 2
 				node['theta'] = theta
 				node['zone'] = zone
 				node['x'] = node['r'] * numpy.cos(numpy.deg2rad(theta))
@@ -230,18 +234,18 @@ class LocalContext(DbModel):
 
 		#print(currentColors)
 		#sys.exit()
-		#polygons = None
+		polygons = None
 		
-		polygons = self.getPolygons(nodes, distance)
+		#polygons = self.getPolygons(nodes, distance)
 
-		
+		'''
 		results = self.addCurrentColorLegend(nodes, nodeIndex, maxRadius, currentColors, x, y, colors, sizes)
 		nodes = results[0]
 		x = results[1]
 		y = results[2]
 		colors = results[3]
 		sizes = results[4]
-		
+		'''
 		lcr = LocalContextReflector(self.identifier)
 		lcr.create(x, y, colors, nodes, sizes, fileName, polygons)
 		
@@ -249,7 +253,7 @@ class LocalContext(DbModel):
 
 
 	def addCurrentColorLegend(self, nodes, nodeIndex, maxRadius, currentColors, x, y, colors, sizes):
-		Y = 400
+		Y = 800
 
 		if len(currentColors):
 			for zone in range(1, 20):
@@ -262,7 +266,7 @@ class LocalContext(DbModel):
 				node['r'] = 0
 				node['theta'] = 0
 				node['zone'] = zone
-				node['x'] = maxRadius - 15
+				node['x'] = maxRadius - 120
 				node['y'] = Y
 
 				nodes[zone] = node 
@@ -271,7 +275,7 @@ class LocalContext(DbModel):
 				y.append(node['y'])
 				colors.append(node['color'])
 				sizes.append(10)
-				Y -= 20
+				Y -= 50
 				nodeIndex += 1
 
 		return [nodes, x, y, colors, sizes]
@@ -425,8 +429,9 @@ class LocalContext(DbModel):
 
 	def processSentenceWords(self, sentence):
 		afterPartsOfSpeachTagging = self.nlpProcessor.getWords(sentence, True)
-		#print(afterPartsOfSpeachTagging)
-		
+		print(afterPartsOfSpeachTagging)
+		print('----------------')
+
 		if not len(afterPartsOfSpeachTagging):
 			self.positionContribution -= 1
 			return []

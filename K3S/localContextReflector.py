@@ -43,13 +43,13 @@ class LocalContextReflector():
 			else:
 				verticalalignment = 'top'
 			
-			self.axis.annotate(nodes[node]['label'], (nodes[node]['x'] + 5, nodes[node]['y'] + 5), color='darkorchid', horizontalalignment=horizontalalignment, verticalalignment=verticalalignment, fontsize=15)
+			self.axis.annotate(nodes[node]['label'], (nodes[node]['x'], nodes[node]['y']), color='black', horizontalalignment=horizontalalignment, verticalalignment=verticalalignment, fontsize=12)
 		
 
 		if edges:
 			for edge in edges:
 				#print(edge)
-				plot.plot([edges[edge]['start-x'], edges[edge]['end-x']], [edges[edge]['start-y'], edges[edge]['end-y']], lw=2, c = 'skyblue')
+				plot.plot([edges[edge]['start-x'], edges[edge]['end-x']], [edges[edge]['start-y'], edges[edge]['end-y']], lw=2, c = 'gray')
 
 
 		'''

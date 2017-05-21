@@ -19,7 +19,9 @@ processor = K3S.TopologyProcessor(identifier)
 #processor.calculateLocalContextImportance()
 #processor.buildCloud(True)
 
-processor.buildTextCloud(True)
+#processor.buildTextCloud(True)
 #processor.generateLocalContextImages(1)
 #processor.buildGlobalWord()
-processor.buildGlobalText()
+#processor.buildGlobalText()
+
+processor.generateVerbContextImages(1)

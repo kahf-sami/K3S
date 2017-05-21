@@ -73,6 +73,15 @@ class Topology():
 			"PRIMARY KEY (local_contextid)"
 			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
 
+		tables['verb_context'] = (
+			"CREATE TABLE IF NOT EXISTS verb_context ("
+			"verb_contextid INT(11) NOT NULL AUTO_INCREMENT,"
+			"word VARCHAR(255) DEFAULT NULL,"
+			"stemmed_word VARCHAR(255) NOT NULL,"
+			"nouns LONGTEXT,"
+			"PRIMARY KEY (verb_contextid)"
+			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
+
 		tables['word'] = (
 			"CREATE TABLE IF NOT EXISTS word ("
 			"wordid INT(11) NOT NULL AUTO_INCREMENT,"

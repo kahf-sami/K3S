@@ -22,3 +22,4 @@ from .localContextReflector import LocalContextReflector
 from .vocabulary import Vocabulary
 from .wordCloud import WordCloud
 from .wordContext import WordContext
+from .verbContext import VerbContext

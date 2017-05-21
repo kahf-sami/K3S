@@ -120,7 +120,7 @@ class TextNodeCloud(DbModel):
 		return
 
 	def textCloudMatPlotLib(self):
-		
+		'''		
 		wordCloud = WordCloud(self.identifier)
 		results = wordCloud.getWordNodes()
 
@@ -130,15 +130,15 @@ class TextNodeCloud(DbModel):
 		sizes = results[5] 
 		colors = results[6]
 		currentColors = results[7]
-		
-		cursor = self.getPointsByBatch()
 		'''
+		cursor = self.getPointsByBatch()
+		
 		nodes = {}
 		x = []
 		y = []
 		sizes = []
 		colors = []
-		'''
+		
 		theta = 360
 		maxR = None
 		minR = None
@@ -148,7 +148,7 @@ class TextNodeCloud(DbModel):
 		for batch in cursor:
 			node = {}
 			node['index'] = nodeIndex
-			node['label'] = str(batch[5])
+			node['label'] = re.sub('.txt', '', str(batch[5]))
 			#node['label'] = str(batch[5]) + ': ' + str(batch[1])
 			node['color'] = 'red'
 			node['size'] = 10
@@ -177,14 +177,14 @@ class TextNodeCloud(DbModel):
 		lcr = LocalContextReflector(self.identifier)
 		polygons = None
 		#polygons = lcr.getPolygons(polygonNodes, distance)
-
+		'''
 		results = wordCloud.addCurrentColorLegend(nodes, nodeIndex, maxR, currentColors, x, y, colors, sizes)
 		nodes = results[0]
 		x = results[1]
 		y = results[2]
 		colors = results[3]
 		sizes = results[4]
-
+		'''
 		lcr.create(x, y, colors, nodes, sizes, 'text-global', polygons)
 
 		return
