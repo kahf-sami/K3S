@@ -38,3 +38,5 @@ processor = K3S.LocalContext(text1)
 #print(processor.getRepresentative())
 print(processor.getLocalContexts())
 sys.exit()
+
+

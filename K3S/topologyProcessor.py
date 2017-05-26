@@ -171,12 +171,10 @@ class TopologyProcessor():
 			textBlockText = re.sub('file:.+M\]', ' ', textBlock[2])
 				
 			lc = VerbContext(textBlockText, self.sourceIdentifier, 0.2)
-			#lc.reflectRepresentatives(textBlock[1], filterLowerRatedNouns)
+
 			index += 1
 			if index == limit:
 				break
-
-		lc.renderContext('moon')
 
 		return
 
