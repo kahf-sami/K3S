@@ -7,7 +7,7 @@ from nltk.stem.porter import PorterStemmer
 from .nlp import NLP
 import math
 from nltk.corpus import stopwords
-from nltk.corpus import stopwords
+
 
 
 

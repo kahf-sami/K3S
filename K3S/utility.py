@@ -2,6 +2,9 @@ from .config import Config
 import math
 import hashlib
 import json
+from .file import File
+import os
+import re
 
 class Utility():
 
@@ -68,6 +71,11 @@ class Utility():
 
 
 	@staticmethod
+	def union(a, b):
+		return list(set(a) | set(b))
+
+
+	@staticmethod
 	def getHash(data):
 		m = hashlib.md5()
 		
@@ -89,6 +97,15 @@ class Utility():
 			asciiSum += ord(char)
 
 		return asciiSum
+
+	@staticmethod
+	def getStopWords():
+		path = File.join(os.path.abspath(__file__ + "/../"), 'stopwords.txt')
+		file = File(path)
+		stopWords = re.split('[\n]', file.read())
+
+
+		return stopWords
 
 		
 
