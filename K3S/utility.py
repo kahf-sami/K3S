@@ -107,6 +107,11 @@ class Utility():
 
 		return stopWords
 
+
+	@staticmethod
+	def implode(terms, divider = ','):
+		return divider.join(s for s in terms)
+
 		
 
 
