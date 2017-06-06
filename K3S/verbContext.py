@@ -148,6 +148,7 @@ class VerbContext(DbModel):
 			for conceptIndex in self.associatedContextForWords[word]:
 				prospectiveConcept = Utility.union(prospectiveConcept, concepts[conceptIndex])
 
+				=-
 			wordConcepts[word] = Utility.unique(prospectiveConcept)
 			#print(wordConcepts[word])
 

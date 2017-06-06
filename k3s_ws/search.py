@@ -4,7 +4,7 @@ https://stackoverflow.com/questions/15852238/how-to-construct-complex-google-web
 '''
 
 import re
-from .utility import Utility
+from k3s_utility.utility import Utility
 from nltk import word_tokenize
 from .htmlParser import HTMLParser
 

@@ -1,14 +1,14 @@
 import sys
-import K3S
+import k3s_ws
 
-searcher = K3S.Search()
+searcher = k3s_ws.Search()
 searcher.process('Isaac Newton')
 getMostRelevantWikiLink = searcher.getMostRelevantLink()
 #print(getMostRelevantWikiLink)
 
 print('---------- start -----------------')
 if getMostRelevantWikiLink:
-	wikipidia = K3S.Wikipedia(getMostRelevantWikiLink)
+	wikipidia = k3s_ws.Wikipedia(getMostRelevantWikiLink)
 	wikipidia.processLocalContext()
 	print('Url: ' + getMostRelevantWikiLink)
 	print('Description: ' + wikipidia.fetchNext())

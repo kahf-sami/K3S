@@ -25,3 +25,4 @@ from .wordContext import WordContext
 from .verbContext import VerbContext
 from .search import Search
 from .wikipedia import Wikipedia
+from .lc import LC

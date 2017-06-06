@@ -4,7 +4,7 @@ https://en.wikipedia.org
 
 from .htmlParser import HTMLParser
 import re
-from .nlp import NLP
+from k3s_utility.nlp import NLP
 from nltk.stem.porter import PorterStemmer
 
 
