@@ -21,8 +21,11 @@ class HTMLParser():
 
 	def setTree(self):
 		#print(self.url)
-		page = requests.get(self.url)
+
+		page = requests.get(self.url, timeout = 20)
 		self.tree = html.fromstring(page.content)
+		#print(page.content)
+
 		return
 
 

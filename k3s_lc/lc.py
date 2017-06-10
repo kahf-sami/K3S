@@ -56,18 +56,22 @@ class LC():
 			return
 
 		properNounElements = self.getProperNounElements()
-		self.debug(properNounElements)
+
 		mostImportantWords = []
+		usedProperNouns = []
 
 		for word, score in self.contributingWords[:limit]:
 			mostImportantWord = word
 			if word in properNounElements.keys():
 				mostImportantWord = properNounElements[word]
+				usedProperNouns.append(mostImportantWord)
 
 			if mostImportantWord not in mostImportantWords:
 				mostImportantWords.append(mostImportantWord)
 
-		return mostImportantWords
+		otherProperNouns = Utility.diff(self.properNouns, usedProperNouns)
+
+		return [mostImportantWords , otherProperNouns]
 
 
 
@@ -131,8 +135,8 @@ class LC():
 
 
 	def getCleanText(self, text):
-		text = re.sub('[\'|\-]{1}', '', text)
-		text = re.sub('[^a-zA-Z0-9\s_\-\?:;.,!]+', ' ', text)
+		text = re.sub('[\'|\-|\'s]{1}', '', text)
+		text = re.sub('[^a-zA-Z0-9\s_\-\?:;.,!\"]+', ' ', text)
 		text = re.sub('\s+', ' ', text)
 		return text
 
@@ -157,8 +161,4 @@ class LC():
 
 		return properNounElements
 
-	def debug(self, value):
-		print('---------------------------------------------------------------------------------------------')
-		print(value)
-		print('---------------------------------------------------------------------------------------------')
-		return
+	

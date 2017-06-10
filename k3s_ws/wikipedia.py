@@ -3,10 +3,11 @@ https://en.wikipedia.org
 '''
 
 from .htmlParser import HTMLParser
-import re
+import re, sys
 from k3s_utility.nlp import NLP
+from k3s_utility.utility import Utility
 from nltk.stem.porter import PorterStemmer
-
+import requests, json
 
 class Wikipedia(HTMLParser):
 
@@ -46,6 +47,46 @@ class Wikipedia(HTMLParser):
 		return
 
 
+	def getMostRelevantUrl(self, word):
+		items = self.fetchRelatedPages(word)
+		if not items:
+			return ''
+		
+		url = ''
+		#print(word)
+		firstOne = None
+		for item in items:
+			if not firstOne:
+				firstOne = item['fullurl']
+
+			title = self.stemmer.stem(item['title'])
+			if(title == word):
+				return item['fullurl']
+
+		return firstOne
+
+
+	def fetchRelatedPages(self, word):
+		params = {'action': 'query', 
+			'generator': 'search', 
+			'prop': 'info',
+			'inprop': 'url',
+			'format': 'json',
+			'formatversion' : 2,
+			'gsrsearch': word }
+		
+		url = 'https://en.wikipedia.org/w/api.php?' + Utility.utlencode(params)	
+		#/Utility.debug(url)
+		page = requests.get(url)
+		response = json.loads(page.content.decode('utf-8'))
+		#Utility.debug(response)
+
+		if 'query' not in response.keys():
+			return None
+
+		return response['query']['pages']
+
+
 	def resetIndex(self):
 		self.index = 0
 		return
@@ -65,10 +106,15 @@ class Wikipedia(HTMLParser):
 
 
 	def getImportantConcepts(self):
-		if self.concepts:
-			return self.concepts[:10]
+		if not self.concepts:
+			return None
 
-		return None
+		concepts = []
+
+		for concept in self.concepts[:20]:
+			concepts.append(self.pureWords[concept])
+
+		return concepts
 
 
 	def processLocalContext(self):
@@ -118,6 +164,5 @@ class Wikipedia(HTMLParser):
 		text = text.strip()
 		return text
 
-		
-
+	
 		

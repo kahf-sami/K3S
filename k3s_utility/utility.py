@@ -5,6 +5,7 @@ import json
 from .file import File
 import os
 import re
+import urllib
 
 class Utility():
 
@@ -28,8 +29,8 @@ class Utility():
 
 
 	@staticmethod
-	def union(a, b):
-		return list(set(a) | set(b))
+	def diff(a, b):
+		return (set(a) - set(b))
 
 
 	@staticmethod
@@ -45,6 +46,18 @@ class Utility():
 	@staticmethod
 	def implode(terms, divider = ','):
 		return divider.join(s for s in terms)
+
+
+	@staticmethod
+	def utlencode(params):
+		return urllib.parse.urlencode(params)
+
+	@staticmethod
+	def debug(value):
+		#print('---------------------------------------------------------------------------------------------')
+		print(value)
+		print('---------------------------------------------------------------------------------------------')
+		return
 
 		
 
