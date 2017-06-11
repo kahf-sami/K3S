@@ -5,6 +5,7 @@ pip install requests
 
 from lxml import html
 import requests
+import sys
 
 class HTMLParser():
 

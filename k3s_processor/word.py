@@ -1,13 +1,8 @@
 from .dbModel import DbModel
-from nltk import word_tokenize
-from nltk import pos_tag
-from .utility import Utility
-import sys
+from k3s_utility.utility import Utility
 from nltk.stem.porter import PorterStemmer
-from .nlp import NLP
-import math
+from nltk import word_tokenize, pos_tag
 import ast
-import re
 
 class Word(DbModel):
 
@@ -19,7 +14,6 @@ class Word(DbModel):
 		self.fields = ['wordid', 'contextid', 'word', 'count', 'number_of_blocks', 'tf_idf', 'stemmed_word', 'signature','local_avg', 'zone']
 		self.ignoreExists = ['count', 'number_of_blocks', 'tf_idf', 'word', 'zone']
 		self.stemmer = PorterStemmer()
-		self.nlpProcessor = NLP()
 		self.maxZone = 6
 		return
 
@@ -27,19 +21,19 @@ class Word(DbModel):
 	def save(self, data):
 		itemid = None
 		item = self.read(data)
-		totalTextBlocks = self.getTotalTextBlocks()
+		#totalTextBlocks = self.getTotalTextBlocks()
 
 		if not item:
 			# new text node
-			totalTextBlocks += 1
+			#totalTextBlocks += 1
 			data['number_of_blocks'] = 1
 			itemid = self.insert(data)
-			data['zone'] = self.getZone(data['number_of_blocks'], totalTextBlocks)
+			#data['zone'] = self.getZone(data['number_of_blocks'], totalTextBlocks)
 		else:
 			itemid = item[0][0]
 			data['word'] = item[0][1]
 			data['number_of_blocks'] = int(item[0][4]) + 1
-			data['zone'] = self.getZone(data['number_of_blocks'], totalTextBlocks)
+			#data['zone'] = self.getZone(data['number_of_blocks'], totalTextBlocks)
 			
 			if 'count' in data.keys():
 				data['count'] += int(item[0][3])
@@ -49,29 +43,9 @@ class Word(DbModel):
 		return itemid
 
 
-	"""
-	ADJ	adjective
-	ADP	adposition
-	ADV	adverb
-	CONJ conjunction
-	DET	determiner
-	NOUN noun
-	NUM	numeral	
-	PRT	particle
-	PRON pronoun
-	VERB verb
-	"""
-	def saveWords(self, textBlock, words = None, onlyNoun = True):
-		actualWords = self.getWords(textBlock, False)
-
-		if not words:
-			if onlyNoun: 
-				words = self.getNouns(textBlock)
-			else:
-				words = actualWords
-
+	def saveWords(self, words = None):
 		totals = {}
-		for word in actualWords:
+		for word in words:
 			stemmedWord = self.stemmer.stem(word)
 			if stemmedWord in totals.keys():
 				totals[stemmedWord] += 1
@@ -83,7 +57,6 @@ class Word(DbModel):
 				data = {}
 				data['word'] = word
 				data['stemmed_word'] = self.stemmer.stem(word)
-				data['signature'] = self.getAsciiSum([data['stemmed_word']])
 				keys = totals.keys()
 				if data['stemmed_word'] in keys:
 					data['count'] = totals[data['stemmed_word']]
@@ -197,8 +170,6 @@ class Word(DbModel):
 		return 2
 
 
-
-
 	def calculateLocalContextImportance(self):
 		totalWords = self.getTotalWords()
 		totalTextBlocks = self.getTotalTextBlocks()
@@ -306,55 +277,6 @@ class Word(DbModel):
 		return self.mysql.query(sql, [], True)
 
 
-	def getRelatedWords(self, word, minAllowedSimilarityPercent = 50):
-		textBlocks = self.getTextNodesHavingWord(word)
-
-		if not textBlocks:
-			return Nonesw
-
-		mostSimilarWord = ''
-		keys = []
-		otherWords = {}
-		totalNumberOfDocsWordAppear = len(textBlocks)
-		maxSimilarity = 0
-		for textBlock in textBlocks:
-			thisBlockWords = Utility.unique(self.getNouns(textBlock[0]))
-			if thisBlockWords:
-				for otherWord in thisBlockWords:
-					if word == otherWord:
-						continue
-					if otherWord in keys:
-						otherWords[otherWord] += 1
-						if otherWords[otherWord] > maxSimilarity:
-							maxSimilarity = otherWords[otherWord]
-							mostSimilarWord = otherWord
-					else:
-						keys.append(otherWord)
-						otherWords[otherWord] = 1
-
-		if not otherWords:
-			return None
-
-		maxSimilarityPercent = (maxSimilarity / totalNumberOfDocsWordAppear * 100)
-
-		if maxSimilarityPercent < minAllowedSimilarityPercent:
-			return None
-		
-		relatetedWords = []
-
-		for otherWord in otherWords:
-			similarityPercent = (otherWords[otherWord] / totalNumberOfDocsWordAppear * 100)
-			if similarityPercent < minAllowedSimilarityPercent:
-				continue;
-			data = {}
-			data['word'] = otherWord
-			data['wordid'] = self.getWordId(otherWord)
-			data['similarity_score'] = similarityPercent
-			relatetedWords.append(data)
-		
-		return relatetedWords
-
-
 	def getGlobalContributionDetails(self, word):
 		sql = "SELECT number_of_blocks, zone, tf_idf FROM word WHERE word.stemmed_word = %s"
 
@@ -388,12 +310,6 @@ class Word(DbModel):
 		return self.mysql.query(sql, params)
 
 
-	def getTotalTextBlocks(self):
-		sql = "SELECT count(*) FROM text_node"
-
-		result = self.mysql.query(sql, [])
-		return result[0][0]
-
 	def getTextNodesHavingWord(self, word):
 		sql = "SELECT text_block FROM text_node WHERE text_block LIKe %s ORDER BY nodeid"
 
@@ -410,36 +326,3 @@ class Word(DbModel):
 		return self.mysql.query(sql, [])
 
 
-	def getEdges(self, wordId):
-		sql = ("SELECT word.wordid, word.word, similaruty_score "
-			"FROM word_edge "
-			"JOIN word ON destination_wordid = word.wordid "
-			"WHERE source_wordid = %s "
-			"ORDER BY similaruty_score")
-
-		params = []
-		params.append(wordId)
-		return self.mysql.query(sql, params)
-
-
-	def getRelatedWordsForGraph(self, word):
-		sql = ("SELECT source_wordid, source_word.word, destination_wordid, destination_word.word, similaruty_score "
-			"FROM word_edge "
-			"JOIN word AS source_word ON source_word.wordid = source_wordid "
-			"JOIN word AS destination_word ON destination_word.wordid = destination_wordid "
-			"WHERE (source_word.word = %s or destination_word.word = %s) "
-			"ORDER BY similaruty_score");
-
-		params = []
-		params.append(word)
-		params.append(word)
-
-		return self.mysql.query(sql, params)
-
-
-
-	''''
-	select word, count(local_contextid) as total from local_context where nodeid in (select lc.nodeid from local_context as lc where lc.word = 'paradis') group by word order by total;
-
-	select nodeid, count(word) as total from local_context group by nodeid order by total desc
-	'''

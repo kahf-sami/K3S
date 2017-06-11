@@ -1,8 +1,7 @@
-import K3S
-
+#import K3S
 
 identifier = 'Bukhari'
-processor = K3S.TopologyProcessor(identifier)
+#processor = K3S.TopologyProcessor(identifier)
 #processor.topologySetUp()
 #processor.saveBlocksInMysql(None)
 #processor.calculateTfIdf()
@@ -10,7 +9,7 @@ processor = K3S.TopologyProcessor(identifier)
 #processor.calculateLocalContextImportance()
 #processor.calculateWordZone()
 #processor.buildCloud()
-processor.buildTextCloud()
+#processor.buildTextCloud()
 
 
 #processor.buildTextNodeCloud(1)
@@ -49,3 +48,12 @@ wC.generateLGCsv()
 wC = K3S.WordContext(identifier, 'peopl')
 wC.generateLGCsv()
 '''
+
+import k3s_processor
+
+processor = k3s_processor.Processor(identifier)
+processor.setUpDb()
+processor.saveBlocksInMysql()
+
+
+

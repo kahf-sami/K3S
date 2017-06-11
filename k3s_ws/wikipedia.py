@@ -24,6 +24,7 @@ class Wikipedia(HTMLParser):
 		self.positionContributingFactor = 0.5
 		self.occuranceContributingFactor = 1
 		self.concepts = None
+		self.firstPara = ''
 
 		super(Wikipedia, self).__init__(url)
 		return
@@ -76,10 +77,9 @@ class Wikipedia(HTMLParser):
 			'gsrsearch': word }
 		
 		url = 'https://en.wikipedia.org/w/api.php?' + Utility.utlencode(params)	
-		#/Utility.debug(url)
+		#Utility.debug(url)
 		page = requests.get(url)
 		response = json.loads(page.content.decode('utf-8'))
-		#Utility.debug(response)
 
 		if 'query' not in response.keys():
 			return None
@@ -117,8 +117,13 @@ class Wikipedia(HTMLParser):
 		return concepts
 
 
+	def getIntroduction(self):
+		return self.firstPara
+
+
 	def processLocalContext(self):
 		text = self.fetchParagraph() #Fetching first paragraph
+		self.firstPara = text
 
 		if self.categories:
 			for category in self.categories:

@@ -1,12 +1,8 @@
 from .dbModel import DbModel
-from .edge import Edge
 from .word import Word
-from .context import Context
-from .nlp import NLP
-import sys
-import re
-from .utility import Utility
-import math
+from k3s_utility.nlp import NLP
+from k3s_utility.utility import Utility 
+from .wikipediaProcessor import WikipediaProcessor 
 from .localContext import LocalContext
 from .coreWord import CoreWord
 
@@ -18,14 +14,13 @@ class TextNode(DbModel):
 		self.identifier = identifier
 		self.tableName = 'text_node'
 		self.primaryKey = 'nodeid'
-		self.fields = ['nodeid', 'source_identifier', 'text_block', 'dna', 'processed', 'local_context', 'representatives']
-		self.ignoreExists = ['text_block', 'representatives', 'dna', 'processed']
-		self.contextProcessor = Context(identifier)
-		self.edgeProcessor = Edge(identifier)
+		self.fields = ['nodeid', 'source_identifier', 'text_block', 'representatives']
+		self.ignoreExists = ['text_block', 'representatives']
 		self.wordProcessor = Word(identifier)
 		self.coreWordProcessor = CoreWord(identifier)
 		self.nlpProcessor = NLP()
 		self.nodeid = None
+		self.wikipedia = WikipediaProcessor(self.identifier)
 		return
 
 
@@ -37,18 +32,20 @@ class TextNode(DbModel):
 			if not data['text_block']:
 				return
 				
+			self.nodeid = DbModel.save(self, data)
+
 			if processCore:
 				self.coreWordProcessor.saveWords(data['text_block'])
 
 			lc = LocalContext(data['text_block'], self.identifier)
 			data['representatives'] = lc.getRepresentative()
-			print(data['representatives'])
-			#sys.exit()
-			words = self.wordProcessor.saveWords(lc.getCleanText(), data['representatives'])
-			data['dna'] = Utility.getHash(data['representatives'])
-			self.nodeid = DbModel.save(self, data)
+
+			words = self.wordProcessor.saveWords(data['representatives'])
+			
+			
 			if data['representatives']:
 				lc.saveLocalContexts(self.nodeid)
+				self.wikipedia.saveWords(data['representatives'], lc.getPureRepresentative())
 
 		return self.nodeid
 
@@ -59,37 +56,9 @@ class TextNode(DbModel):
 		return self.mysql.query(sql, [], True)
 
 
-	def relate(self, textBlock, currentNodeId):
-		words = self.wordProcessor.getWords(textBlock)
+	def getTotalTextBlocks(self):
+		sql = "SELECT count(*) FROM text_node"
 
-		related = {}
-		sql = "SELECT nodeid FROM " + self.tableName + " WHERE text_block LIKE %s AND nodeid != %s"
+		result = self.mysql.query(sql, [])
+		return result[0][0]
 
-		processedNodes = []
-
-		#print(words)
-
-		for word in words:
-			params = []
-			params.append('%' + word + '%')
-			params.append(str(currentNodeId))
-
-			nodes = self.mysql.query(sql, params)
-			
-			if len(nodes) > 0:
-				for node in nodes:
-					relatedNodeId = node[0]
-					
-					if relatedNodeId in processedNodes:
-						related[relatedNodeId] += 1
-					else:
-						related[relatedNodeId] = 1
-
-					processedNodes.append(relatedNodeId)
-
-				#print(word)
-		#print('-------------------')
-
-
-		self.edgeProcessor.associate(currentNodeId, related)
-		return

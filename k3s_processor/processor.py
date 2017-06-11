@@ -1,44 +1,35 @@
-import os
+import os, sys,re
 from .config import Config
-from .directory import Directory
-from .file import File
-from .log import Log
-from .nlp import NLP
-from .utility import Utility
-import sys
-from .topology import Topology
-from .word import Word
-from .localContext import LocalContext
-from .verbContext import VerbContext
-from .localContextHighlighter import LocalContextHighlighter
+from k3s_utility.directory import Directory
+from k3s_utility.file import File
+from k3s_utility.log import Log
+from k3s_utility.nlp import NLP
+from k3s_utility.utility import Utility
+from .schema import Schema
 from .textNode import TextNode
-from .coreWord import CoreWord
-from .wordContext import WordContext
-from .wordCloud import WordCloud
-from .textNodeCloud import TextNodeCloud
-import re
+from .word import Word
 
 
-class TopologyProcessor():
+class Processor():
 
 
 	def __init__(self, sourceIdentifier):
 		self.config = Config()
-		#self.log = Log()
 		self.mainPath = File.join(self.config.DATA_PATH, sourceIdentifier)
 		self.processedPath = File.join(self.mainPath, 'processed')
-		self.localContextImagesPath = File.join(self.mainPath, 'local-context')
+		#self.localContextImagesPath = File.join(self.mainPath, 'local-context')
 		self.sourceIdentifier = sourceIdentifier
 		return
 
 
-	def topologySetUp(self):
-		topologyBuilder = Topology(self.sourceIdentifier)
-		topologyBuilder.setUp()
+	def setUpDb(self):
+		schemaBuilder = Schema(self.sourceIdentifier)
+		schemaBuilder.setUp()
 		return
 
+	
 	def saveBlocksInMysql(self, limit = None, processCore = True):
-		topologyBuilder = Topology(self.sourceIdentifier)
+		textNode = TextNode(self.sourceIdentifier)
 
 		sourceDir = Directory(self.processedPath)
 		files = sourceDir.scan()
@@ -63,14 +54,14 @@ class TopologyProcessor():
 			data['text_block'] = re.sub('\'|"|\(|\)|\{|\}|[|\]|<[a-zA-Z0-9\"\'-_\s"]+>', '', str(data['text_block']))
 			data['text_block'] = re.sub('\s+', ' ', str(data['text_block']))
 			data['text_block'].encode("utf-8")
-			topologyBuilder.addTextNode(data, processCore)
+			textNode.save(data, processCore)
 
 			index += 1
 			if (index == limit):
 				break;
 
-		
 		return
+
 
 	def calculateTfIdf(self):
 		wordProcessor = Word(self.sourceIdentifier)
@@ -82,102 +73,4 @@ class TopologyProcessor():
 		wordProcessor = Word(self.sourceIdentifier)
 		wordProcessor.calculateLocalContextImportance()
 		return
-
-
-	def buildWordContext(self):
-		return;
-
-
-	def buildCloud(self, savePoints = False):
-		wordCloud = WordCloud(self.sourceIdentifier)
-		if(savePoints):
-			wordCloud.savePoints()
-
-		wordCloud1 = WordCloud(self.sourceIdentifier)
-		wordCloud1.generateLCCsv()
-		return
-
-
-	def buildGlobalWord(self):
-		wordCloud = WordCloud(self.sourceIdentifier)
-		wordCloud.wordCloudMatPlotLib()
-		return
-
-
-	def buildGlobalText(self):
-		cloud = TextNodeCloud(self.sourceIdentifier)
-		cloud.textCloudMatPlotLib()
-		return
-
-
-	def buildTextCloud(self, savePoints = False):
-		cloud = TextNodeCloud(self.sourceIdentifier)
-		if(savePoints):
-			cloud.savePoints()
-		cloud1 = TextNodeCloud(self.sourceIdentifier)
-		cloud1.generateCsv()
-		return
-
-	'''
-	def buildTextNodeCloud(self, nodeid):
-		wordCloud = WordCloud(self.sourceIdentifier)
-		wordCloud.buildTextNodeCloud(nodeid)
-		return
-	'''
-
-	def stopWordsUpdate(self):
-		coreWprdProcessor = CoreWord(self.sourceIdentifier)
-		coreWprdProcessor.markStopWords()
-		return
-
-
-	def calculateWordZone(self):
-		wordProcessor = Word(self.sourceIdentifier)
-		wordProcessor.calculateZone()
-		return
-
-
-	def generateLocalContextImages(self, limit = None):
-		textNodeProcessor = TextNode(self.sourceIdentifier)
-
-		index = 0
-		filterLowerRatedNouns = 0
-		for textBlock in textNodeProcessor.getAllByBatch():
-			if index == limit:
-				break;
-
-			textBlockText = re.sub('file:.+M\]', '', textBlock[2])
-				
-			lc = LocalContext(textBlockText, self.sourceIdentifier, 0.2)
-			lc.reflectRepresentatives(textBlock[1], filterLowerRatedNouns)
-			index += 1
-			if index == limit:
-				break
-
-		
-
-		return
-
-
-	def generateVerbContextImages(self, limit = None):
-		textNodeProcessor = TextNode(self.sourceIdentifier)
-
-		index = 0
-		filterLowerRatedNouns = 0
-		for textBlock in textNodeProcessor.getAllByBatch():
-			if index == limit:
-				break;
-
-			textBlockText = re.sub('file:.+M\]', ' ', textBlock[2])
-				
-			lc = VerbContext(textBlockText, self.sourceIdentifier, 0.2)
-
-			index += 1
-			if index == limit:
-				break
-
-		return
-
-
-
 

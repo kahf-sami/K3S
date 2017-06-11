@@ -33,6 +33,13 @@ class LC():
 		self.text = self.getCleanText(text)
 		return
 
+	def getScores(self):
+		return self.scores
+
+
+	def getPureWords(self):
+		return self.pureWords
+
 
 	def process(self):
 		afterPartsOfSpeachTagging = self.getWords(self.text, True);
@@ -77,11 +84,12 @@ class LC():
 
 	def processWords(self, words):
 		self.currentPosition  = len(words)
-
 		lastNounProperNoun = False
 		for item in words:
 			wordType = item[1]
-			if (wordType not in ['NNP', 'NNPS', 'NN', 'NNS']) or (len(item[1]) == 1) or (len(item[0]) <= 2):
+			mainWord = item[0].lower()
+
+			if (wordType not in ['NNP', 'NNPS', 'NN', 'NNS']) or (len(item[1]) == 1) or (len(item[0]) <= 2) or  (mainWord in self.stopWords):
 				if item[0] in ['bin', 'ibn']:
 					wordType = 'NNP'
 				else:
@@ -89,14 +97,13 @@ class LC():
 					lastNounProperNoun = False
 					continue
 
-			mainWord = item[0].lower()
-			
+			if item[0] in ['bin', 'ibn']:
+					wordType = 'NNP'
 
+						
 			if wordType in ['NNP', 'NNPS']:
 				self.addToProperNoun(lastNounProperNoun, mainWord)
 				lastNounProperNoun = True
-			elif mainWord in self.stopWords:
-				continue
 
 			word =  self.stemmer.stem(mainWord)	
 			self.pureWords[word] = mainWord
@@ -104,7 +111,6 @@ class LC():
 			self.increaseScore(word)
 				
 			self.currentPosition -= 1
-
 		return
 
 
@@ -135,7 +141,7 @@ class LC():
 
 
 	def getCleanText(self, text):
-		text = re.sub('[\'|\-|\'s]{1}', '', text)
+		text = re.sub('[\']{1}', '', text)
 		text = re.sub('[^a-zA-Z0-9\s_\-\?:;.,!\"]+', ' ', text)
 		text = re.sub('\s+', ' ', text)
 		return text
