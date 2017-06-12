@@ -86,6 +86,9 @@ class Wikipedia(HTMLParser):
 
 		return response['query']['pages']
 
+	def getCategories(self):
+		return self.categories
+
 
 	def resetIndex(self):
 		self.index = 0

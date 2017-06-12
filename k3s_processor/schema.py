@@ -72,6 +72,7 @@ class Schema():
 			"url VARCHAR(255) NOT NULL,"
 			"introduction LONGTEXT DEFAULT NULL,"
 			"wiki_related_words LONGTEXT,"
+			"categories TEXT DEFAULT NULL,"
 			"PRIMARY KEY (wiki_word_contextid)"
 			") ENGINE=InnoDB DEFAULT CHARACTER SET=utf8")
 

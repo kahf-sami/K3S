@@ -10,8 +10,8 @@ class WikipediaProcessor(DbModel):
 		DbModel.__init__(self, identifier)
 		self.tableName = 'wiki_word_context'
 		self.primaryKey = 'wiki_word_contextid'
-		self.fields = ['wiki_word_contextid', 'wordid', 'wiki_related_words','url', 'introduction']
-		self.ignoreExists = ['wiki_related_words', 'url', 'introduction']
+		self.fields = ['wiki_word_contextid', 'wordid', 'wiki_related_words','url', 'introduction', 'categories']
+		self.ignoreExists = ['wiki_related_words', 'url', 'introduction', 'categories']
 		self.stemmer = PorterStemmer()
 		return
 
@@ -38,7 +38,12 @@ class WikipediaProcessor(DbModel):
 
 			result = self.getWikiContext(data['url'])
 			data['wiki_related_words'] = result[0]
+
+			if 'Disambiguation' in data['wiki_related_words']:
+				continue
+
 			data['introduction'] = result[1]
+			data['categories'] = result[2]
 			self.save(data)
 		return
 
@@ -64,7 +69,7 @@ class WikipediaProcessor(DbModel):
 		wikipidia = Wikipedia(url)
 		wikipidia.processLocalContext()
 
-		return [wikipidia.getImportantConcepts(), wikipidia.getIntroduction()]
+		return [wikipidia.getImportantConcepts(), wikipidia.getIntroduction(), wikipidia.getCategories()]
 
 
 	def getMostImportantWikiLink(self, word):

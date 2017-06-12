@@ -5,6 +5,7 @@ from k3s_utility.utility import Utility
 from .wikipediaProcessor import WikipediaProcessor 
 from .localContext import LocalContext
 from .coreWord import CoreWord
+import sys
 
 class TextNode(DbModel):
 
@@ -31,21 +32,22 @@ class TextNode(DbModel):
 		if 'text_block' in keys:
 			if not data['text_block']:
 				return
-				
-			self.nodeid = DbModel.save(self, data)
 
 			if processCore:
 				self.coreWordProcessor.saveWords(data['text_block'])
 
 			lc = LocalContext(data['text_block'], self.identifier)
 			data['representatives'] = lc.getRepresentative()
+			pureRepresentatives = lc.getPureRepresentative()
 
-			words = self.wordProcessor.saveWords(data['representatives'])
+			words = self.wordProcessor.saveWords(pureRepresentatives)
 			
 			
 			if data['representatives']:
 				lc.saveLocalContexts(self.nodeid)
-				self.wikipedia.saveWords(data['representatives'], lc.getPureRepresentative())
+				self.wikipedia.saveWords(data['representatives'], pureRepresentatives)
+
+			self.nodeid = DbModel.save(self, data)
 
 		return self.nodeid
 

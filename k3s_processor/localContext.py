@@ -2,6 +2,7 @@ from .dbModel import DbModel
 from k3s_lc.lc import LC
 from k3s_utility.utility import Utility 
 from nltk.stem.porter import PorterStemmer
+import sys
 
 class LocalContext(DbModel):
 
@@ -29,6 +30,7 @@ class LocalContext(DbModel):
 		self.localContext.process()
 		[mostImportantWords , otherProperNouns] = self.localContext.getContributers()
 		self.representatives = Utility.union(mostImportantWords, otherProperNouns)
+
 		self.scores = self.localContext.getScores()
 
 		self.pureRepresentatives = {}
@@ -45,13 +47,14 @@ class LocalContext(DbModel):
 	def getRepresentative(self):
 		return self.representatives
 
+
 	def getPureRepresentative(self):
 		return self.pureRepresentatives
 
 
 
 	def saveLocalContexts(self, nodeid):
-		if not self.representatives:
+		if not self.representatives or not nodeid:
 			return
 
 		self.deleteLocalContextsByNodeid(nodeid)
