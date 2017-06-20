@@ -106,11 +106,12 @@ class LC():
 				lastNounProperNoun = True
 
 			word =  self.stemmer.stem(mainWord)	
-			self.pureWords[word] = mainWord
+			self.pureWords[word] = item[0]
 			self.increaseOccurance(word)
 			self.increaseScore(word)
 				
 			self.currentPosition -= 1
+
 		return
 
 

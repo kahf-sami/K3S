@@ -54,6 +54,7 @@ import k3s_processor
 processor = k3s_processor.Processor(identifier)
 processor.setUpDb()
 processor.saveBlocksInMysql()
+print('end')
 
 
 

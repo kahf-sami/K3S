@@ -24,7 +24,7 @@ class HTMLParser():
 		#print(self.url)
 
 		try:
-			page = requests.get(self.url, timeout = 20)
+			page = requests.get(self.url, timeout = 10)
 			self.tree = html.fromstring(page.content)
 			page.raise_for_status()
 			#print(page.content)

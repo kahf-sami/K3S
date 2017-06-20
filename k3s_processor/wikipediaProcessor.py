@@ -39,7 +39,7 @@ class WikipediaProcessor(DbModel):
 			result = self.getWikiContext(data['url'])
 			data['wiki_related_words'] = result[0]
 
-			if 'Disambiguation' in data['wiki_related_words']:
+			if (not data['wiki_related_words']) or ('Disambiguation' in data['wiki_related_words']):
 				continue
 
 			data['introduction'] = result[1]

@@ -55,7 +55,7 @@ class Word(DbModel):
 		if len(totals):
 			for word in words:
 				data = {}
-				data['word'] = word
+				data['word'] = words[word]
 				data['stemmed_word'] = self.stemmer.stem(word)
 				keys = totals.keys()
 				if data['stemmed_word'] in keys:
