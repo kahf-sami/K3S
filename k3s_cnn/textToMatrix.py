@@ -2,21 +2,24 @@ import re, sys
 from nltk import word_tokenize, pos_tag
 from nltk.stem.porter import PorterStemmer
 import numpy as np
+from k3s_utility import Utility
+from k3s_lc import LC
 
 class TextToMatrix():
 
 
-	def __init__(self, width = 50, height = 50):
+	def __init__(self, dimension = 50):
 		self.stemmer = PorterStemmer()
 		self.stopWords = Utility.getStopWords()
 		self.text = None
-		self.width = 0
-		self.height = 0
-		self.matrixType = np.empty(shape=(width, height), dtype=int)
-		self.matixVerbs = np.empty(shape=(width, height), dtype=int)
-		self.matrixAdj	= np.empty(shape=(width, height), dtype=int)
-		self.matrixNoun	= np.empty(shape=(width, height), dtype=int)
-		self.matrix = np.empty(shape=(width, height), dtype=int)
+		self.width = dimension
+		self.height = dimension
+		self.matrixType = np.empty(shape=(self.width, self.height), dtype=int)
+		self.matixVerbs = np.empty(shape=(self.width, self.height), dtype=int)
+		self.matrixAdj	= np.empty(shape=(self.width, self.height), dtype=int)
+		self.matrixNoun	= np.empty(shape=(self.width, self.height), dtype=int)
+		self.matrixLC = np.empty(shape=(self.width, self.height), dtype=int)
+		self.matrix = np.empty(shape=(self.width, self.height), dtype=int)
 		self.posTypes = self.getPosType()
 		return
 
@@ -47,15 +50,31 @@ class TextToMatrix():
 		return self.matixVerbs
 
 
+	def getMatrixByLC(self):
+		return self.matrixLC
+
+
 	def loadMatrix(self):
 		words = word_tokenize(self.text)
 		if not words:
 			return
 
+		localContext = LC()
+		localContext.setText(self.text)
+		localContext.process()
+		[mostImportantWords , otherProperNouns] = localContext.getContributers()
+		print(mostImportantWords)
 		words = pos_tag(words)
 		
 		iWidth = 0
 		iHeight = 0
+		self.matrix.fill(0)
+		self.matrixType.fill(0)
+		self.matrixNoun.fill(0)
+		self.matrixAdj.fill(0)
+		self.matixVerbs.fill(0)
+		self.matrixLC.fill(0)
+
 
 		for word in words:
 			posType = word[1]
@@ -71,16 +90,20 @@ class TextToMatrix():
 				continue
 
 			
-			self.matrix[iHeight][iWidth] = self.getAsciiValue(word)
-			self.matrixType[iHeight][iWidth] = self.posTypes[posType]
+			stemmedWord =  self.stemmer.stem(word[0].lower())
+			self.matrix[iHeight,iWidth] = self.getAsciiValue(stemmedWord)
+			self.matrixType[iHeight,iWidth] = self.posTypes[posType]
+
 
 			if posType in ['NN', 'NNS', 'NNP', 'NNPS', 'PRP', 'PRP$']:
-				self.matrixNoun[iHeight][iWidth] = self.matrix[iHeight][iWidth]
+				self.matrixNoun[iHeight, iWidth] = self.matrix[iHeight, iWidth]
 			elif  posType in ['JJ', 'JJR', 'JJS']:
-				self.matrixAdj[iHeight][iWidth] = self.matrix[iHeight][iWidth]
+				self.matrixAdj[iHeight, iWidth] = self.matrix[iHeight, iWidth]
 			elif  posType in ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']:
-				self.matixVerbs[iHeight][iWidth] = self.matrix[iHeight][iWidth]
+				self.matixVerbs[iHeight, iWidth] = self.matrix[iHeight, iWidth]
 
+			if stemmedWord in mostImportantWords:
+				self.matrixLC[iHeight, iWidth] = self.matrix[iHeight, iWidth]
 
 			iWidth += 1
 
@@ -88,10 +111,10 @@ class TextToMatrix():
 
 
 
-	def getAsciiValue(data):
-		asciiSum = ''
-		for char in data:
-			asciiSum += str(ord(char))
+	def getAsciiValue(self, word):
+		asciiSum = 0
+		for char in word: 
+			asciiSum += int(ord(char))
 
 		return asciiSum
 

@@ -105,7 +105,7 @@ class LC():
 				self.addToProperNoun(lastNounProperNoun, mainWord)
 				lastNounProperNoun = True
 
-			word =  self.stemmer.stem(mainWord)	
+			word = self.stemmer.stem(mainWord)	
 			self.pureWords[word] = item[0]
 			self.increaseOccurance(word)
 			self.increaseScore(word)

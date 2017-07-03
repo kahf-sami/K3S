@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<!-- saved from url=(0061)https://sebastianraschka.com/faq/docs/softmax_regression.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Machine Learning FAQ</title>
+    <meta name="description" content="This is the personal website of a data scientist and machine learning enthusiast with a big passion for Python and open source. Born and raised in Germany, now living in East Lansing, Michigan.
+">
+    <style class="anchorjs"></style><link rel="stylesheet" href="./softmax_files/main.css">
+    <link rel="stylesheet" href="./softmax_files/font-awesome.min.css">
+    <meta property="og:title" content="Machine Learning FAQ">
+<meta property="og:type" content="article">
+<meta property="og:url" content="sebastianraschka.com/faq/docs/softmax_regression">
+
+
+  <meta property="og:image" content="">
+
+
+<meta property="og:description" content="">
+<meta property="og:site_name" content="Sebastian Raschka&#39;s Website">
+<meta property="og:locale" content="en_US">
+
+
+<meta property="fb:admins" content="">
+<meta property="fb:app_id" content="">
+
+    <link rel="canonical" href="https://sebastianraschka.com/faq/docs/sebastianraschka.com/faq/docs/softmax_regression">
+
+<style type="text/css">.backpack.dropzone {
+  font-family: 'SF UI Display', 'Segoe UI';
+  font-size: 15px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 250px;
+  height: 150px;
+  font-weight: lighter;
+  color: white;
+  will-change: right;
+  z-index: 2147483647;
+  bottom: 20%;
+  background: #333;
+  position: fixed;
+  user-select: none;
+  transition: left .5s, right .5s;
+  right: 0px; }
+  .backpack.dropzone .animation {
+    height: 80px;
+    width: 250px;
+    background: url("//sxt.cdn.skype.com/assets/dropzone/hoverstate.png") left center; }
+  .backpack.dropzone .title::before {
+    content: 'Save to'; }
+  .backpack.dropzone.closed {
+    right: -250px; }
+  .backpack.dropzone.hover .animation {
+    animation: sxt-play-anim-hover 0.91s steps(21);
+    animation-fill-mode: forwards;
+    background: url("//sxt.cdn.skype.com/assets/dropzone/hoverstate.png") left center; }
+
+@keyframes sxt-play-anim-hover {
+  from {
+    background-position: 0px; }
+  to {
+    background-position: -5250px; } }
+  .backpack.dropzone.saving .title::before {
+    content: 'Saving to'; }
+  .backpack.dropzone.saving .animation {
+    background: url("//sxt.cdn.skype.com/assets/dropzone/saving_loop.png") left center;
+    animation: sxt-play-anim-saving steps(59) 2.46s infinite; }
+
+@keyframes sxt-play-anim-saving {
+  100% {
+    background-position: -14750px; } }
+  .backpack.dropzone.saved .title::before {
+    content: 'Saved to'; }
+  .backpack.dropzone.saved .animation {
+    background: url("//sxt.cdn.skype.com/assets/dropzone/saved.png") left center;
+    animation: sxt-play-anim-saved steps(20) 0.83s forwards; }
+
+@keyframes sxt-play-anim-saved {
+  100% {
+    background-position: -5000px; } }
+</style><script async="" src="./softmax_files/async-ads.js"></script><script src="./softmax_files/jsapi" type="text/javascript"></script><link type="text/css" href="./softmax_files/default+en.css" rel="stylesheet"><link type="text/css" href="./softmax_files/default.css" rel="stylesheet"><script type="text/javascript" src="./softmax_files/default+en.I.js"></script><style type="text/css">
+.gsc-control-cse {
+font-family: Arial, sans-serif;
+border-color: #FFFFFF;
+background-color: #FFFFFF;
+}
+.gsc-control-cse .gsc-table-result {
+font-family: Arial, sans-serif;
+}
+input.gsc-input {
+border-color: #D9D9D9;
+}
+input.gsc-search-button {
+border-color: #666666;
+background-color: #FFFFFF;
+}
+.gsc-tabHeader.gsc-tabhInactive {
+border-color: #E9E9E9;
+background-color: #E9E9E9;
+}
+.gsc-tabHeader.gsc-tabhActive {
+border-top-color: #FF9900;
+border-left-color: #E9E9E9;
+border-right-color: #E9E9E9;
+background-color: #FFFFFF;
+}
+.gsc-tabsArea {
+border-color: #E9E9E9;
+}
+.gsc-webResult.gsc-result,
+.gsc-results .gsc-imageResult {
+border-color: #FFFFFF;
+background-color: #FFFFFF;
+}
+.gsc-webResult.gsc-result:hover,
+.gsc-imageResult:hover {
+border-color: #FFFFFF;
+background-color: #FFFFFF;
+}
+.gsc-webResult.gsc-result.gsc-promotion:hover {
+border-color: #FFFFFF;
+background-color: #FFFFFF;
+}
+.gs-webResult.gs-result a.gs-title:link,
+.gs-webResult.gs-result a.gs-title:link b,
+.gs-imageResult a.gs-title:link,
+.gs-imageResult a.gs-title:link b {
+color: #0000CC;
+}
+.gs-webResult.gs-result a.gs-title:visited,
+.gs-webResult.gs-result a.gs-title:visited b,
+.gs-imageResult a.gs-title:visited,
+.gs-imageResult a.gs-title:visited b {
+color: #0000CC;
+}
+.gs-webResult.gs-result a.gs-title:hover,
+.gs-webResult.gs-result a.gs-title:hover b,
+.gs-imageResult a.gs-title:hover,
+.gs-imageResult a.gs-title:hover b {
+color: #0000CC;
+}
+.gs-webResult.gs-result a.gs-title:active,
+.gs-webResult.gs-result a.gs-title:active b,
+.gs-imageResult a.gs-title:active,
+.gs-imageResult a.gs-title:active b {
+color: #0000CC;
+}
+.gsc-cursor-page {
+color: #0000CC;
+}
+a.gsc-trailing-more-results:link {
+color: #0000CC;
+}
+.gs-webResult .gs-snippet,
+.gs-imageResult .gs-snippet,
+.gs-fileFormatType {
+color: #000000;
+}
+.gs-webResult div.gs-visibleUrl,
+.gs-imageResult div.gs-visibleUrl {
+color: #008000;
+}
+.gs-webResult div.gs-visibleUrl-short {
+color: #008000;
+}
+.gs-webResult div.gs-visibleUrl-short {
+display: none;
+}
+.gs-webResult div.gs-visibleUrl-long {
+display: block;
+}
+.gs-promotion div.gs-visibleUrl-short {
+display: none;
+}
+.gs-promotion div.gs-visibleUrl-long {
+display: block;
+}
+.gsc-cursor-box {
+border-color: #FFFFFF;
+}
+.gsc-results .gsc-cursor-box .gsc-cursor-page {
+border-color: #E9E9E9;
+background-color: #FFFFFF;
+color: #0000CC;
+}
+.gsc-results .gsc-cursor-box .gsc-cursor-current-page {
+border-color: #FF9900;
+background-color: #FFFFFF;
+color: #0000CC;
+}
+.gsc-webResult.gsc-result.gsc-promotion {
+border-color: #336699;
+background-color: #FFFFFF;
+}
+.gsc-completion-title {
+color: #0000CC;
+}
+.gsc-completion-snippet {
+color: #000000;
+}
+.gs-promotion a.gs-title:link,
+.gs-promotion a.gs-title:link *,
+.gs-promotion .gs-snippet a:link {
+color: #0000CC;
+}
+.gs-promotion a.gs-title:visited,
+.gs-promotion a.gs-title:visited *,
+.gs-promotion .gs-snippet a:visited {
+color: #0000CC;
+}
+.gs-promotion a.gs-title:hover,
+.gs-promotion a.gs-title:hover *,
+.gs-promotion .gs-snippet a:hover {
+color: #0000CC;
+}
+.gs-promotion a.gs-title:active,
+.gs-promotion a.gs-title:active *,
+.gs-promotion .gs-snippet a:active {
+color: #0000CC;
+}
+.gs-promotion .gs-snippet,
+.gs-promotion .gs-title .gs-promotion-title-right,
+.gs-promotion .gs-title .gs-promotion-title-right * {
+color: #000000;
+}
+.gs-promotion .gs-visibleUrl,
+.gs-promotion .gs-visibleUrl-short {
+color: #008000;
+}</style><style type="text/css">.gscb_a{display:inline-block;font:27px/13px arial,sans-serif}.gsst_a .gscb_a{color:#a1b9ed;cursor:pointer}.gsst_a:hover .gscb_a,.gsst_a:focus .gscb_a{color:#36c}.gsst_a{display:inline-block}.gsst_a{cursor:pointer;padding:0 4px}.gsst_a:hover{text-decoration:none!important}.gsst_b{font-size:16px;padding:0 2px;position:relative;user-select:none;-webkit-user-select:none;white-space:nowrap}.gsst_e{opacity:0.55;}.gsst_a:hover .gsst_e,.gsst_a:focus .gsst_e{opacity:0.72;}.gsst_a:active .gsst_e{opacity:1;}.gsst_f{background:white;text-align:left}.gsst_g{background-color:white;border:1px solid #ccc;border-top-color:#d9d9d9;box-shadow:0 2px 4px rgba(0,0,0,0.2);-webkit-box-shadow:0 2px 4px rgba(0,0,0,0.2);margin:-1px -3px;padding:0 6px}.gsst_h{background-color:white;height:1px;margin-bottom:-1px;position:relative;top:-1px}.gsib_a{width:100%;padding:4px 6px 0}.gsib_a,.gsib_b{vertical-align:top}.gssb_c{border:0;position:absolute;z-index:989}.gssb_e{border:1px solid #ccc;border-top-color:#d9d9d9;box-shadow:0 2px 4px rgba(0,0,0,0.2);-webkit-box-shadow:0 2px 4px rgba(0,0,0,0.2);cursor:default}.gssb_f{visibility:hidden;white-space:nowrap}.gssb_k{border:0;display:block;position:absolute;top:0;z-index:988}.gsdd_a{border:none!important}.gscsep_a{display:none}.gsq_a{padding:0}.gsq_a{padding:0}.gssb_a{padding:0 7px}.gssb_a,.gssb_a td{white-space:nowrap;overflow:hidden;line-height:22px}#gssb_b{font-size:11px;color:#36c;text-decoration:none}#gssb_b:hover{font-size:11px;color:#36c;text-decoration:underline}.gssb_g{text-align:center;padding:8px 0 7px;position:relative}.gssb_h{font-size:15px;height:28px;margin:0.2em;-webkit-appearance:button}.gssb_i{background:#eee}.gss_ifl{visibility:hidden;padding-left:5px}.gssb_i .gss_ifl{visibility:visible}a.gssb_j{font-size:13px;color:#36c;text-decoration:none;line-height:100%}a.gssb_j:hover{text-decoration:underline}.gssb_l{height:1px;background-color:#e5e5e5}.gssb_m{color:#000;background:#fff}.gsfe_a{border:1px solid #b9b9b9;border-top-color:#a0a0a0;box-shadow:inset 0px 1px 2px rgba(0,0,0,0.1);-moz-box-shadow:inset 0px 1px 2px rgba(0,0,0,0.1);-webkit-box-shadow:inset 0px 1px 2px rgba(0,0,0,0.1);}.gsfe_b{border:1px solid #4d90fe;outline:none;box-shadow:inset 0px 1px 2px rgba(0,0,0,0.3);-moz-box-shadow:inset 0px 1px 2px rgba(0,0,0,0.3);-webkit-box-shadow:inset 0px 1px 2px rgba(0,0,0,0.3);}.gssb_a{padding:0 7px}.gssb_e{border:0}.gssb_l{margin:5px 0}#gsc-i-id1::-webkit-input-placeholder{font-size:14px}#gsc-i-id1:-moz-placeholder{font-size:14px}#gsc-i-id1::-moz-placeholder{font-size:14px}#gsc-i-id1:-ms-input-placeholder{font-size:14px}#gsc-i-id1:focus::-webkit-input-placeholder{color:transparent}#gsc-i-id1:focus:-moz-placeholder{color:transparent}#gsc-i-id1:focus::-moz-placeholder{color:transparent}#gsc-i-id1:focus:-ms-input-placeholder{color:transparent}.gssb_c .gsc-completion-container{position:static}.gssb_c{z-index:5000}.gsc-completion-container table{background:transparent;font-size:inherit;font-family:inherit}.gssb_c > tbody > tr,.gssb_c > tbody > tr > td,.gssb_d,.gssb_d > tbody > tr,.gssb_d > tbody > tr > td,.gssb_e,.gssb_e > tbody > tr,.gssb_e > tbody > tr > td{padding:0;margin:0;border:0}.gssb_a table,.gssb_a table tr,.gssb_a table tr td{padding:0;margin:0;border:0}</style></head>
+
+
+  <body>
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="https://sebastianraschka.com/" style="text-decoration: none;">sebastian<span style="color:#4099ff">raschka</span></a>
+
+    <nav class="site-nav">
+      <a href="https://sebastianraschka.com/faq/docs/softmax_regression.html#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+        </svg>
+      </a>
+
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="https://sebastianraschka.com/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <a class="page-link" href="https://sebastianraschka.com/books.html">Books</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <a class="page-link" href="https://sebastianraschka.com/deep-learning-resources.html">Deep Learning</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <a class="page-link" href="https://sebastianraschka.com/elsewhere.html">Elsewhere</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <a class="page-link" href="https://sebastianraschka.com/projects.html">Projects</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <a class="page-link" href="https://sebastianraschka.com/resources.html">Resources</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <a class="page-link" href="https://sebastianraschka.com/blog/index.html">Blog</a>
+        <a class="page-link" href="https://sebastianraschka.com/faq/index.html">Machine&nbsp;Learning&nbsp;FAQ</a>
+
+
+      </div>
+
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+
+
+    <div class="search_form">
+        <div id="cse"></div>
+    </div>
+
+    <h1 class="post-title">Machine Learning FAQ</h1>
+
+
+  </header>
+
+  <article class="post-content">
+
+        <script type="text/javascript" async="" src="./softmax_files/ga.js"></script><script type="text/javascript" async="" src="./softmax_files/cse.js"></script><script>
+          (function() {
+            var cx = '014864919068820376681:2w5agku2gwo';
+            var gcse = document.createElement('script');
+            gcse.type = 'text/javascript';
+            gcse.async = true;
+            gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(gcse, s);
+          })();
+        </script>
+        <div id="___gcse_0"><div class="gsc-control-cse gsc-control-cse-en"><div class="gsc-control-wrapper-cse" dir="ltr"><form class="gsc-search-box" accept-charset="utf-8"><table cellspacing="0" cellpadding="0" class="gsc-search-box"><tbody><tr><td class="gsc-input"><input autocomplete="off" type="text" size="10" class=" gsc-input" name="search" title="search" id="gsc-i-id1" x-webkit-speech="" x-webkit-grammar="builtin:search" lang="en" dir="ltr" spellcheck="false" style="outline: none;"><input type="hidden" name="bgresponse" id="bgresponse"></td><td class="gsc-search-button"><input type="button" value="Search" class="gsc-search-button" title="search"></td><td class="gsc-clear-button"><div class="gsc-clear-button" title="clear results">&nbsp;</div></td></tr></tbody></table><table cellspacing="0" cellpadding="0" class="gsc-branding"><tbody><tr style="display: none;"><td class="gsc-branding-user-defined"></td><td class="gsc-branding-text"><div class="gsc-branding-text">powered by</div></td><td class="gsc-branding-img"><img src="./softmax_files/googlelogo_grey_46x15dp.png" class="gsc-branding-img" srcset="https://www.google.com/cse/static/images/2x/googlelogo_grey_46x15dp.png 2x"></td></tr></tbody></table></form><div class="gsc-results-wrapper-nooverlay"><div class="gsc-tabsAreaInvisible"><div class="gsc-tabHeader gsc-inline-block gsc-tabhActive">Web</div><span class="gs-spacer"> </span><div tabindex="0" class=" gsc-tabHeader gsc-tabhInactive gsc-inline-block">Image</div><span class="gs-spacer"> </span></div><div class="gsc-refinementsAreaInvisible"></div><div class="gsc-above-wrapper-area-invisible"><table cellspacing="0" cellpadding="0" class="gsc-above-wrapper-area-container"><tbody><tr><td class="gsc-result-info-container"><div class="gsc-result-info-invisible"></div></td><td class="gsc-orderby-container"><div class="gsc-orderby-invisible"><div class="gsc-orderby-label gsc-inline-block">Sort by:</div><div class="gsc-option-menu-container gsc-inline-block"><div class="gsc-selected-option-container gsc-inline-block"><div class="gsc-selected-option">Relevance</div><div class="gsc-option-selector"></div></div><div class="gsc-option-menu-invisible"><div class="gsc-option-menu-item gsc-option-menu-item-highlighted"><div class="gsc-option">Relevance</div></div><div class="gsc-option-menu-item"><div class="gsc-option">Date</div></div></div></div></div></td></tr></tbody></table></div><div class="gsc-adBlockInvisible"></div><div class="gsc-wrapper"><div class="gsc-adBlockInvisible"></div><div class="gsc-resultsbox-invisible"><div class="gsc-resultsRoot gsc-tabData gsc-tabdActive"><table cellspacing="0" cellpadding="0" class="gsc-resultsHeader"><tbody><tr><td class="gsc-twiddleRegionCell"><div class="gsc-twiddle"><div class="gsc-title">Web</div></div><div class="gsc-stats"></div><div class="gsc-results-selector gsc-all-results-active"><div class="gsc-result-selector gsc-one-result" title="show one result">&nbsp;</div><div class="gsc-result-selector gsc-more-results" title="show more results">&nbsp;</div><div class="gsc-result-selector gsc-all-results" title="show all results">&nbsp;</div></div></td><td class="gsc-configLabelCell"></td></tr></tbody></table><div><div class="gsc-expansionArea"></div></div></div><div class="gsc-resultsRoot gsc-tabData gsc-tabdInactive"><table cellspacing="0" cellpadding="0" class="gsc-resultsHeader"><tbody><tr><td class="gsc-twiddleRegionCell"><div class="gsc-twiddle"><div class="gsc-title">Image</div></div><div class="gsc-stats"></div><div class="gsc-results-selector gsc-all-results-active"><div class="gsc-result-selector gsc-one-result" title="show one result">&nbsp;</div><div class="gsc-result-selector gsc-more-results" title="show more results">&nbsp;</div><div class="gsc-result-selector gsc-all-results" title="show all results">&nbsp;</div></div></td><td class="gsc-configLabelCell"></td></tr></tbody></table><div><div class="gsc-expansionArea"></div></div></div></div></div></div></div></div></div>
+  
+    <p><a href="https://sebastianraschka.com/faq/index.html"><i class="fa fa-arrow-circle-left"></i></a> Index</p>
+
+<h3 id="what-is-softmax-regression-and-how-is-it-related-to-logistic-regression">What is Softmax regression and how is it related to Logistic regression?<a class="anchorjs-link " href="https://sebastianraschka.com/faq/docs/softmax_regression.html#what-is-softmax-regression-and-how-is-it-related-to-logistic-regression" aria-label="Anchor link for: what is softmax regression and how is it related to logistic regression" data-anchorjs-icon="" style="font-family: anchorjs-icons; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: normal; line-height: 1; padding-left: 0.375em;"></a></h3>
+
+<p>Softmax Regression (synonyms: Multinomial Logistic, Maximum Entropy Classifier, or just Multi-class Logistic Regression) is a generalization of logistic regression that we can use for multi-class classification (under the assumption that the classes are mutually exclusive). In contrast, we use the (standard) Logistic Regression model in binary classification tasks.</p>
+
+<p>Now, let me briefly explain how that works and how softmax regression differs from logistic regression. I have a more detailed explanation on logistic regression here: <a href="http://rasbt.github.io/mlxtend/user_guide/classifier/LogisticRegression/">LogisticRegression - mlxtend</a> , but let me re-use one of the figures to make things more clear:</p>
+
+<p><img src="./softmax_files/logistic_regression_schematic.png" alt=""></p>
+
+<p>As the name suggests, in softmax regression (SMR), we replace the sigmoid logistic function by the so-called <em>softmax function</em> φ:</p>
+
+<p><img src="./softmax_files/1.png" alt=""></p>
+
+<p>where we define the net input z as</p>
+
+<p><img src="./softmax_files/2.png" alt="" data-pin-nopin="true"></p>
+
+<p>(<em>w</em> is the weight vector, <em>x</em> is the feature vector of 1 training sample, and <em>w<sub>0</sub></em> is the bias unit.)<br>
+Now, this softmax function computes the probability that this training sample x<sup>(i)</sup> belongs to class <em>j</em> given the weight and net input z<sup>(i)</sup>. So, we compute the probability <em>p(y = j | x<sup>(i)</sup>; w<sub>j</sub>)</em> for each class label in  <em>j = 1, …, k</em>. Note the normalization term in the denominator which causes these class probabilities to sum up to one.</p>
+
+<p>To illustrate the concept of softmax, let us walk through a concrete example. Let’s assume we have a training set consisting of 4 samples from 3 different classes (0, 1, and 2).</p>
+
+<p><img src="./softmax_files/3.png" alt=""></p>
+
+<p>First, we want to encode the class labels into a format that we can more easily work with; we apply one-hot encoding:</p>
+
+<p><img src="./softmax_files/4.png" alt=""></p>
+
+<p>A sample that belongs to class 0 (the first row) has a 1 in the first cell, a sample that belongs to class 2 has a 1 in the second cell of its row, and so forth.
+Next, let us define the feature matrix of our 4 training samples. Here, we assume that our dataset consists of 2 features; thus, we create a 4×(2+1) dimensional matrix (+1 one for the bias term).</p>
+
+<p><img src="./softmax_files/5.png" alt=""></p>
+
+<p>Similarly, we created a (2+1)×3 dimensional weight matrix (one row per feature and one column for each class).</p>
+
+<p>To compute the net input, we multiply the 4×(2+1) feature matrix <strong>X</strong> with the (2+1)×3 (n_features × n_classes) weight matrix <strong>W</strong>.</p>
+
+<p><strong>Z = WX</strong></p>
+
+<p>which yields a 4×3 output matrix (n_samples × n_classes).</p>
+
+<p><img src="./softmax_files/6.png" alt=""></p>
+
+<p>Now, it’s time to compute the softmax activation that we discussed earlier:</p>
+
+<p><img src="./softmax_files/7.png" alt=""></p>
+
+<p><img src="./softmax_files/8.png" alt=""></p>
+
+<p>As we can see, the values for each sample (row) nicely sum up to 1 now. E.g., we can say that the first sample <br>
+<code class="highlighter-rouge">[ 0.29450637  0.34216758  0.36332605]</code> has a 29.45% probability to belong to class 0.
+Now, in order to turn these probabilities back into class labels, we could simply take the argmax-index position of each row:</p>
+
+<p><img src="./softmax_files/9.png" alt=""></p>
+
+<p>As we can see, our predictions are terribly wrong, since the correct class labels are <code class="highlighter-rouge">[0, 1, 2, 2]</code>. Now, in order to train our logistic model (e.g., via an optimization algorithm such as gradient descent), we need to define a cost function <em>J</em> that we want to minimize:</p>
+
+<p><img src="./softmax_files/10.png" alt=""></p>
+
+<p>which is the average of all cross-entropies over our n training samples. The cross-entropy  function is defined as</p>
+
+<p><img src="./softmax_files/11.png" alt=""></p>
+
+<p>Here the T stands for “target” (the true class labels) and the O stands for output (the computed probability via softmax; <strong><em>not</em></strong> the predicted class label).</p>
+
+<p><img src="./softmax_files/12.png" alt=""></p>
+
+<p>In order to learn our softmax model via gradient descent, we need to compute the derivative</p>
+
+<p><img src="./softmax_files/13.png" alt=""></p>
+
+<p>which we then use to update the weights in opposite direction of the gradient:</p>
+
+<p><img src="./softmax_files/14.png" alt=""> for each class j.</p>
+
+<p>(Note that w_j is the weight vector for the class <em>y=j</em>.)
+I don’t want to walk through more tedious details here, but this cost derivative turns out to be simply:</p>
+
+<p><img src="./softmax_files/15.png" alt=""></p>
+
+<p>Using this cost gradient, we iteratively update the weight matrix until we reach a specified number of epochs (passes over the training set) or reach the desired cost threshold.</p>
+
+  </article>
+
+</div>
+
+<!--
+<script src="https://www.google.com/jsapi" type="text/javascript"></script>
+<script type="text/javascript"> google.load('search', '1',
+{language : 'en'}); google.setOnLoadCallback(function() {
+ var customSearchControl = new
+ google.search.CustomSearchControl('014864919068820376681:2w5agku2gwo');
+ customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+ var options = new google.search.DrawOptions();
+ options.setAutoComplete(true);
+ customSearchControl.draw('cse', options); }, true);
+</script>
+-->
+
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+
+
+    <div class="footer-col-wrapper">
+
+
+    <div class="footer-col  social-col">
+
+
+
+      
+          <a href="https://sebastianraschka.com/email.html"><span><i class="fa fa-envelope fa-2x"></i> </span></a>
+      
+
+      
+        <a href="https://twitter.com/rasbt"> <span><i class="fa fa-twitter fa-2x"></i> </span></a>
+      
+
+      
+            <a href="https://github.com/rasbt"><span><i class="fa fa-github fa-2x"></i> </span></a>
+      
+
+      
+          <a href="https://linkedin.com/in/sebastianraschka"><span><i class="fa fa-linkedin fa-2x"></i> </span></a>
+      
+
+      
+          <a href="https://plus.google.com/u/0/+SebastianRaschka"><span><i class="fa fa-google-plus fa-2x"></i> </span></a>
+      
+
+      
+        <a href="https://www.quora.com/profile/Sebastian-Raschka-1"><span class="fa fa-2x" style="font-family: Georgia, serif; margin-left:5px;"><strong>Q</strong></span></a>
+      
+
+  </div>
+
+    <div class="footer-col  copyright-col">
+      <p>© 2013-2017 Sebastian Raschka</p>
+    </div>
+
+
+  </div>
+
+
+
+</div></footer>
+
+    <script type="text/javascript">
+         var _gaq = _gaq || [];
+         _gaq.push(['_setAccount', 'UA-38457794-1']);
+         _gaq.push(['_trackPageview']);
+         (function() {
+           var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+           ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+           var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+         })();
+ </script>
+
+
+<script type="text/javascript">
+function recordOutboundLink(link, category, action) {
+ try {
+   var pageTracker=_gat._getTracker("UA-38457794-1");
+   pageTracker._trackEvent(category, action);
+   setTimeout('document.location = "' + link.href + '"', 100)
+ }catch(err){}
+}
+</script>
+
+  
+
+  <script src="./softmax_files/anchor.min.js" type="text/javascript"></script>
+  <script>
+    var selector = 'h2, h3, h4, h5, h6';
+    /*
+    anchors.options = {
+      icon: '#',
+      visible: 'always',
+      placement: 'left',
+      class: 'bb-anchor'
+    }
+    */
+    anchors.add(selector);
+  </script>
+
+
+
+<span style="border-radius: 3px; text-indent: 20px; width: auto; padding: 0px 4px 0px 0px; text-align: center; font-style: normal; font-variant: normal; font-weight: bold; font-stretch: normal; font-size: 11px; line-height: 20px; font-family: &quot;Helvetica Neue&quot;, Helvetica, sans-serif; color: rgb(255, 255, 255); background: url(&quot;data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMzBweCIgd2lkdGg9IjMwcHgiIHZpZXdCb3g9Ii0xIC0xIDMxIDMxIj48Zz48cGF0aCBkPSJNMjkuNDQ5LDE0LjY2MiBDMjkuNDQ5LDIyLjcyMiAyMi44NjgsMjkuMjU2IDE0Ljc1LDI5LjI1NiBDNi42MzIsMjkuMjU2IDAuMDUxLDIyLjcyMiAwLjA1MSwxNC42NjIgQzAuMDUxLDYuNjAxIDYuNjMyLDAuMDY3IDE0Ljc1LDAuMDY3IEMyMi44NjgsMC4wNjcgMjkuNDQ5LDYuNjAxIDI5LjQ0OSwxNC42NjIiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxIj48L3BhdGg+PHBhdGggZD0iTTE0LjczMywxLjY4NiBDNy41MTYsMS42ODYgMS42NjUsNy40OTUgMS42NjUsMTQuNjYyIEMxLjY2NSwyMC4xNTkgNS4xMDksMjQuODU0IDkuOTcsMjYuNzQ0IEM5Ljg1NiwyNS43MTggOS43NTMsMjQuMTQzIDEwLjAxNiwyMy4wMjIgQzEwLjI1MywyMi4wMSAxMS41NDgsMTYuNTcyIDExLjU0OCwxNi41NzIgQzExLjU0OCwxNi41NzIgMTEuMTU3LDE1Ljc5NSAxMS4xNTcsMTQuNjQ2IEMxMS4xNTcsMTIuODQyIDEyLjIxMSwxMS40OTUgMTMuNTIyLDExLjQ5NSBDMTQuNjM3LDExLjQ5NSAxNS4xNzUsMTIuMzI2IDE1LjE3NSwxMy4zMjMgQzE1LjE3NSwxNC40MzYgMTQuNDYyLDE2LjEgMTQuMDkzLDE3LjY0MyBDMTMuNzg1LDE4LjkzNSAxNC43NDUsMTkuOTg4IDE2LjAyOCwxOS45ODggQzE4LjM1MSwxOS45ODggMjAuMTM2LDE3LjU1NiAyMC4xMzYsMTQuMDQ2IEMyMC4xMzYsMTAuOTM5IDE3Ljg4OCw4Ljc2NyAxNC42NzgsOC43NjcgQzEwLjk1OSw4Ljc2NyA4Ljc3NywxMS41MzYgOC43NzcsMTQuMzk4IEM4Ljc3NywxNS41MTMgOS4yMSwxNi43MDkgOS43NDksMTcuMzU5IEM5Ljg1NiwxNy40ODggOS44NzIsMTcuNiA5Ljg0LDE3LjczMSBDOS43NDEsMTguMTQxIDkuNTIsMTkuMDIzIDkuNDc3LDE5LjIwMyBDOS40MiwxOS40NCA5LjI4OCwxOS40OTEgOS4wNCwxOS4zNzYgQzcuNDA4LDE4LjYyMiA2LjM4NywxNi4yNTIgNi4zODcsMTQuMzQ5IEM2LjM4NywxMC4yNTYgOS4zODMsNi40OTcgMTUuMDIyLDYuNDk3IEMxOS41NTUsNi40OTcgMjMuMDc4LDkuNzA1IDIzLjA3OCwxMy45OTEgQzIzLjA3OCwxOC40NjMgMjAuMjM5LDIyLjA2MiAxNi4yOTcsMjIuMDYyIEMxNC45NzMsMjIuMDYyIDEzLjcyOCwyMS4zNzkgMTMuMzAyLDIwLjU3MiBDMTMuMzAyLDIwLjU3MiAxMi42NDcsMjMuMDUgMTIuNDg4LDIzLjY1NyBDMTIuMTkzLDI0Ljc4NCAxMS4zOTYsMjYuMTk2IDEwLjg2MywyNy4wNTggQzEyLjA4NiwyNy40MzQgMTMuMzg2LDI3LjYzNyAxNC43MzMsMjcuNjM3IEMyMS45NSwyNy42MzcgMjcuODAxLDIxLjgyOCAyNy44MDEsMTQuNjYyIEMyNy44MDEsNy40OTUgMjEuOTUsMS42ODYgMTQuNzMzLDEuNjg2IiBmaWxsPSIjYmQwODFjIj48L3BhdGg+PC9nPjwvc3ZnPg==&quot;) 3px 50% / 14px 14px no-repeat rgb(189, 8, 28); position: absolute; opacity: 1; z-index: 8675309; display: none; cursor: pointer; border: none; -webkit-font-smoothing: antialiased; top: 721px; left: 475px;">Save</span><span style="border-radius: 3px; text-indent: 20px; width: 20px; height: 20px; background: url(&quot;data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHdpZHRoPSIzMHB4IiBoZWlnaHQ9IjMwcHgiIHZpZXdCb3g9IjAgMCAzMCAzMCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj4KPGc+CjxwYXRoIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSI0IiBkPSJNMTcsMTcgTDIyLDIyIFogIi8+CjxjaXJjbGUgc3Ryb2tlPSIjZmZmIiBjeD0iMTMiIGN5PSIxMyIgcj0iNiIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIzLjUiLz4KPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTAsMCBMOCwwIEw4LDMgTDMsMyBMMyw4IEwwLDggWiIvPgo8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMzAsMjIgTDMwLDMwIEwyMiwzMCBMMjIsMjcgTDI3LDI3IEwyNywyMiBaIi8+CjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0zMCwwIEwzMCw4IEwyNyw4IEwyNywzIEwyMiwzIEwyMiwwIFoiLz4KPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTAsMjIgTDMsMjIgTDMsMjcgTDgsMjcgTDgsMzAgTDAsMzBaIi8+CjwvZz4KPC9zdmc+Cg==&quot;) 50% 50% / 14px 14px no-repeat rgba(0, 0, 0, 0.4); position: absolute; opacity: 1; z-index: 8675309; display: none; cursor: pointer; border: none; top: 721px; left: 530px;"></span><table cellspacing="0" cellpadding="0" class="gstl_50 gssb_c" style="width: 47px; display: none; top: 312px; left: 465px; position: absolute;"><tbody><tr><td class="gssb_f"></td><td class="gssb_e" style="width: 100%;"></td></tr></tbody></table></body></html>
